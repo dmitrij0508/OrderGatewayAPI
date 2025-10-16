@@ -1,0 +1,50 @@
+{
+  "orderId": "ORD-20241008-001",
+  "externalOrderId": "APP-789123",
+  "restaurantId": "NYC-DELI-001",
+  "customer": {
+    "name": "John Doe",
+    "phone": "555-0123",
+    "email": "john@example.com"
+  },
+  "orderType": "pickup",
+  "orderTime": "2024-10-08T14:30:00Z",
+  "requestedTime": "2024-10-08T15:00:00Z",
+  "items": [
+    {
+      "itemId": "SANDWICH-001",
+      "name": "Turkey Club Sandwich",
+      "quantity": 1,
+      "unitPrice": 12.99,
+      "totalPrice": 12.99,
+      "modifiers": [
+        {
+          "name": "Extra Bacon",
+          "price": 2.50
+        }
+      ],
+      "specialInstructions": "No mayo, extra mustard"
+    },
+    {
+      "itemId": "DRINK-001", 
+      "name": "Coffee",
+      "quantity": 1,
+      "unitPrice": 2.99,
+      "totalPrice": 2.99
+    }
+  ],
+  "totals": {
+    "subtotal": 18.48,
+    "tax": 1.48,
+    "tip": 2.00,
+    "discount": 0.00,
+    "deliveryFee": 0.00,
+    "total": 21.96
+  },
+  "payment": {
+    "method": "credit_card",
+    "status": "authorized",
+    "transactionId": "txn_1234567890"
+  },
+  "notes": "Please call when ready for pickup"
+}
