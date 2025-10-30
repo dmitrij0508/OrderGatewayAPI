@@ -33,4 +33,36 @@ router.delete('/all',
   orderController.deleteAllOrders
 );
 
+// DEBUG ENDPOINT - Testing basic functionality
+router.post('/debug',
+  requirePermission('orders:create'),
+  async (req, res, next) => {
+    try {
+      const logger = require('../utils/logger');
+      logger.info('Debug endpoint called', { body: req.body, headers: req.headers });
+      
+      // Test database connection
+      const database = require('../config/database');
+      const testQuery = await database.query('SELECT COUNT(*) as count FROM orders');
+      
+      res.json({
+        success: true,
+        debug: {
+          message: 'Debug endpoint working',
+          orderCount: testQuery.rows[0].count,
+          body: req.body,
+          timestamp: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      logger.error('Debug endpoint error:', error);
+      res.status(500).json({
+        error: 'Debug failed',
+        message: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+);
+
 module.exports = router;

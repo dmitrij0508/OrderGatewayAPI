@@ -28,7 +28,7 @@ class OrderController {
         // Enhanced customer information
         customer: {
           name: orderData.customer?.name || 'Unknown Customer',
-          phone: orderData.customer?.phone || '',
+          phone: orderData.customer?.phone || 'N/A',
           email: orderData.customer?.email || null
         },
         
@@ -83,6 +83,11 @@ class OrderController {
         timestamp: new Date().toISOString()
       });
     } catch (error) {
+      logger.error('Order creation failed in controller:', {
+        error: error.message,
+        stack: error.stack,
+        orderData: processedOrder
+      });
       next(error);
     }
   }

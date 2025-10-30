@@ -4,16 +4,32 @@ const { v4: uuidv4 } = require('uuid');
 class OrderService {
   async createOrder(orderData, idempotencyKey) {
     try {
+      // Check for existing order by idempotency key
       const existingOrder = await database.query(
         'SELECT id, order_id, status FROM orders WHERE idempotency_key = ?',
         [idempotencyKey]
       );
+      
       if (existingOrder.rows.length > 0) {
         logger.info(`Idempotent request - returning existing order ${existingOrder.rows[0].order_id}`);
         return await this.getOrderById(existingOrder.rows[0].order_id);
       }
+
+      // Generate internal ID
       const internalId = uuidv4();
-      const orderResult = await database.query(`
+      
+      // Log what we're about to insert
+      logger.info('Creating order with data:', {
+        internalId,
+        orderId: orderData.orderId,
+        externalOrderId: orderData.externalOrderId,
+        customer: orderData.customer,
+        orderType: orderData.orderType,
+        totals: orderData.totals
+      });
+
+      // Insert main order record
+      const orderResult = await database.run(`
         INSERT INTO orders (
           id, order_id, external_order_id, restaurant_id, idempotency_key,
           customer_name, customer_phone, customer_email,
@@ -22,7 +38,12 @@ class OrderService {
           payment_method, payment_status, payment_transaction_id,
           notes, status, created_at, updated_at
         ) VALUES (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+          ?, ?, ?, ?, ?, 
+          ?, ?, ?, 
+          ?, ?, ?, 
+          ?, ?, ?, ?, ?, ?, 
+          ?, ?, ?, 
+          ?, ?, datetime('now'), datetime('now')
         )
       `, [
         internalId,
@@ -31,67 +52,81 @@ class OrderService {
         orderData.restaurantId,
         idempotencyKey,
         orderData.customer.name,
-        orderData.customer.phone,
+        orderData.customer.phone || 'N/A',
         orderData.customer.email,
         orderData.orderType,
         orderData.orderTime,
         orderData.requestedTime,
-        orderData.totals.subtotal,
-        orderData.totals.tax,
-        orderData.totals.tip,
-        orderData.totals.discount,
-        orderData.totals.deliveryFee,
-        orderData.totals.total,
+        orderData.totals.subtotal || 0,
+        orderData.totals.tax || 0,
+        orderData.totals.tip || 0,
+        orderData.totals.discount || 0,
+        orderData.totals.deliveryFee || 0,
+        orderData.totals.total || 0,
         orderData.payment?.method,
         orderData.payment?.status || 'pending',
         orderData.payment?.transactionId,
-        orderData.notes,
+        orderData.notes || '',
         orderData.status || 'received'
       ]);
-      const insertedOrderResult = await database.query(
-        'SELECT id FROM orders WHERE order_id = ?',
-        [orderData.orderId]
-      );
-      if (insertedOrderResult.rows.length === 0) {
-        throw new Error('Failed to retrieve created order');
-      }
-      const order = insertedOrderResult.rows[0];
-      logger.info(`Order record created with internal ID: ${order.id}`);
-      for (let i = 0; i < orderData.items.length; i++) {
-        const item = orderData.items[i];
-        const itemResult = await database.run(`
-          INSERT INTO order_items (
-            id, order_id, item_id, name, quantity, unit_price, total_price, special_instructions, created_at
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-        `, [
-          uuidv4(),
-          order.id,
-          item.itemId,
-          item.name,
-          item.quantity,
-          item.unitPrice,
-          item.totalPrice,
-          item.specialInstructions || null
-        ]);
-        if (item.modifiers && item.modifiers.length > 0) {
-          for (const modifier of item.modifiers) {
-            await database.run(`
-              INSERT INTO order_item_modifiers (
-                id, order_item_id, name, price, created_at
-              ) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
-            `, [
-              uuidv4(),
-              itemResult.lastID,
-              modifier.name,
-              modifier.price
-            ]);
+
+      logger.info(`Order main record inserted successfully`);
+
+      // Process items if any
+      if (orderData.items && Array.isArray(orderData.items) && orderData.items.length > 0) {
+        for (let i = 0; i < orderData.items.length; i++) {
+          const item = orderData.items[i];
+          const itemId = uuidv4();
+          
+          await database.run(`
+            INSERT INTO order_items (
+              id, order_id, item_id, name, quantity, unit_price, total_price, special_instructions, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+          `, [
+            itemId,
+            internalId, // Use the main order internal ID
+            item.itemId || `ITEM-${i + 1}`,
+            item.name || 'Unknown Item',
+            item.quantity || 1,
+            item.unitPrice || 0,
+            item.totalPrice || 0,
+            item.specialInstructions || null
+          ]);
+          
+          // Process modifiers if any
+          if (item.modifiers && Array.isArray(item.modifiers) && item.modifiers.length > 0) {
+            for (const modifier of item.modifiers) {
+              await database.run(`
+                INSERT INTO order_item_modifiers (
+                  id, order_item_id, name, price, created_at
+                ) VALUES (?, ?, ?, ?, datetime('now'))
+              `, [
+                uuidv4(),
+                itemId,
+                modifier.name || 'Unknown Modifier',
+                modifier.price || 0
+              ]);
+            }
           }
         }
+        logger.info(`Inserted ${orderData.items.length} items for order ${orderData.orderId}`);
       }
+
       logger.info(`Order created successfully: ${orderData.orderId}`);
       return await this.getOrderById(orderData.orderId);
+      
     } catch (error) {
-      logger.error('Failed to create order:', error);
+      logger.error('Failed to create order in service:', {
+        error: error.message,
+        stack: error.stack,
+        sqliteError: error.code,
+        orderData: {
+          orderId: orderData?.orderId,
+          externalOrderId: orderData?.externalOrderId,
+          customer: orderData?.customer,
+          totals: orderData?.totals
+        }
+      });
       throw error;
     }
   }
@@ -166,7 +201,7 @@ class OrderService {
     try {
       const result = await database.run(`
         UPDATE orders
-        SET status = ?, estimated_time = ?, notes = COALESCE(?, notes), updated_at = CURRENT_TIMESTAMP
+        SET status = ?, estimated_time = ?, notes = COALESCE(?, notes), updated_at = datetime('now')
         WHERE order_id = ?
       `, [status, estimatedTime, notes, orderId]);
       if (result.changes === 0) {
@@ -186,7 +221,7 @@ class OrderService {
     try {
       const result = await database.run(`
         UPDATE orders
-        SET status = 'cancelled', cancellation_reason = ?, notes = COALESCE(?, notes), updated_at = CURRENT_TIMESTAMP
+        SET status = 'cancelled', cancellation_reason = ?, notes = COALESCE(?, notes), updated_at = datetime('now')
         WHERE order_id = ? AND status NOT IN ('completed', 'cancelled')
       `, [reason, notes, orderId]);
       if (result.changes === 0) {
