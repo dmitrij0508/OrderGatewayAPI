@@ -33,6 +33,18 @@ router.delete('/all',
   orderController.deleteAllOrders
 );
 
+// HEALTH CHECK ENDPOINT - No database operations
+router.get('/health',
+  async (req, res) => {
+    res.json({
+      success: true,
+      message: 'Orders API is healthy',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0'
+    });
+  }
+);
+
 // DEBUG ENDPOINT - Testing basic functionality
 router.post('/debug',
   requirePermission('orders:create'),

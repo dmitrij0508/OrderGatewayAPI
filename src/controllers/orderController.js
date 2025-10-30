@@ -86,7 +86,7 @@ class OrderController {
       logger.error('Order creation failed in controller:', {
         error: error.message,
         stack: error.stack,
-        orderData: processedOrder
+        requestBody: req.body
       });
       next(error);
     }
