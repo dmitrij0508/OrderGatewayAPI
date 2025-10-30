@@ -20,6 +20,8 @@ class OrderController {
       }
       
       // Process enhanced order data with comprehensive field mapping
+      logger.info('Processing order data:', { orderData });
+      
       const processedOrder = {
         orderId: orderData.orderId || `ORD-${Date.now()}`,
         externalOrderId: orderData.externalOrderId || orderData.orderId || `EXT-${Date.now()}`,
@@ -37,8 +39,19 @@ class OrderController {
         orderTime: orderData.orderTime || new Date().toISOString(),
         requestedTime: orderData.requestedTime || null,
         
-        // Enhanced item processing
-        items: this.processOrderItems(orderData.items || []),
+        // Enhanced item processing - inline for better compatibility
+        items: Array.isArray(orderData.items) ? orderData.items.map(item => ({
+          itemId: item.itemId || item.id || null,
+          name: item.name || 'Unknown Item',
+          quantity: parseInt(item.quantity) || 1,
+          unitPrice: parseFloat(item.unitPrice) || 0,
+          totalPrice: parseFloat(item.totalPrice) || 0,
+          specialInstructions: item.specialInstructions || item.notes || null,
+          modifiers: Array.isArray(item.modifiers) ? item.modifiers.map(modifier => ({
+            name: modifier.name || 'Unknown Modifier',
+            price: parseFloat(modifier.price) || 0
+          })) : []
+        })) : [],
         
         // Enhanced totals with all fields
         totals: {
@@ -61,6 +74,8 @@ class OrderController {
         notes: orderData.notes || orderData.specialInstructions || '',
         status: orderData.status || 'received'
       };
+      
+      logger.info('Processed order ready for service:', { processedOrder });
       
       logger.info(`Creating enhanced order ${processedOrder.orderId}`, {
         client: req.apiKey?.name || 'webhook',
@@ -105,7 +120,10 @@ class OrderController {
       unitPrice: parseFloat(item.unitPrice) || 0,
       totalPrice: parseFloat(item.totalPrice) || 0,
       specialInstructions: item.specialInstructions || item.notes || null,
-      modifiers: this.processItemModifiers(item.modifiers || [])
+      modifiers: (item.modifiers || []).map(modifier => ({
+        name: modifier.name || 'Unknown Modifier',
+        price: parseFloat(modifier.price) || 0
+      }))
     }));
   }
 
