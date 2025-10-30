@@ -9,7 +9,7 @@ const {
 class OrderController {
   async createOrder(req, res, next) {
     try {
-      // SIMPLIFIED VALIDATION - Accept any reasonable order data
+      // ENHANCED VALIDATION - Accept complete webhook data with enhanced fields
       const orderData = req.body;
       
       // Generate idempotency key if not provided
@@ -19,47 +19,101 @@ class OrderController {
         idempotencyKey = uuidv4();
       }
       
-      // Ensure minimal required fields with defaults
+      // Process enhanced order data with comprehensive field mapping
       const processedOrder = {
         orderId: orderData.orderId || `ORD-${Date.now()}`,
         externalOrderId: orderData.externalOrderId || orderData.orderId || `EXT-${Date.now()}`,
         restaurantId: orderData.restaurantId || 'NYC-DELI-001',
+        
+        // Enhanced customer information
         customer: {
           name: orderData.customer?.name || 'Unknown Customer',
           phone: orderData.customer?.phone || '',
-          email: orderData.customer?.email || ''
+          email: orderData.customer?.email || null
         },
+        
+        // Enhanced order details
         orderType: orderData.orderType || 'pickup',
         orderTime: orderData.orderTime || new Date().toISOString(),
-        items: orderData.items || [],
+        requestedTime: orderData.requestedTime || null,
+        
+        // Enhanced item processing
+        items: this.processOrderItems(orderData.items || []),
+        
+        // Enhanced totals with all fields
         totals: {
-          subtotal: orderData.totals?.subtotal || orderData.subtotal || orderData.total || 0,
-          tax: orderData.totals?.tax || orderData.tax || 0,
-          tip: orderData.totals?.tip || orderData.tip || 0,
-          total: orderData.totals?.total || orderData.total || 0
+          subtotal: parseFloat(orderData.totals?.subtotal || orderData.subtotal || 0),
+          tax: parseFloat(orderData.totals?.tax || orderData.tax || 0),
+          tip: parseFloat(orderData.totals?.tip || orderData.tip || 0),
+          discount: parseFloat(orderData.totals?.discount || orderData.discount || 0),
+          deliveryFee: parseFloat(orderData.totals?.deliveryFee || orderData.deliveryFee || 0),
+          total: parseFloat(orderData.totals?.total || orderData.total || 0)
         },
+        
+        // Enhanced payment information
+        payment: {
+          method: orderData.payment?.method || null,
+          status: orderData.payment?.status || 'pending',
+          transactionId: orderData.payment?.transactionId || null
+        },
+        
+        // Enhanced notes and status
         notes: orderData.notes || orderData.specialInstructions || '',
         status: orderData.status || 'received'
       };
       
-      logger.info(`Creating order ${processedOrder.orderId} (SIMPLIFIED)`, {
+      logger.info(`Creating enhanced order ${processedOrder.orderId}`, {
         client: req.apiKey?.name || 'webhook',
         orderId: processedOrder.orderId,
         externalOrderId: processedOrder.externalOrderId,
         restaurantId: processedOrder.restaurantId,
-        total: processedOrder.totals.total
+        customerEmail: processedOrder.customer.email,
+        orderType: processedOrder.orderType,
+        requestedTime: processedOrder.requestedTime,
+        itemCount: processedOrder.items.length,
+        total: processedOrder.totals.total,
+        paymentStatus: processedOrder.payment.status
       });
       
       const order = await orderService.createOrder(processedOrder, idempotencyKey);
       res.status(201).json({
         success: true,
         data: order,
-        message: 'Order created successfully',
+        message: 'Enhanced order created successfully',
         timestamp: new Date().toISOString()
       });
     } catch (error) {
       next(error);
     }
+  }
+
+  // Helper method to process order items with enhanced data
+  processOrderItems(items) {
+    if (!Array.isArray(items)) {
+      return [];
+    }
+    
+    return items.map(item => ({
+      itemId: item.itemId || item.id || null,
+      name: item.name || 'Unknown Item',
+      quantity: parseInt(item.quantity) || 1,
+      unitPrice: parseFloat(item.unitPrice) || 0,
+      totalPrice: parseFloat(item.totalPrice) || 0,
+      specialInstructions: item.specialInstructions || item.notes || null,
+      modifiers: this.processItemModifiers(item.modifiers || [])
+    }));
+  }
+
+  // Helper method to process item modifiers
+  processItemModifiers(modifiers) {
+    if (!Array.isArray(modifiers)) {
+      return [];
+    }
+    
+    return modifiers.map(modifier => ({
+      name: modifier.name || 'Unknown Modifier',
+      price: parseFloat(modifier.price) || 0
+    }));
   }
   async getAllOrders(req, res, next) {
     try {
@@ -195,6 +249,35 @@ class OrderController {
           updatedAt: cancelledOrder.updated_at
         },
         message: 'Order cancelled successfully',
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteAllOrders(req, res, next) {
+    try {
+      logger.warn('Delete all orders requested', {
+        client: req.apiKey?.name || 'unknown',
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      
+      const result = await orderService.deleteAllOrders();
+      
+      logger.warn(`All orders deleted successfully - ${result.deletedCount} orders removed`, {
+        client: req.apiKey?.name || 'unknown',
+        deletedCount: result.deletedCount
+      });
+      
+      res.json({
+        success: true,
+        data: {
+          deletedCount: result.deletedCount,
+          message: result.message
+        },
+        message: 'All orders deleted successfully',
         timestamp: new Date().toISOString()
       });
     } catch (error) {

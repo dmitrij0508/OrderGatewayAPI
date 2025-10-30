@@ -227,3 +227,10 @@
 {"apiKeyPrefix":"invalid-...","ip":"::ffff:127.0.0.1","level":"warn","message":"Authentication failed: Invalid API key","path":"/","service":"pos-order-gateway-api","timestamp":"2025-10-10 10:50:25","userAgent":"PostmanRuntime/7.48.0"}
 {"level":"info","message":"Closing SQLite database...","service":"pos-order-gateway-api","timestamp":"2025-10-10 11:05:22"}
 {"level":"info","message":"SIGINT received, shutting down gracefully","service":"pos-order-gateway-api","timestamp":"2025-10-10 11:05:22"}
+{"level":"info","message":"🚀 Order Gateway API started on port 3000","service":"pos-order-gateway-api","timestamp":"2025-10-30 00:08:50"}
+{"level":"info","message":"📖 API Index: http://localhost:3000/api","service":"pos-order-gateway-api","timestamp":"2025-10-30 00:08:50"}
+{"level":"info","message":"💓 Health Check: http://localhost:3000/health","service":"pos-order-gateway-api","timestamp":"2025-10-30 00:08:50"}
+{"level":"info","message":"🌍 Environment: development","service":"pos-order-gateway-api","timestamp":"2025-10-30 00:08:50"}
+{"level":"info","message":"🗄️ Connected to SQLite database","service":"pos-order-gateway-api","timestamp":"2025-10-30 00:08:50"}
+{"level":"info","message":"Closing SQLite database...","service":"pos-order-gateway-api","timestamp":"2025-10-30 00:08:52"}
+{"level":"info","message":"SIGINT received, shutting down gracefully","service":"pos-order-gateway-api","timestamp":"2025-10-30 00:08:52"}

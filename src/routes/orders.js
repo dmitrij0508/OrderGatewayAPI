@@ -26,4 +26,11 @@ router.post('/:orderId/cancel',
   requirePermission('orders:create'),
   orderController.cancelOrder
 );
+
+// DELETE ALL ORDERS - Testing/Admin endpoint
+router.delete('/all',
+  requirePermission('orders:create'),
+  orderController.deleteAllOrders
+);
+
 module.exports = router;

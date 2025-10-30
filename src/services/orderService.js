@@ -32,21 +32,21 @@ class OrderService {
         idempotencyKey,
         orderData.customer.name,
         orderData.customer.phone,
-        orderData.customer.email || null,
+        orderData.customer.email,
         orderData.orderType,
         orderData.orderTime,
-        orderData.requestedTime || null,
+        orderData.requestedTime,
         orderData.totals.subtotal,
         orderData.totals.tax,
-        orderData.totals.tip || 0,
-        orderData.totals.discount || 0,
-        orderData.totals.deliveryFee || 0,
+        orderData.totals.tip,
+        orderData.totals.discount,
+        orderData.totals.deliveryFee,
         orderData.totals.total,
-        orderData.payment?.method || null,
+        orderData.payment?.method,
         orderData.payment?.status || 'pending',
-        orderData.payment?.transactionId || null,
-        orderData.notes || null,
-        'received'
+        orderData.payment?.transactionId,
+        orderData.notes,
+        orderData.status || 'received'
       ]);
       const insertedOrderResult = await database.query(
         'SELECT id FROM orders WHERE order_id = ?',
@@ -227,8 +227,10 @@ class OrderService {
         SELECT
           order_id, external_order_id, restaurant_id,
           customer_name, customer_phone, customer_email,
-          order_type, order_time, status, total,
-          created_at, updated_at
+          order_type, order_time, requested_time, status, 
+          subtotal, tax, tip, discount, delivery_fee, total,
+          payment_method, payment_status, payment_transaction_id,
+          notes, created_at, updated_at
         FROM orders
         ${whereClause}
         ORDER BY created_at DESC
@@ -245,8 +247,22 @@ class OrderService {
         },
         orderType: order.order_type,
         orderTime: order.order_time,
+        requestedTime: order.requested_time,
+        totals: {
+          subtotal: parseFloat(order.subtotal),
+          tax: parseFloat(order.tax),
+          tip: parseFloat(order.tip),
+          discount: parseFloat(order.discount),
+          deliveryFee: parseFloat(order.delivery_fee),
+          total: parseFloat(order.total)
+        },
+        payment: {
+          method: order.payment_method,
+          status: order.payment_status,
+          transactionId: order.payment_transaction_id
+        },
+        notes: order.notes,
         status: order.status,
-        total: parseFloat(order.total),
         createdAt: order.created_at,
         updatedAt: order.updated_at
       }));
@@ -282,6 +298,32 @@ class OrderService {
       throw error;
     }
   }
+  async deleteAllOrders() {
+    try {
+      // First, delete all order item modifiers
+      await database.run('DELETE FROM order_item_modifiers');
+      logger.info('Deleted all order item modifiers');
+      
+      // Then, delete all order items
+      await database.run('DELETE FROM order_items');
+      logger.info('Deleted all order items');
+      
+      // Finally, delete all orders
+      const result = await database.run('DELETE FROM orders');
+      const deletedCount = result.changes;
+      
+      logger.info(`Successfully deleted all orders - ${deletedCount} orders removed`);
+      
+      return {
+        deletedCount,
+        message: `Successfully deleted ${deletedCount} orders and all related data`
+      };
+    } catch (error) {
+      logger.error('Failed to delete all orders:', error);
+      throw error;
+    }
+  }
+
   async notifyStatusChange(orderId, status) {
     try {
       logger.info(`Status change notification: ${orderId} -> ${status}`);
