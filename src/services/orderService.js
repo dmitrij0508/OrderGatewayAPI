@@ -3,20 +3,59 @@ const logger = require('../utils/logger');
 const { v4: uuidv4 } = require('uuid');
 class OrderService {
   async createOrder(orderData, idempotencyKey) {
+    const serviceStartTime = Date.now();
+    const serviceSteps = [];
+    
     try {
-      // Check for existing order by idempotency key
-      const existingOrder = await database.query(
-        'SELECT id, order_id, status FROM orders WHERE idempotency_key = ?',
-        [idempotencyKey]
-      );
+      // SERVICE STEP 1: Debug incoming service call
+      logger.debugPayload('Service - Incoming Order Data', orderData);
+      logger.debug('🔧 SERVICE DEBUG - Create Order Called', {
+        orderId: orderData.orderId,
+        idempotencyKey,
+        hasCustomer: !!orderData.customer,
+        itemCount: orderData.items ? orderData.items.length : 0,
+        totalAmount: orderData.totals ? orderData.totals.total : null
+      });
+      serviceSteps.push({
+        description: 'Service method called with order data',
+        status: 'completed',
+        data: { orderId: orderData.orderId, hasIdempotencyKey: !!idempotencyKey },
+        duration: Date.now() - serviceStartTime
+      });
+
+      // SERVICE STEP 2: Check for existing order by idempotency key
+      const idempotencyQuery = 'SELECT id, order_id, status FROM orders WHERE idempotency_key = ?';
+      logger.debugDatabase('Idempotency Check', idempotencyQuery, [idempotencyKey]);
+      
+      const existingOrder = await database.query(idempotencyQuery, [idempotencyKey]);
+      
+      logger.debugDatabase('Idempotency Check Result', idempotencyQuery, [idempotencyKey], existingOrder);
+      serviceSteps.push({
+        description: 'Idempotency check completed',
+        status: 'completed',
+        data: { existingOrderFound: existingOrder.rows.length > 0 },
+        duration: Date.now() - serviceStartTime
+      });
       
       if (existingOrder.rows.length > 0) {
+        logger.debug('🔄 IDEMPOTENT REQUEST DETECTED', {
+          existingOrderId: existingOrder.rows[0].order_id,
+          existingStatus: existingOrder.rows[0].status,
+          idempotencyKey
+        });
         logger.info(`Idempotent request - returning existing order ${existingOrder.rows[0].order_id}`);
         return await this.getOrderById(existingOrder.rows[0].order_id);
       }
 
-      // Generate internal ID
+      // SERVICE STEP 3: Generate internal ID and prepare data
       const internalId = uuidv4();
+      logger.debug('🆔 Generated internal ID', { internalId, publicOrderId: orderData.orderId });
+      serviceSteps.push({
+        description: 'Internal ID generated',
+        status: 'completed',
+        data: { internalId },
+        duration: Date.now() - serviceStartTime
+      });
       
       // Log what we're about to insert
       logger.info('Creating order with data:', {
@@ -28,24 +67,8 @@ class OrderService {
         totals: orderData.totals
       });
 
-      // Insert main order record
-      const orderResult = await database.run(`
-        INSERT INTO orders (
-          id, order_id, external_order_id, restaurant_id, idempotency_key,
-          customer_name, customer_phone, customer_email,
-          order_type, order_time, requested_time,
-          subtotal, tax, tip, discount, delivery_fee, total,
-          payment_method, payment_status, payment_transaction_id,
-          notes, status, created_at, updated_at
-        ) VALUES (
-          ?, ?, ?, ?, ?, 
-          ?, ?, ?, 
-          ?, ?, ?, 
-          ?, ?, ?, ?, ?, ?, 
-          ?, ?, ?, 
-          ?, ?, datetime('now'), datetime('now')
-        )
-      `, [
+      // SERVICE STEP 4: Prepare and log SQL parameters
+      const orderInsertParams = [
         internalId,
         orderData.orderId,
         orderData.externalOrderId,
@@ -68,21 +91,83 @@ class OrderService {
         orderData.payment?.transactionId,
         orderData.notes || '',
         orderData.status || 'received'
-      ]);
+      ];
+
+      logger.debug('💾 SQL PARAMETERS PREPARED', {
+        parameterCount: orderInsertParams.length,
+        parameters: orderInsertParams.map((param, index) => ({
+          index,
+          type: typeof param,
+          value: typeof param === 'string' && param.length > 50 ? param.substring(0, 50) + '...' : param,
+          isNull: param === null,
+          isEmpty: param === ''
+        }))
+      });
+
+      // SERVICE STEP 5: Insert main order record with detailed logging
+      const orderInsertQuery = `
+        INSERT INTO orders (
+          id, order_id, external_order_id, restaurant_id, idempotency_key,
+          customer_name, customer_phone, customer_email,
+          order_type, order_time, requested_time,
+          subtotal, tax, tip, discount, delivery_fee, total,
+          payment_method, payment_status, payment_transaction_id,
+          notes, status, created_at, updated_at
+        ) VALUES (
+          ?, ?, ?, ?, ?, 
+          ?, ?, ?, 
+          ?, ?, ?, 
+          ?, ?, ?, ?, ?, ?, 
+          ?, ?, ?, 
+          ?, ?, datetime('now'), datetime('now')
+        )
+      `;
+
+      logger.debugDatabase('Main Order Insert', orderInsertQuery, orderInsertParams);
+      
+      const orderResult = await database.run(orderInsertQuery, orderInsertParams);
+      
+      logger.debugDatabase('Main Order Insert Result', orderInsertQuery, orderInsertParams, orderResult);
+      logger.debug('✅ ORDER RECORD INSERTED', {
+        internalId,
+        orderId: orderData.orderId,
+        changes: orderResult.changes,
+        lastID: orderResult.lastID
+      });
+      serviceSteps.push({
+        description: 'Main order record inserted',
+        status: 'completed',
+        data: { changes: orderResult.changes, lastID: orderResult.lastID },
+        duration: Date.now() - serviceStartTime
+      });
 
       logger.info(`Order main record inserted successfully`);
 
-      // Process items if any
+      // SERVICE STEP 6: Process items if any
       if (orderData.items && Array.isArray(orderData.items) && orderData.items.length > 0) {
+        logger.debug('🛒 PROCESSING ORDER ITEMS', {
+          itemCount: orderData.items.length,
+          items: orderData.items.map((item, index) => ({
+            index,
+            name: item.name,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            hasModifiers: item.modifiers && item.modifiers.length > 0,
+            modifierCount: item.modifiers ? item.modifiers.length : 0
+          }))
+        });
+
         for (let i = 0; i < orderData.items.length; i++) {
           const item = orderData.items[i];
           const itemId = uuidv4();
           
-          await database.run(`
+          const itemInsertQuery = `
             INSERT INTO order_items (
               id, order_id, item_id, name, quantity, unit_price, total_price, special_instructions, created_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
-          `, [
+          `;
+
+          const itemParams = [
             itemId,
             internalId, // Use the main order internal ID
             item.itemId || `ITEM-${i + 1}`,
@@ -91,40 +176,126 @@ class OrderService {
             item.unitPrice || 0,
             item.totalPrice || 0,
             item.specialInstructions || null
-          ]);
+          ];
+
+          logger.debugDatabase(`Item ${i + 1} Insert`, itemInsertQuery, itemParams);
+          const itemResult = await database.run(itemInsertQuery, itemParams);
+          logger.debugDatabase(`Item ${i + 1} Insert Result`, itemInsertQuery, itemParams, itemResult);
           
           // Process modifiers if any
           if (item.modifiers && Array.isArray(item.modifiers) && item.modifiers.length > 0) {
-            for (const modifier of item.modifiers) {
-              await database.run(`
+            logger.debug(`🏷️ Processing ${item.modifiers.length} modifiers for item ${item.name}`);
+            
+            for (let j = 0; j < item.modifiers.length; j++) {
+              const modifier = item.modifiers[j];
+              const modifierInsertQuery = `
                 INSERT INTO order_item_modifiers (
                   id, order_item_id, name, price, created_at
                 ) VALUES (?, ?, ?, ?, datetime('now'))
-              `, [
+              `;
+
+              const modifierParams = [
                 uuidv4(),
                 itemId,
                 modifier.name || 'Unknown Modifier',
                 modifier.price || 0
-              ]);
+              ];
+
+              logger.debugDatabase(`Item ${i + 1} Modifier ${j + 1} Insert`, modifierInsertQuery, modifierParams);
+              const modifierResult = await database.run(modifierInsertQuery, modifierParams);
+              logger.debugDatabase(`Item ${i + 1} Modifier ${j + 1} Result`, modifierInsertQuery, modifierParams, modifierResult);
             }
           }
         }
+        
+        serviceSteps.push({
+          description: 'Order items processed',
+          status: 'completed',
+          data: { itemsInserted: orderData.items.length },
+          duration: Date.now() - serviceStartTime
+        });
+        
         logger.info(`Inserted ${orderData.items.length} items for order ${orderData.orderId}`);
+      } else {
+        logger.debug('⚠️ NO ITEMS TO PROCESS', {
+          hasItems: !!orderData.items,
+          isArray: Array.isArray(orderData.items),
+          itemCount: orderData.items ? orderData.items.length : 0
+        });
+        serviceSteps.push({
+          description: 'No items to process',
+          status: 'completed',
+          data: { itemsInserted: 0 },
+          duration: Date.now() - serviceStartTime
+        });
       }
 
+      // SERVICE STEP 7: Retrieve and return created order
+      const totalServiceDuration = Date.now() - serviceStartTime;
+      serviceSteps.push({
+        description: 'Retrieving created order',
+        status: 'in-progress',
+        data: { orderId: orderData.orderId },
+        duration: totalServiceDuration
+      });
+
       logger.info(`Order created successfully: ${orderData.orderId}`);
-      return await this.getOrderById(orderData.orderId);
+      
+      const createdOrder = await this.getOrderById(orderData.orderId);
+      
+      serviceSteps.push({
+        description: 'Order retrieval completed',
+        status: 'completed',
+        data: { hasOrder: !!createdOrder, orderItemCount: createdOrder.items ? createdOrder.items.length : 0 },
+        duration: Date.now() - serviceStartTime
+      });
+
+      // Final service debug summary
+      logger.debugSteps('Order Service Process', serviceSteps);
+      logger.debug('🎯 SERVICE COMPLETION SUCCESS', {
+        orderId: orderData.orderId,
+        totalServiceTime: (Date.now() - serviceStartTime) + 'ms',
+        stepsCompleted: serviceSteps.length,
+        finalOrder: {
+          id: createdOrder.orderId,
+          itemCount: createdOrder.items ? createdOrder.items.length : 0,
+          totalAmount: createdOrder.totals ? createdOrder.totals.total : null,
+          status: createdOrder.status
+        }
+      });
+      
+      return createdOrder;
       
     } catch (error) {
-      logger.error('Failed to create order in service:', {
+      const totalServiceDuration = Date.now() - serviceStartTime;
+      serviceSteps.push({
+        description: 'Service error occurred',
+        status: 'failed',
+        error: error.message,
+        duration: totalServiceDuration
+      });
+
+      logger.debugSteps('Order Service Process (FAILED)', serviceSteps);
+      
+      logger.error('❌ SERVICE CREATION FAILED - Detailed Debug', {
         error: error.message,
         stack: error.stack,
         sqliteError: error.code,
-        orderData: {
+        serviceProcessingTime: totalServiceDuration + 'ms',
+        failedAtStep: serviceSteps.length,
+        orderDataSnapshot: {
           orderId: orderData?.orderId,
           externalOrderId: orderData?.externalOrderId,
-          customer: orderData?.customer,
-          totals: orderData?.totals
+          hasCustomer: !!(orderData?.customer),
+          hasItems: !!(orderData?.items && Array.isArray(orderData.items)),
+          itemCount: orderData?.items ? orderData.items.length : 0,
+          hasTotals: !!(orderData?.totals),
+          totalAmount: orderData?.totals?.total
+        },
+        databaseState: {
+          lastQuery: 'Check logs for last executed query',
+          errorCode: error.code,
+          errorErrno: error.errno
         }
       });
       throw error;

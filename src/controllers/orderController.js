@@ -8,20 +8,60 @@ const {
 } = require('../validators/orderValidators');
 class OrderController {
   async createOrder(req, res, next) {
+    const debugStartTime = Date.now();
+    const debugSteps = [];
+    
     try {
-      // ENHANCED VALIDATION - Accept complete webhook data with enhanced fields
+      // STEP 1: Debug incoming request
+      logger.debugRequest(req, 'Order Creation Request');
+      debugSteps.push({
+        description: 'Incoming request logged',
+        status: 'completed',
+        data: { method: req.method, url: req.url, bodySize: JSON.stringify(req.body).length },
+        duration: Date.now() - debugStartTime
+      });
+
+      // STEP 2: Extract and debug raw order data
       const orderData = req.body;
+      logger.debugPayload('Raw Order Data', orderData);
+      debugSteps.push({
+        description: 'Raw order data extracted',
+        status: 'completed',
+        data: { hasData: !!orderData, dataType: typeof orderData, keys: Object.keys(orderData || {}) },
+        duration: Date.now() - debugStartTime
+      });
       
-      // Generate idempotency key if not provided
+      // STEP 3: Generate idempotency key with debugging
       let idempotencyKey = req.headers['x-idempotency-key'];
       if (!idempotencyKey) {
         const { v4: uuidv4 } = require('uuid');
         idempotencyKey = uuidv4();
+        logger.debug('🔑 Generated new idempotency key', { idempotencyKey });
+      } else {
+        logger.debug('🔑 Using provided idempotency key', { idempotencyKey });
       }
+      debugSteps.push({
+        description: 'Idempotency key processed',
+        status: 'completed',
+        data: { hasKey: !!req.headers['x-idempotency-key'], generated: !req.headers['x-idempotency-key'] },
+        duration: Date.now() - debugStartTime
+      });
       
+      // STEP 4: Log detailed order data analysis before processing
+      logger.debug('📊 ORDER ANALYSIS - Pre-processing', {
+        hasOrderId: !!(orderData.orderId || orderData.id),
+        hasCustomer: !!orderData.customer,
+        hasItems: !!(orderData.items && Array.isArray(orderData.items)),
+        itemCount: orderData.items ? orderData.items.length : 0,
+        hasTotals: !!(orderData.totals || orderData.total),
+        hasPayment: !!orderData.payment,
+        originalFields: Object.keys(orderData || {})
+      });
+
       // Process enhanced order data with comprehensive field mapping
       logger.info('Processing order data:', { orderData });
       
+      // STEP 5: Process order data with detailed field mapping debugging
       const processedOrder = {
         orderId: orderData.orderId || `ORD-${Date.now()}`,
         externalOrderId: orderData.externalOrderId || orderData.orderId || `EXT-${Date.now()}`,
@@ -74,8 +114,57 @@ class OrderController {
         notes: orderData.notes || orderData.specialInstructions || '',
         status: orderData.status || 'received'
       };
+
+      // STEP 6: Debug transformation results
+      logger.debugTransformation('Order Data Processing', orderData, processedOrder, {
+        fieldsGenerated: ['orderId', 'externalOrderId'].filter(field => !orderData[field]),
+        customerFieldsMapped: Object.keys(processedOrder.customer),
+        itemsProcessed: processedOrder.items.length,
+        totalsCalculated: Object.keys(processedOrder.totals),
+        paymentFieldsMapped: Object.keys(processedOrder.payment)
+      });
+      debugSteps.push({
+        description: 'Order data transformation completed',
+        status: 'completed',
+        data: { 
+          itemsProcessed: processedOrder.items.length,
+          totalAmount: processedOrder.totals.total,
+          hasCustomer: !!processedOrder.customer.name
+        },
+        duration: Date.now() - debugStartTime
+      });
       
       logger.info('Processed order ready for service:', { processedOrder });
+
+      // STEP 7: Log detailed analysis of processed order
+      logger.debug('📋 PROCESSED ORDER ANALYSIS', {
+        structure: {
+          orderId: processedOrder.orderId,
+          hasExternalId: !!processedOrder.externalOrderId,
+          restaurantId: processedOrder.restaurantId,
+          customerComplete: !!(processedOrder.customer.name && processedOrder.customer.phone),
+          orderType: processedOrder.orderType,
+          itemCount: processedOrder.items.length,
+          totalAmount: processedOrder.totals.total,
+          paymentStatus: processedOrder.payment.status,
+          hasNotes: !!processedOrder.notes
+        },
+        itemDetails: processedOrder.items.map((item, index) => ({
+          index,
+          name: item.name,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          hasModifiers: item.modifiers.length > 0,
+          modifierCount: item.modifiers.length
+        })),
+        financials: {
+          subtotal: processedOrder.totals.subtotal,
+          tax: processedOrder.totals.tax,
+          tip: processedOrder.totals.tip,
+          total: processedOrder.totals.total,
+          calculatedTotal: processedOrder.totals.subtotal + processedOrder.totals.tax + processedOrder.totals.tip
+        }
+      });
       
       logger.info(`Creating enhanced order ${processedOrder.orderId}`, {
         client: req.apiKey?.name || 'webhook',
@@ -89,20 +178,82 @@ class OrderController {
         total: processedOrder.totals.total,
         paymentStatus: processedOrder.payment.status
       });
+
+      // STEP 8: Call service with debugging
+      debugSteps.push({
+        description: 'Calling order service',
+        status: 'in-progress',
+        data: { orderId: processedOrder.orderId, idempotencyKey },
+        duration: Date.now() - debugStartTime
+      });
       
       const order = await orderService.createOrder(processedOrder, idempotencyKey);
+      
+      debugSteps.push({
+        description: 'Order service completed successfully',
+        status: 'completed',
+        data: { createdOrderId: order.orderId, serviceResponse: !!order },
+        duration: Date.now() - debugStartTime
+      });
+
+      // STEP 9: Log final success and debug summary
+      const totalDuration = Date.now() - debugStartTime;
+      logger.debugSteps('Order Creation Process', debugSteps);
+      
+      logger.debug('🎉 ORDER CREATION SUCCESS', {
+        orderId: order.orderId,
+        totalProcessingTime: totalDuration + 'ms',
+        stepsCompleted: debugSteps.length,
+        client: req.apiKey?.name || 'webhook',
+        finalOrderStructure: {
+          hasItems: order.items && order.items.length > 0,
+          itemCount: order.items ? order.items.length : 0,
+          totalAmount: order.totals ? order.totals.total : null,
+          status: order.status
+        }
+      });
+      
       res.status(201).json({
         success: true,
         data: order,
         message: 'Enhanced order created successfully',
+        debug: process.env.NODE_ENV !== 'production' ? {
+          processingTime: totalDuration + 'ms',
+          stepsCompleted: debugSteps.length,
+          transformationApplied: true
+        } : undefined,
         timestamp: new Date().toISOString()
       });
+      
     } catch (error) {
-      logger.error('Order creation failed in controller:', {
+      // Enhanced error debugging
+      const totalDuration = Date.now() - debugStartTime;
+      debugSteps.push({
+        description: 'Error occurred',
+        status: 'failed',
+        error: error.message,
+        duration: totalDuration
+      });
+
+      logger.debugSteps('Order Creation Process (FAILED)', debugSteps);
+      
+      logger.error('❌ ORDER CREATION FAILED - Detailed Debug', {
         error: error.message,
         stack: error.stack,
-        requestBody: req.body
+        processingTime: totalDuration + 'ms',
+        failedAtStep: debugSteps.length,
+        requestAnalysis: {
+          hasBody: !!req.body,
+          bodyKeys: req.body ? Object.keys(req.body) : null,
+          method: req.method,
+          url: req.url,
+          contentType: req.get('Content-Type'),
+          userAgent: req.get('User-Agent')
+        },
+        processedOrderSnapshot: debugSteps.find(s => s.description.includes('transformation')) ? 
+          'Transformation completed' : 'Transformation not reached'
       });
+      
       next(error);
     }
   }
