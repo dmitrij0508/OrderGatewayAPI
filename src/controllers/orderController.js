@@ -307,5 +307,47 @@ class OrderController {
       next(error);
     }
   }
+
+  async clearOrdersByRestaurant(req, res, next) {
+    try {
+      const { restaurantId } = req.query;
+      
+      if (!restaurantId) {
+        return res.status(400).json({
+          error: 'Restaurant ID is required',
+          message: 'Please provide restaurantId as a query parameter',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      logger.info('Clear orders by restaurant requested', {
+        client: req.apiKey?.name || 'unknown',
+        restaurantId: restaurantId,
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      
+      const result = await orderService.clearOrdersByRestaurant(restaurantId);
+      
+      logger.info(`Orders cleared for restaurant ${restaurantId} - ${result.deletedCount} orders removed`, {
+        client: req.apiKey?.name || 'unknown',
+        restaurantId: restaurantId,
+        deletedCount: result.deletedCount
+      });
+      
+      res.json({
+        success: true,
+        data: {
+          restaurantId: restaurantId,
+          deletedCount: result.deletedCount,
+          message: result.message
+        },
+        message: `Orders cleared for restaurant ${restaurantId}`,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 module.exports = new OrderController();

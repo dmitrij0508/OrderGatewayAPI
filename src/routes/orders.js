@@ -33,6 +33,12 @@ router.delete('/all',
   orderController.deleteAllOrders
 );
 
+// CLEAR ORDERS BY RESTAURANT - POS Integration endpoint
+router.delete('/clear',
+  requirePermission('orders:create'),
+  orderController.clearOrdersByRestaurant
+);
+
 // HEALTH CHECK ENDPOINT - No database operations
 router.get('/health',
   async (req, res) => {

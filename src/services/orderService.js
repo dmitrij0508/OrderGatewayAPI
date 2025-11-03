@@ -359,6 +359,59 @@ class OrderService {
     }
   }
 
+  async clearOrdersByRestaurant(restaurantId) {
+    try {
+      // First, get the list of orders for this restaurant to delete their items/modifiers
+      const ordersResult = await database.query(`
+        SELECT id FROM orders WHERE restaurant_id = ?
+      `, [restaurantId]);
+      
+      const orderIds = ordersResult.rows.map(row => row.id);
+      
+      if (orderIds.length === 0) {
+        logger.info(`No orders found for restaurant ${restaurantId}`);
+        return {
+          deletedCount: 0,
+          message: `No orders found for restaurant ${restaurantId}`
+        };
+      }
+      
+      // Delete order item modifiers for this restaurant's orders
+      for (const orderId of orderIds) {
+        await database.run(`
+          DELETE FROM order_item_modifiers 
+          WHERE order_item_id IN (
+            SELECT id FROM order_items WHERE order_id = ?
+          )
+        `, [orderId]);
+      }
+      logger.info(`Deleted order item modifiers for restaurant ${restaurantId}`);
+      
+      // Delete order items for this restaurant's orders
+      await database.run(`
+        DELETE FROM order_items 
+        WHERE order_id IN (
+          SELECT id FROM orders WHERE restaurant_id = ?
+        )
+      `, [restaurantId]);
+      logger.info(`Deleted order items for restaurant ${restaurantId}`);
+      
+      // Finally, delete the orders for this restaurant
+      const result = await database.run('DELETE FROM orders WHERE restaurant_id = ?', [restaurantId]);
+      const deletedCount = result.changes;
+      
+      logger.info(`Successfully cleared orders for restaurant ${restaurantId} - ${deletedCount} orders removed`);
+      
+      return {
+        deletedCount,
+        message: `Successfully cleared ${deletedCount} orders for restaurant ${restaurantId}`
+      };
+    } catch (error) {
+      logger.error(`Failed to clear orders for restaurant ${restaurantId}:`, error);
+      throw error;
+    }
+  }
+
   async notifyStatusChange(orderId, status) {
     try {
       logger.info(`Status change notification: ${orderId} -> ${status}`);
