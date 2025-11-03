@@ -13,6 +13,18 @@ const menuRoutes = require('./src/routes/menu');
 const statusRoutes = require('./src/routes/status');
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Configure Express to trust proxy headers when deployed behind a proxy
+// This is essential for platforms like Render, Heroku, Railway, etc.
+if (process.env.NODE_ENV === 'production' || process.env.TRUST_PROXY === 'true') {
+  app.set('trust proxy', 1); // Trust first proxy
+  logger.info('🔒 Proxy trust enabled for production deployment');
+} else if (process.env.TRUST_PROXY) {
+  // Allow specific trust proxy configuration via environment variable
+  app.set('trust proxy', process.env.TRUST_PROXY);
+  logger.info(`🔒 Proxy trust configured: ${process.env.TRUST_PROXY}`);
+}
+
 app.use(helmet());
 app.use(compression());
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000', 'http://127.0.0.1:3000'];
@@ -30,17 +42,62 @@ const limiter = rateLimit({
     retryAfter: '15 minutes'
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  // Skip rate limiting in case of proxy configuration issues
+  skip: (req) => {
+    // Skip rate limiting if we can't reliably identify the client IP
+    if (process.env.NODE_ENV === 'development' && process.env.SKIP_RATE_LIMIT === 'true') {
+      return true;
+    }
+    return false;
+  },
+  // Custom key generator that handles proxy scenarios gracefully
+  keyGenerator: (req) => {
+    try {
+      // Use the real IP when behind a proxy, fallback to connection IP
+      return req.ip || req.connection?.remoteAddress || 'unknown';
+    } catch (error) {
+      logger.warn('Rate limiter key generation failed, using fallback', { error: error.message });
+      return 'fallback-key';
+    }
+  }
 });
 app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.path}`, {
+  // Enhanced logging with proxy debugging information
+  const requestInfo = {
     ip: req.ip,
+    ips: req.ips,
+    remoteAddress: req.connection?.remoteAddress,
+    xForwardedFor: req.get('X-Forwarded-For'),
+    xRealIp: req.get('X-Real-IP'),
     userAgent: req.get('User-Agent'),
     timestamp: new Date().toISOString()
-  });
+  };
+
+  logger.info(`${req.method} ${req.path}`, requestInfo);
+  
+  // Debug proxy configuration in development
+  if (process.env.NODE_ENV === 'development' && process.env.DEBUG_PROXY === 'true') {
+    logger.debug('🌐 PROXY DEBUG INFO', {
+      trustProxy: app.get('trust proxy'),
+      proxyHeaders: {
+        'X-Forwarded-For': req.get('X-Forwarded-For'),
+        'X-Real-IP': req.get('X-Real-IP'),
+        'X-Forwarded-Proto': req.get('X-Forwarded-Proto'),
+        'X-Forwarded-Host': req.get('X-Forwarded-Host')
+      },
+      requestIpInfo: {
+        ip: req.ip,
+        ips: req.ips,
+        socket: req.socket?.remoteAddress,
+        connection: req.connection?.remoteAddress
+      }
+    });
+  }
+  
   next();
 });
 app.get('/health', async (req, res) => {
@@ -70,9 +127,12 @@ app.get('/api', (req, res) => {
     endpoints: {
       orders: {
         'POST /api/v1/orders': 'Create new order',
+        'GET /api/v1/orders': 'Get all orders (with filters)',
         'GET /api/v1/orders/:id': 'Get order details',
         'GET /api/v1/orders/:id/status': 'Get order status',
-        'POST /api/v1/orders/:id/cancel': 'Cancel order'
+        'POST /api/v1/orders/:id/cancel': 'Cancel order',
+        'DELETE /api/v1/orders/all': 'Delete all orders (admin)',
+        'DELETE /api/v1/orders/clear?restaurantId=X': 'Clear orders by restaurant (POS integration)'
       },
       menu: {
         'GET /api/v1/menu': 'Get current menu'
