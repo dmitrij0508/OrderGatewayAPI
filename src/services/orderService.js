@@ -113,32 +113,77 @@ class OrderService {
         }))
       });
 
-      // SERVICE STEP 5: Insert main order record with OhMyApp.io fields
-      const orderInsertQuery = `
-        INSERT INTO orders (
-          id, order_id, external_order_id, restaurant_id, idempotency_key,
-          customer_name, customer_phone, customer_email, customer_address,
-          order_type, order_time, requested_time,
-          subtotal, tax, tip, discount, delivery_fee, total,
-          payment_method, payment_status, payment_transaction_id, payment_amount,
-          notes, status, source, webhook_metadata, original_order_id, webhook_created_at,
-          created_at, updated_at
-        ) VALUES (
-          ?, ?, ?, ?, ?, 
-          ?, ?, ?, ?,
-          ?, ?, ?, 
-          ?, ?, ?, ?, ?, ?, 
-          ?, ?, ?, ?,
-          ?, ?, ?, ?, ?, ?,
-          datetime('now'), datetime('now')
-        )
-      `;
+      // SERVICE STEP 5: Insert main order record (check if new columns exist first)
+      let orderInsertQuery;
+      let finalOrderInsertParams;
+      
+      // Check if new columns exist by getting table info
+      let hasNewColumns = false;
+      try {
+        const tableInfo = await database.query("PRAGMA table_info(orders)");
+        const columnNames = tableInfo.rows.map(col => col.name);
+        hasNewColumns = columnNames.includes('customer_address') && 
+                       columnNames.includes('payment_amount') && 
+                       columnNames.includes('source');
+        
+        logger.debug(`📊 Database columns check: hasNewColumns=${hasNewColumns}`);
+      } catch (error) {
+        logger.warn('Could not check table structure, using legacy format');
+        hasNewColumns = false;
+      }
+      
+      if (hasNewColumns) {
+        // Use new query format with OhMyApp.io fields
+        orderInsertQuery = `
+          INSERT INTO orders (
+            id, order_id, external_order_id, restaurant_id, idempotency_key,
+            customer_name, customer_phone, customer_email, customer_address,
+            order_type, order_time, requested_time,
+            subtotal, tax, tip, discount, delivery_fee, total,
+            payment_method, payment_status, payment_transaction_id, payment_amount,
+            notes, status, source, webhook_metadata, original_order_id, webhook_created_at,
+            created_at, updated_at
+          ) VALUES (
+            ?, ?, ?, ?, ?, 
+            ?, ?, ?, ?,
+            ?, ?, ?, 
+            ?, ?, ?, ?, ?, ?, 
+            ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?,
+            datetime('now'), datetime('now')
+          )
+        `;
+        finalOrderInsertParams = orderInsertParams;
+        logger.debug('✅ Using enhanced OhMyApp.io database format');
+      } else {
+        // Use legacy query format without new fields
+        orderInsertQuery = `
+          INSERT INTO orders (
+            id, order_id, external_order_id, restaurant_id, idempotency_key,
+            customer_name, customer_phone, customer_email,
+            order_type, order_time, requested_time,
+            subtotal, tax, tip, discount, delivery_fee, total,
+            payment_method, payment_status, payment_transaction_id,
+            notes, status, created_at, updated_at
+          ) VALUES (
+            ?, ?, ?, ?, ?, 
+            ?, ?, ?, 
+            ?, ?, ?, 
+            ?, ?, ?, ?, ?, ?, 
+            ?, ?, ?, 
+            ?, ?, datetime('now'), datetime('now')
+          )
+        `;
+        // Use only the legacy parameters (first 22 parameters)
+        finalOrderInsertParams = orderInsertParams.slice(0, 22);
+        logger.debug('⚠️ Using legacy database format (OhMyApp.io features limited)');
+      }
 
-      logger.debugDatabase('Main Order Insert', orderInsertQuery, orderInsertParams);
+      logger.debugDatabase('Main Order Insert', orderInsertQuery, finalOrderInsertParams);
       
-      const orderResult = await database.run(orderInsertQuery, orderInsertParams);
+      const orderResult = await database.run(orderInsertQuery, finalOrderInsertParams);
       
-      logger.debugDatabase('Main Order Insert Result', orderInsertQuery, orderInsertParams, orderResult);
+      logger.debugDatabase('Main Order Insert Result', orderInsertQuery, finalOrderInsertParams, orderResult);
       logger.debug('✅ ORDER RECORD INSERTED', {
         internalId,
         orderId: orderData.orderId,

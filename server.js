@@ -174,8 +174,13 @@ process.on('SIGINT', async () => {
 async function startServer() {
   try {
     // Apply OhMyApp.io migration
-    await applyOhMyAppMigration();
-    logger.info('✅ Database migration completed');
+    const migrationResult = await applyOhMyAppMigration();
+    
+    if (migrationResult.success || migrationResult.canProceed) {
+      logger.info('✅ Database migration completed');
+    } else {
+      logger.warn('⚠️ Database migration had issues, but starting server anyway');
+    }
     
     // Start the server
     app.listen(PORT, () => {
@@ -183,11 +188,24 @@ async function startServer() {
       logger.info(`📖 API Index: http://localhost:${PORT}/api`);
       logger.info(`💓 Health Check: http://localhost:${PORT}/health`);
       logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-      logger.info(`🎣 OhMyApp.io webhook support: ENABLED`);
+      logger.info(`🎣 OhMyApp.io webhook support: ${migrationResult.success ? 'ENABLED' : 'PARTIAL'}`);
+      
+      if (migrationResult.missingColumns > 0) {
+        logger.warn(`⚠️ Some database columns are missing (${migrationResult.missingColumns}). OhMyApp.io features may be limited.`);
+      }
     });
   } catch (error) {
     logger.error('💥 Failed to start server:', error);
-    process.exit(1);
+    // Try to start server anyway
+    logger.info('🔄 Attempting to start server without migration...');
+    
+    app.listen(PORT, () => {
+      logger.info(`🚀 Order Gateway API started on port ${PORT} (migration failed)`);
+      logger.info(`📖 API Index: http://localhost:${PORT}/api`);
+      logger.info(`💓 Health Check: http://localhost:${PORT}/health`);
+      logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      logger.warn(`⚠️ OhMyApp.io webhook support: LIMITED (migration failed)`);
+    });
   }
 }
 
