@@ -4,6 +4,10 @@ A reusable REST API for restaurant ordering systems, designed to integrate with 
 
 **🌐 Production API:** https://ordergatewayapi.onrender.com
 
+> **🔍 NEW: Enhanced Logs Endpoint for POS Debugging**  
+> Use `/api/v1/logs/payloads` to extract and analyze order payloads sent by POS systems.  
+> See [LOGS_ENDPOINT_GUIDE.md](LOGS_ENDPOINT_GUIDE.md) for details.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
