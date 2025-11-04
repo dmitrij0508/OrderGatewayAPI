@@ -7,6 +7,18 @@ const {
   idempotencyKeySchema
 } = require('../validators/orderValidators');
 class OrderController {
+  constructor() {
+    // Bind all methods to preserve 'this' context when used as Express callbacks
+    this.createOrder = this.createOrder.bind(this);
+    this.getAllOrders = this.getAllOrders.bind(this);
+    this.getOrder = this.getOrder.bind(this);
+    this.getOrderStatus = this.getOrderStatus.bind(this);
+    this.updateOrder = this.updateOrder.bind(this);
+    this.cancelOrder = this.cancelOrder.bind(this);
+    this.deleteAllOrders = this.deleteAllOrders.bind(this);
+    this.clearOrdersByRestaurant = this.clearOrdersByRestaurant.bind(this);
+  }
+
   async createOrder(req, res, next) {
     const debugStartTime = Date.now();
     const debugSteps = [];
