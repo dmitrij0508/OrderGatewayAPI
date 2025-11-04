@@ -12,22 +12,70 @@ class OrderController {
     const debugSteps = [];
     
     try {
-      // STEP 1: Debug incoming request
+      // STEP 1: Debug incoming request with webhook detection
       logger.debugRequest(req, 'Order Creation Request');
+      
+      // Detect if this is an OhMyApp.io webhook
+      const isOhMyAppWebhook = this.detectOhMyAppWebhook(req);
+      if (isOhMyAppWebhook.isWebhook) {
+        logger.info('🎣 OHMYAPP WEBHOOK DETECTED', {
+          confidence: isOhMyAppWebhook.confidence,
+          indicators: isOhMyAppWebhook.indicators,
+          userAgent: req.get('User-Agent'),
+          contentType: req.get('Content-Type'),
+          origin: req.get('Origin')
+        });
+      }
+      
       debugSteps.push({
         description: 'Incoming request logged',
         status: 'completed',
-        data: { method: req.method, url: req.url, bodySize: JSON.stringify(req.body).length },
+        data: { 
+          method: req.method, 
+          url: req.url, 
+          bodySize: JSON.stringify(req.body).length,
+          isOhMyAppWebhook: isOhMyAppWebhook.isWebhook,
+          webhookConfidence: isOhMyAppWebhook.confidence
+        },
         duration: Date.now() - debugStartTime
       });
 
-      // STEP 2: Extract and debug raw order data
+      // STEP 2: Extract and debug raw order data with null value analysis
       const orderData = req.body;
       logger.debugPayload('Raw Order Data', orderData);
+      
+      // Analyze null values specifically for OhMyApp webhooks
+      const nullAnalysis = this.analyzeNullValues(orderData);
+      if (nullAnalysis.hasNulls) {
+        logger.warn('⚠️ NULL VALUES DETECTED IN WEBHOOK PAYLOAD', {
+          nullCount: nullAnalysis.nullCount,
+          nullPaths: nullAnalysis.nullPaths,
+          isOhMyAppWebhook: isOhMyAppWebhook.isWebhook,
+          recommendation: 'Check OhMyApp.io webhook configuration for incomplete data'
+        });
+      }
+      
+      // Enhanced data extraction for potential nested webhook data
+      const extractedData = this.extractWebhookData(orderData, isOhMyAppWebhook);
+      if (extractedData.wasExtracted) {
+        logger.info('📦 NESTED WEBHOOK DATA EXTRACTED', {
+          originalKeys: Object.keys(orderData || {}),
+          extractedKeys: Object.keys(extractedData.data || {}),
+          extractionPath: extractedData.path
+        });
+      }
+      
       debugSteps.push({
-        description: 'Raw order data extracted',
+        description: 'Raw order data extracted and analyzed',
         status: 'completed',
-        data: { hasData: !!orderData, dataType: typeof orderData, keys: Object.keys(orderData || {}) },
+        data: { 
+          hasData: !!orderData, 
+          dataType: typeof orderData, 
+          keys: Object.keys(orderData || {}),
+          nullCount: nullAnalysis.nullCount,
+          dataExtracted: extractedData.wasExtracted,
+          extractionPath: extractedData.path
+        },
         duration: Date.now() - debugStartTime
       });
       
@@ -62,57 +110,77 @@ class OrderController {
       logger.info('Processing order data:', { orderData });
       
       // STEP 5: Process order data with detailed field mapping debugging
+      // Use extracted data if available, otherwise use original
+      const dataToProcess = extractedData.wasExtracted ? extractedData.data : orderData;
+      
+      logger.debug('📋 PROCESSING ORDER DATA', {
+        usingExtractedData: extractedData.wasExtracted,
+        extractionPath: extractedData.path,
+        dataKeys: Object.keys(dataToProcess || {}),
+        hasOrderId: !!(dataToProcess.orderId || dataToProcess.order_id || dataToProcess.id),
+        hasCustomer: !!dataToProcess.customer,
+        hasItems: !!(dataToProcess.items && Array.isArray(dataToProcess.items))
+      });
+      
       const processedOrder = {
-        orderId: orderData.orderId || `ORD-${Date.now()}`,
-        externalOrderId: orderData.externalOrderId || orderData.orderId || `EXT-${Date.now()}`,
-        restaurantId: orderData.restaurantId || 'NYC-DELI-001',
+        orderId: dataToProcess.orderId || dataToProcess.order_id || dataToProcess.id || `ORD-${Date.now()}`,
+        externalOrderId: dataToProcess.externalOrderId || dataToProcess.external_order_id || dataToProcess.orderId || dataToProcess.order_id || dataToProcess.id || `EXT-${Date.now()}`,
+        restaurantId: dataToProcess.restaurantId || dataToProcess.restaurant_id || dataToProcess.merchantId || dataToProcess.merchant_id || 'NYC-DELI-001',
         
-        // Enhanced customer information
+        // Enhanced customer information with multiple field name support
         customer: {
-          name: orderData.customer?.name || 'Unknown Customer',
-          phone: orderData.customer?.phone || 'N/A',
-          email: orderData.customer?.email || null
+          name: dataToProcess.customer?.name || dataToProcess.customer?.customer_name || dataToProcess.customerName || dataToProcess.customer_name || dataToProcess.client?.name || 'Unknown Customer',
+          phone: dataToProcess.customer?.phone || dataToProcess.customer?.phone_number || dataToProcess.customerPhone || dataToProcess.customer_phone || dataToProcess.phone || 'N/A',
+          email: dataToProcess.customer?.email || dataToProcess.customer?.email_address || dataToProcess.customerEmail || dataToProcess.customer_email || dataToProcess.email || null
         },
         
-        // Enhanced order details
-        orderType: orderData.orderType || 'pickup',
-        orderTime: orderData.orderTime || new Date().toISOString(),
-        requestedTime: orderData.requestedTime || null,
+        // Enhanced order details with multiple field name support
+        orderType: dataToProcess.orderType || dataToProcess.order_type || dataToProcess.type || dataToProcess.deliveryType || dataToProcess.delivery_type || 'pickup',
+        orderTime: dataToProcess.orderTime || dataToProcess.order_time || dataToProcess.createdAt || dataToProcess.created_at || dataToProcess.timestamp || new Date().toISOString(),
+        requestedTime: dataToProcess.requestedTime || dataToProcess.requested_time || dataToProcess.deliveryTime || dataToProcess.delivery_time || null,
         
-        // Enhanced item processing - inline for better compatibility
-        items: Array.isArray(orderData.items) ? orderData.items.map(item => ({
-          itemId: item.itemId || item.id || null,
-          name: item.name || 'Unknown Item',
-          quantity: parseInt(item.quantity) || 1,
-          unitPrice: parseFloat(item.unitPrice) || 0,
-          totalPrice: parseFloat(item.totalPrice) || 0,
-          specialInstructions: item.specialInstructions || item.notes || null,
-          modifiers: Array.isArray(item.modifiers) ? item.modifiers.map(modifier => ({
-            name: modifier.name || 'Unknown Modifier',
-            price: parseFloat(modifier.price) || 0
+        // Enhanced item processing with multiple field name support
+        items: Array.isArray(dataToProcess.items) ? dataToProcess.items.map(item => ({
+          itemId: item.itemId || item.item_id || item.id || item.productId || item.product_id || null,
+          name: item.name || item.item_name || item.title || item.product_name || item.description || 'Unknown Item',
+          quantity: parseInt(item.quantity || item.qty || item.amount || 1),
+          unitPrice: parseFloat(item.unitPrice || item.unit_price || item.price || item.cost || 0),
+          totalPrice: parseFloat(item.totalPrice || item.total_price || item.total || item.line_total || 0),
+          specialInstructions: item.specialInstructions || item.special_instructions || item.notes || item.comments || null,
+          modifiers: Array.isArray(item.modifiers || item.options || item.add_ons) ? (item.modifiers || item.options || item.add_ons).map(modifier => ({
+            name: modifier.name || modifier.option_name || modifier.title || 'Unknown Modifier',
+            price: parseFloat(modifier.price || modifier.cost || modifier.additional_cost || 0)
           })) : []
-        })) : [],
+        })) : (Array.isArray(dataToProcess.orderItems) ? dataToProcess.orderItems.map(item => ({
+          itemId: item.itemId || item.item_id || item.id || null,
+          name: item.name || item.item_name || 'Unknown Item',
+          quantity: parseInt(item.quantity || 1),
+          unitPrice: parseFloat(item.unitPrice || item.price || 0),
+          totalPrice: parseFloat(item.totalPrice || item.total || 0),
+          specialInstructions: item.specialInstructions || item.notes || null,
+          modifiers: []
+        })) : []),
         
-        // Enhanced totals with all fields
+        // Enhanced totals with multiple field name support
         totals: {
-          subtotal: parseFloat(orderData.totals?.subtotal || orderData.subtotal || 0),
-          tax: parseFloat(orderData.totals?.tax || orderData.tax || 0),
-          tip: parseFloat(orderData.totals?.tip || orderData.tip || 0),
-          discount: parseFloat(orderData.totals?.discount || orderData.discount || 0),
-          deliveryFee: parseFloat(orderData.totals?.deliveryFee || orderData.deliveryFee || 0),
-          total: parseFloat(orderData.totals?.total || orderData.total || 0)
+          subtotal: parseFloat(dataToProcess.totals?.subtotal || dataToProcess.subtotal || dataToProcess.sub_total || dataToProcess.itemsTotal|| dataToProcess.items_total || 0),
+          tax: parseFloat(dataToProcess.totals?.tax || dataToProcess.tax || dataToProcess.tax_amount || dataToProcess.salesTax || dataToProcess.sales_tax || 0),
+          tip: parseFloat(dataToProcess.totals?.tip || dataToProcess.tip || dataToProcess.tip_amount || dataToProcess.gratuity || 0),
+          discount: parseFloat(dataToProcess.totals?.discount || dataToProcess.discount || dataToProcess.discount_amount || 0),
+          deliveryFee: parseFloat(dataToProcess.totals?.deliveryFee || dataToProcess.deliveryFee || dataToProcess.delivery_fee || dataToProcess.shippingCost || dataToProcess.shipping_cost || 0),
+          total: parseFloat(dataToProcess.totals?.total || dataToProcess.total || dataToProcess.total_amount || dataToProcess.grandTotal || dataToProcess.grand_total || dataToProcess.finalAmount || dataToProcess.final_amount || 0)
         },
         
-        // Enhanced payment information
+        // Enhanced payment information with multiple field name support
         payment: {
-          method: orderData.payment?.method || null,
-          status: orderData.payment?.status || 'pending',
-          transactionId: orderData.payment?.transactionId || null
+          method: dataToProcess.payment?.method || dataToProcess.payment?.payment_method || dataToProcess.paymentMethod || dataToProcess.payment_method || dataToProcess.paymentType || dataToProcess.payment_type || null,
+          status: dataToProcess.payment?.status || dataToProcess.payment?.payment_status || dataToProcess.paymentStatus || dataToProcess.payment_status || dataToProcess.status || 'pending',
+          transactionId: dataToProcess.payment?.transactionId || dataToProcess.payment?.transaction_id || dataToProcess.transactionId || dataToProcess.transaction_id || dataToProcess.paymentId || dataToProcess.payment_id || null
         },
         
-        // Enhanced notes and status
-        notes: orderData.notes || orderData.specialInstructions || '',
-        status: orderData.status || 'received'
+        // Enhanced notes and status with multiple field name support
+        notes: dataToProcess.notes || dataToProcess.special_instructions || dataToProcess.specialInstructions || dataToProcess.comments || dataToProcess.remarks || '',
+        status: dataToProcess.status || dataToProcess.order_status || dataToProcess.orderStatus || 'received'
       };
 
       // STEP 6: Debug transformation results
@@ -288,6 +356,166 @@ class OrderController {
       name: modifier.name || 'Unknown Modifier',
       price: parseFloat(modifier.price) || 0
     }));
+  }
+
+  // Helper method to detect OhMyApp.io webhooks
+  detectOhMyAppWebhook(req) {
+    const indicators = [];
+    let confidence = 0;
+    
+    // Check User-Agent
+    const userAgent = req.get('User-Agent') || '';
+    if (userAgent.toLowerCase().includes('ohmyapp') || userAgent.toLowerCase().includes('webhook')) {
+      indicators.push('User-Agent contains webhook/ohmyapp indicators');
+      confidence += 30;
+    }
+    
+    // Check Origin/Referer
+    const origin = req.get('Origin') || '';
+    const referer = req.get('Referer') || '';
+    if (origin.includes('ohmyapp.io') || referer.includes('ohmyapp.io')) {
+      indicators.push('Origin/Referer from ohmyapp.io domain');
+      confidence += 40;
+    }
+    
+    // Check for webhook-specific headers
+    const webhookHeaders = ['X-Webhook-Id', 'X-Event-Type', 'X-Signature', 'X-Hub-Signature'];
+    webhookHeaders.forEach(header => {
+      if (req.get(header)) {
+        indicators.push(`Webhook header present: ${header}`);
+        confidence += 10;
+      }
+    });
+    
+    // Check payload structure for OhMyApp patterns
+    const body = req.body;
+    if (body && typeof body === 'object') {
+      // Common OhMyApp webhook patterns
+      if (body.event || body.eventType) {
+        indicators.push('Event-based payload structure');
+        confidence += 15;
+      }
+      if (body.data || body.payload) {
+        indicators.push('Nested data structure (webhook pattern)');
+        confidence += 10;
+      }
+      if (body.timestamp || body.created_at) {
+        indicators.push('Timestamp field present');
+        confidence += 5;
+      }
+    }
+    
+    return {
+      isWebhook: confidence > 20,
+      confidence: Math.min(confidence, 100),
+      indicators,
+      source: confidence > 50 ? 'OhMyApp.io' : 'Unknown'
+    };
+  }
+
+  // Helper method to analyze null values in payload
+  analyzeNullValues(obj, path = '') {
+    let nullCount = 0;
+    let nullPaths = [];
+    
+    function traverse(current, currentPath) {
+      if (current === null) {
+        nullCount++;
+        nullPaths.push(currentPath);
+      } else if (current === undefined) {
+        nullCount++;
+        nullPaths.push(currentPath + ' (undefined)');
+      } else if (current === '') {
+        nullCount++;
+        nullPaths.push(currentPath + ' (empty string)');
+      } else if (typeof current === 'object' && current !== null) {
+        if (Array.isArray(current)) {
+          current.forEach((item, index) => {
+            traverse(item, `${currentPath}[${index}]`);
+          });
+        } else {
+          Object.keys(current).forEach(key => {
+            traverse(current[key], currentPath ? `${currentPath}.${key}` : key);
+          });
+        }
+      }
+    }
+    
+    traverse(obj, path);
+    
+    return {
+      nullCount,
+      nullPaths,
+      hasNulls: nullCount > 0
+    };
+  }
+
+  // Helper method to extract webhook data from nested structures
+  extractWebhookData(payload, webhookInfo) {
+    if (!payload || typeof payload !== 'object') {
+      return { wasExtracted: false, data: payload, path: 'direct' };
+    }
+    
+    // Try common webhook data extraction patterns
+    const extractionPaths = [
+      { path: 'data', data: payload.data },
+      { path: 'order', data: payload.order },
+      { path: 'event.data', data: payload.event?.data },
+      { path: 'payload', data: payload.payload },
+      { path: 'body', data: payload.body }
+    ];
+    
+    for (const extraction of extractionPaths) {
+      if (extraction.data && typeof extraction.data === 'object') {
+        // Check if extracted data looks more like an order than the original
+        const originalOrderScore = this.scoreOrderLikeness(payload);
+        const extractedOrderScore = this.scoreOrderLikeness(extraction.data);
+        
+        if (extractedOrderScore > originalOrderScore) {
+          logger.info('📤 EXTRACTED NESTED ORDER DATA', {
+            extractionPath: extraction.path,
+            originalScore: originalOrderScore,
+            extractedScore: extractedOrderScore,
+            originalKeys: Object.keys(payload),
+            extractedKeys: Object.keys(extraction.data)
+          });
+          
+          return {
+            wasExtracted: true,
+            data: extraction.data,
+            path: extraction.path,
+            originalData: payload
+          };
+        }
+      }
+    }
+    
+    return { wasExtracted: false, data: payload, path: 'direct' };
+  }
+
+  // Helper method to score how "order-like" a data structure is
+  scoreOrderLikeness(data) {
+    if (!data || typeof data !== 'object') return 0;
+    
+    let score = 0;
+    const keys = Object.keys(data);
+    
+    // Order identification fields
+    if (keys.some(k => k.toLowerCase().includes('order'))) score += 20;
+    if (keys.some(k => k.toLowerCase() === 'id' || k.toLowerCase().includes('id'))) score += 15;
+    
+    // Customer fields
+    if (keys.some(k => k.toLowerCase().includes('customer'))) score += 15;
+    if (keys.some(k => k.toLowerCase().includes('name'))) score += 10;
+    if (keys.some(k => k.toLowerCase().includes('phone') || k.toLowerCase().includes('email'))) score += 10;
+    
+    // Order content fields
+    if (keys.some(k => k.toLowerCase().includes('item'))) score += 15;
+    if (keys.some(k => k.toLowerCase().includes('total') || k.toLowerCase().includes('amount'))) score += 10;
+    if (keys.some(k => k.toLowerCase().includes('tax'))) score += 5;
+    if (keys.some(k => k.toLowerCase().includes('payment'))) score += 10;
+    
+    return score;
   }
   async getAllOrders(req, res, next) {
     try {

@@ -51,6 +51,181 @@ router.get('/health',
   }
 );
 
+// OHMYAPP WEBHOOK DEBUGGING ENDPOINT - Dedicated webhook payload analysis
+router.post('/debug/ohmyapp-webhook',
+  requirePermission('orders:create'),
+  async (req, res, next) => {
+    try {
+      const logger = require('../utils/logger');
+      
+      // Enhanced webhook request logging
+      logger.info('🎣 OHMYAPP WEBHOOK DEBUG - Incoming Request', {
+        timestamp: new Date().toISOString(),
+        method: req.method,
+        url: req.url,
+        headers: logger.sanitizeObject(req.headers, ['authorization', 'cookie', 'x-api-key']),
+        contentType: req.get('Content-Type'),
+        contentLength: req.get('Content-Length'),
+        userAgent: req.get('User-Agent'),
+        origin: req.get('Origin'),
+        referer: req.get('Referer'),
+        xForwardedFor: req.get('X-Forwarded-For'),
+        xRealIp: req.get('X-Real-IP'),
+        bodySize: req.body ? JSON.stringify(req.body).length : 0,
+        queryParams: req.query,
+        hasBody: !!req.body
+      });
+
+      // Deep payload analysis
+      const payload = req.body;
+      
+      // Check for common OhMyApp.io webhook patterns
+      const webhookAnalysis = {
+        payloadStructure: {
+          type: typeof payload,
+          isObject: typeof payload === 'object' && payload !== null,
+          isArray: Array.isArray(payload),
+          hasData: !!payload,
+          rootKeys: typeof payload === 'object' && payload !== null ? Object.keys(payload) : null,
+          keyCount: typeof payload === 'object' && payload !== null ? Object.keys(payload).length : 0
+        },
+        
+        // Check for nested data structures common in webhooks
+        nestedDataCheck: {
+          hasDataProperty: !!(payload && payload.data),
+          hasOrderProperty: !!(payload && payload.order),
+          hasEventProperty: !!(payload && payload.event),
+          hasPayloadProperty: !!(payload && payload.payload),
+          dataKeys: payload && payload.data ? Object.keys(payload.data) : null,
+          orderKeys: payload && payload.order ? Object.keys(payload.order) : null
+        },
+        
+        // Null value analysis
+        nullValueAnalysis: payload ? this.analyzeNullValues(payload) : null,
+        
+        // Field mapping analysis for OhMyApp.io
+        ohmyAppFieldMapping: {
+          // Check common OhMyApp field variations
+          orderId: this.findFieldValue(payload, ['orderId', 'order_id', 'id', 'orderNumber', 'order_number']),
+          customer: this.findFieldValue(payload, ['customer', 'customerInfo', 'client', 'user']),
+          items: this.findFieldValue(payload, ['items', 'orderItems', 'products', 'line_items']),
+          totals: this.findFieldValue(payload, ['totals', 'total', 'amount', 'price', 'cost']),
+          payment: this.findFieldValue(payload, ['payment', 'paymentInfo', 'billing']),
+          restaurant: this.findFieldValue(payload, ['restaurant', 'restaurantId', 'merchant', 'store'])
+        }
+      };
+
+      // Log comprehensive analysis
+      logger.debug('🔍 OHMYAPP WEBHOOK ANALYSIS', webhookAnalysis);
+      
+      // Identify potential issues
+      const issues = [];
+      if (!payload) issues.push('No payload received');
+      if (payload && Object.keys(payload).length === 0) issues.push('Empty payload object');
+      if (webhookAnalysis.nullValueAnalysis && webhookAnalysis.nullValueAnalysis.nullCount > 0) {
+        issues.push(`${webhookAnalysis.nullValueAnalysis.nullCount} null values detected`);
+      }
+      if (!webhookAnalysis.ohmyAppFieldMapping.orderId.found) issues.push('No order ID found in common locations');
+      if (!webhookAnalysis.ohmyAppFieldMapping.customer.found) issues.push('No customer data found');
+      if (!webhookAnalysis.ohmyAppFieldMapping.items.found) issues.push('No items data found');
+
+      res.json({
+        success: true,
+        debug: {
+          message: 'OhMyApp webhook analysis completed',
+          webhook: {
+            source: 'OhMyApp.io',
+            timestamp: new Date().toISOString(),
+            analysis: webhookAnalysis,
+            potentialIssues: issues,
+            recommendations: this.generateWebhookRecommendations(webhookAnalysis, issues)
+          },
+          rawPayload: payload,
+          processingHints: {
+            suggestedFieldMapping: this.generateFieldMappingSuggestions(payload),
+            dataExtractionPath: this.suggestDataExtractionPath(payload)
+          }
+        }
+      });
+      
+    } catch (error) {
+      logger.error('OhMyApp webhook analysis failed:', error);
+      res.status(500).json({
+        error: 'Webhook analysis failed',
+        message: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+);
+
+// WEBHOOK FIELD COMPARISON ENDPOINT - Compare different webhook formats
+router.post('/debug/webhook-compare',
+  requirePermission('orders:create'),
+  async (req, res, next) => {
+    try {
+      const logger = require('../utils/logger');
+      const payload = req.body;
+      
+      // Compare with expected order structure
+      const expectedStructure = {
+        orderId: 'string',
+        externalOrderId: 'string',
+        restaurantId: 'string',
+        customer: {
+          name: 'string',
+          phone: 'string',
+          email: 'string'
+        },
+        orderType: 'string',
+        orderTime: 'string',
+        items: 'array',
+        totals: {
+          subtotal: 'number',
+          tax: 'number',
+          tip: 'number',
+          total: 'number'
+        },
+        payment: {
+          method: 'string',
+          status: 'string'
+        },
+        notes: 'string',
+        status: 'string'
+      };
+
+      const comparison = this.compareStructures(payload, expectedStructure);
+      
+      logger.debug('🆚 WEBHOOK STRUCTURE COMPARISON', {
+        comparison,
+        missingFields: comparison.missing,
+        extraFields: comparison.extra,
+        typeConflicts: comparison.conflicts
+      });
+
+      res.json({
+        success: true,
+        debug: {
+          message: 'Webhook structure comparison completed',
+          expected: expectedStructure,
+          received: payload,
+          comparison: comparison,
+          mappingSuggestions: this.generateMappingSuggestions(comparison),
+          transformationNeeded: comparison.missing.length > 0 || comparison.conflicts.length > 0
+        }
+      });
+      
+    } catch (error) {
+      logger.error('Webhook comparison failed:', error);
+      res.status(500).json({
+        error: 'Webhook comparison failed',
+        message: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+);
+
 // DEBUG ENDPOINT - Testing basic functionality
 router.post('/debug',
   requirePermission('orders:create'),
@@ -403,5 +578,237 @@ router.post('/debug/sql-preview',
     }
   }
 );
+
+// Helper methods for webhook debugging
+function analyzeNullValues(obj, path = '') {
+  let nullCount = 0;
+  let nullPaths = [];
+  
+  function traverse(current, currentPath) {
+    if (current === null) {
+      nullCount++;
+      nullPaths.push(currentPath);
+    } else if (current === undefined) {
+      nullCount++;
+      nullPaths.push(currentPath + ' (undefined)');
+    } else if (typeof current === 'object' && current !== null) {
+      if (Array.isArray(current)) {
+        current.forEach((item, index) => {
+          traverse(item, `${currentPath}[${index}]`);
+        });
+      } else {
+        Object.keys(current).forEach(key => {
+          traverse(current[key], currentPath ? `${currentPath}.${key}` : key);
+        });
+      }
+    }
+  }
+  
+  traverse(obj, path);
+  
+  return {
+    nullCount,
+    nullPaths,
+    hasNulls: nullCount > 0
+  };
+}
+
+function findFieldValue(obj, fieldNames) {
+  if (!obj || typeof obj !== 'object') {
+    return { found: false, value: null, path: null };
+  }
+  
+  for (const fieldName of fieldNames) {
+    // Direct property check
+    if (obj.hasOwnProperty(fieldName) && obj[fieldName] !== null && obj[fieldName] !== undefined) {
+      return { found: true, value: obj[fieldName], path: fieldName };
+    }
+    
+    // Nested property check
+    for (const [key, value] of Object.entries(obj)) {
+      if (typeof value === 'object' && value !== null) {
+        const nested = findFieldValue(value, [fieldName]);
+        if (nested.found) {
+          return { found: true, value: nested.value, path: `${key}.${nested.path}` };
+        }
+      }
+    }
+  }
+  
+  return { found: false, value: null, path: null };
+}
+
+function generateWebhookRecommendations(analysis, issues) {
+  const recommendations = [];
+  
+  if (issues.includes('No payload received')) {
+    recommendations.push('Check webhook configuration in OhMyApp.io platform');
+    recommendations.push('Verify webhook URL is correct and accessible');
+  }
+  
+  if (issues.includes('Empty payload object')) {
+    recommendations.push('Check if OhMyApp.io is sending data in request body');
+    recommendations.push('Verify Content-Type header is application/json');
+  }
+  
+  if (issues.some(issue => issue.includes('null values'))) {
+    recommendations.push('Review OhMyApp.io webhook payload structure');
+    recommendations.push('Check if all required fields are being populated');
+  }
+  
+  if (!analysis.ohmyAppFieldMapping.orderId.found) {
+    recommendations.push('Map order ID field - check for id, order_id, orderNumber, or order_number');
+  }
+  
+  if (!analysis.ohmyAppFieldMapping.customer.found) {
+    recommendations.push('Map customer data - check for customer, customerInfo, client, or user object');
+  }
+  
+  if (!analysis.ohmyAppFieldMapping.items.found) {
+    recommendations.push('Map items data - check for items, orderItems, products, or line_items array');
+  }
+  
+  return recommendations;
+}
+
+function generateFieldMappingSuggestions(payload) {
+  if (!payload || typeof payload !== 'object') return {};
+  
+  const suggestions = {};
+  const keys = Object.keys(payload);
+  
+  // Suggest order ID mapping
+  const orderIdCandidates = keys.filter(key => 
+    key.toLowerCase().includes('order') || 
+    key.toLowerCase().includes('id') ||
+    key.toLowerCase() === 'number'
+  );
+  if (orderIdCandidates.length > 0) {
+    suggestions.orderId = orderIdCandidates;
+  }
+  
+  // Suggest customer mapping
+  const customerCandidates = keys.filter(key =>
+    key.toLowerCase().includes('customer') ||
+    key.toLowerCase().includes('client') ||
+    key.toLowerCase().includes('user')
+  );
+  if (customerCandidates.length > 0) {
+    suggestions.customer = customerCandidates;
+  }
+  
+  // Suggest items mapping
+  const itemsCandidates = keys.filter(key =>
+    key.toLowerCase().includes('item') ||
+    key.toLowerCase().includes('product') ||
+    key.toLowerCase().includes('line')
+  );
+  if (itemsCandidates.length > 0) {
+    suggestions.items = itemsCandidates;
+  }
+  
+  return suggestions;
+}
+
+function suggestDataExtractionPath(payload) {
+  if (!payload) return null;
+  
+  // Check if data is nested under common webhook wrapper properties
+  if (payload.data) return 'payload.data';
+  if (payload.order) return 'payload.order';
+  if (payload.event && payload.event.data) return 'payload.event.data';
+  if (payload.payload) return 'payload.payload';
+  
+  return 'payload'; // Direct access
+}
+
+function compareStructures(received, expected, path = '') {
+  const comparison = {
+    missing: [],
+    extra: [],
+    conflicts: [],
+    matches: []
+  };
+  
+  // Check expected fields
+  if (typeof expected === 'object' && expected !== null && !Array.isArray(expected)) {
+    Object.keys(expected).forEach(key => {
+      const currentPath = path ? `${path}.${key}` : key;
+      
+      if (!received || !received.hasOwnProperty(key)) {
+        comparison.missing.push({
+          path: currentPath,
+          expectedType: typeof expected[key] === 'object' ? 'object' : expected[key],
+          found: false
+        });
+      } else {
+        const expectedType = typeof expected[key] === 'object' && !Array.isArray(expected[key]) ? 'object' : expected[key];
+        const receivedType = typeof received[key];
+        
+        if (expectedType !== receivedType && expectedType !== 'object') {
+          comparison.conflicts.push({
+            path: currentPath,
+            expected: expectedType,
+            received: receivedType,
+            value: received[key]
+          });
+        } else {
+          comparison.matches.push({
+            path: currentPath,
+            type: receivedType
+          });
+          
+          // Recursively check nested objects
+          if (typeof expected[key] === 'object' && typeof received[key] === 'object') {
+            const nested = compareStructures(received[key], expected[key], currentPath);
+            comparison.missing.push(...nested.missing);
+            comparison.extra.push(...nested.extra);
+            comparison.conflicts.push(...nested.conflicts);
+            comparison.matches.push(...nested.matches);
+          }
+        }
+      }
+    });
+  }
+  
+  // Check for extra fields in received
+  if (received && typeof received === 'object' && received !== null) {
+    Object.keys(received).forEach(key => {
+      const currentPath = path ? `${path}.${key}` : key;
+      
+      if (!expected || !expected.hasOwnProperty(key)) {
+        comparison.extra.push({
+          path: currentPath,
+          type: typeof received[key],
+          value: received[key]
+        });
+      }
+    });
+  }
+  
+  return comparison;
+}
+
+function generateMappingSuggestions(comparison) {
+  const suggestions = [];
+  
+  comparison.missing.forEach(missing => {
+    // Find potential matches in extra fields
+    const potentialMatches = comparison.extra.filter(extra => 
+      extra.path.toLowerCase().includes(missing.path.toLowerCase()) ||
+      missing.path.toLowerCase().includes(extra.path.toLowerCase())
+    );
+    
+    if (potentialMatches.length > 0) {
+      suggestions.push({
+        missingField: missing.path,
+        suggestedMapping: potentialMatches[0].path,
+        confidence: 'medium'
+      });
+    }
+  });
+  
+  return suggestions;
+}
 
 module.exports = router;
