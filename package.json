@@ -1,8 +1,9 @@
 {
   "name": "pos-order-gateway-api",
   "version": "1.0.0",
-  "description": "Order Gateway API for POS Sync Agent - Reusable REST endpoints for mobile apps and websites",
+  "description": "Order Gateway API for POS Sync Agent - Production API deployed at https://ordergatewayapi.onrender.com",
   "main": "server.js",
+  "homepage": "https://ordergatewayapi.onrender.com",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",

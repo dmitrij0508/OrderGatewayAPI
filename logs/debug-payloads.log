@@ -1,0 +1,5881 @@
+[2025-11-04 00:40:11.024] INFO: 🔒 Proxy trust enabled for production deployment
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:40:11.032] INFO: 🔄 Applying OhMyApp.io support migration...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:40:11.040] INFO: 🗄️ Connected to SQLite database
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:40:11.066] INFO: ✅ Executed: PRAGMA table_info(orders)...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:40:11.067] INFO: 📋 Table structure:
+{
+  "0": {
+    "cid": 0,
+    "name": "id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "lower(hex(randomblob(16)))",
+    "pk": 1
+  },
+  "1": {
+    "cid": 1,
+    "name": "order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "2": {
+    "cid": 2,
+    "name": "external_order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "3": {
+    "cid": 3,
+    "name": "restaurant_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "4": {
+    "cid": 4,
+    "name": "idempotency_key",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "5": {
+    "cid": 5,
+    "name": "customer_name",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "6": {
+    "cid": 6,
+    "name": "customer_phone",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "7": {
+    "cid": 7,
+    "name": "customer_email",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "8": {
+    "cid": 8,
+    "name": "order_type",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "9": {
+    "cid": 9,
+    "name": "order_time",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "10": {
+    "cid": 10,
+    "name": "requested_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "11": {
+    "cid": 11,
+    "name": "subtotal",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "12": {
+    "cid": 12,
+    "name": "tax",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "13": {
+    "cid": 13,
+    "name": "tip",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "14": {
+    "cid": 14,
+    "name": "discount",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "15": {
+    "cid": 15,
+    "name": "delivery_fee",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "16": {
+    "cid": 16,
+    "name": "total",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "17": {
+    "cid": 17,
+    "name": "payment_method",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "18": {
+    "cid": 18,
+    "name": "payment_status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'pending'",
+    "pk": 0
+  },
+  "19": {
+    "cid": 19,
+    "name": "payment_transaction_id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "20": {
+    "cid": 20,
+    "name": "status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'received'",
+    "pk": 0
+  },
+  "21": {
+    "cid": 21,
+    "name": "estimated_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "22": {
+    "cid": 22,
+    "name": "cancellation_reason",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "23": {
+    "cid": 23,
+    "name": "notes",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "24": {
+    "cid": 24,
+    "name": "created_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "25": {
+    "cid": 25,
+    "name": "updated_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:40:11.068] INFO: 🎉 OhMyApp.io migration completed successfully!
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:40:11.069] INFO: 🧪 Testing new database structure...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:40:57.831] INFO: 🔒 Proxy trust enabled for production deployment
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:40:57.841] INFO: 🔄 Applying OhMyApp.io support migration...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:40:57.849] INFO: 🗄️ Connected to SQLite database
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:40:57.858] INFO: ✅ Executed: PRAGMA table_info(orders)...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:40:57.859] INFO: 📋 Table structure:
+{
+  "0": {
+    "cid": 0,
+    "name": "id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "lower(hex(randomblob(16)))",
+    "pk": 1
+  },
+  "1": {
+    "cid": 1,
+    "name": "order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "2": {
+    "cid": 2,
+    "name": "external_order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "3": {
+    "cid": 3,
+    "name": "restaurant_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "4": {
+    "cid": 4,
+    "name": "idempotency_key",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "5": {
+    "cid": 5,
+    "name": "customer_name",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "6": {
+    "cid": 6,
+    "name": "customer_phone",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "7": {
+    "cid": 7,
+    "name": "customer_email",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "8": {
+    "cid": 8,
+    "name": "order_type",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "9": {
+    "cid": 9,
+    "name": "order_time",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "10": {
+    "cid": 10,
+    "name": "requested_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "11": {
+    "cid": 11,
+    "name": "subtotal",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "12": {
+    "cid": 12,
+    "name": "tax",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "13": {
+    "cid": 13,
+    "name": "tip",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "14": {
+    "cid": 14,
+    "name": "discount",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "15": {
+    "cid": 15,
+    "name": "delivery_fee",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "16": {
+    "cid": 16,
+    "name": "total",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "17": {
+    "cid": 17,
+    "name": "payment_method",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "18": {
+    "cid": 18,
+    "name": "payment_status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'pending'",
+    "pk": 0
+  },
+  "19": {
+    "cid": 19,
+    "name": "payment_transaction_id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "20": {
+    "cid": 20,
+    "name": "status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'received'",
+    "pk": 0
+  },
+  "21": {
+    "cid": 21,
+    "name": "estimated_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "22": {
+    "cid": 22,
+    "name": "cancellation_reason",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "23": {
+    "cid": 23,
+    "name": "notes",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "24": {
+    "cid": 24,
+    "name": "created_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "25": {
+    "cid": 25,
+    "name": "updated_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:40:57.864] INFO: 🎉 OhMyApp.io migration completed successfully!
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:40:57.865] INFO: 🧪 Testing new database structure...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:51.921] INFO: 🔒 Proxy trust enabled for production deployment
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:51.934] INFO: 🔄 Applying OhMyApp.io support migration...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:51.948] INFO: 🗄️ Connected to SQLite database
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.000] INFO: ✅ Applied: ALTER TABLE orders ADD COLUMN customer_address TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.045] INFO: ✅ Applied: ALTER TABLE orders ADD COLUMN payment_amount REAL DEFAULT 0...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.085] INFO: ✅ Applied: ALTER TABLE orders ADD COLUMN source TEXT DEFAULT 'api'...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.139] INFO: ✅ Applied: ALTER TABLE orders ADD COLUMN webhook_metadata TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.185] INFO: ✅ Applied: ALTER TABLE orders ADD COLUMN original_order_id TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.230] INFO: ✅ Applied: ALTER TABLE orders ADD COLUMN webhook_created_at TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.272] INFO: ✅ Applied: ALTER TABLE order_items ADD COLUMN category TEXT DEFAULT 'General'...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.317] INFO: ✅ Applied: ALTER TABLE order_item_modifiers ADD COLUMN modifier_id TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.364] INFO: ✅ Applied: ALTER TABLE order_item_modifiers ADD COLUMN quantity INTEGER DEFAULT 1...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.417] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_source ON orders(source)...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.459] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_original_order_id ON orders(original_order...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.518] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_source_created ON orders(source, created_a...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.538] INFO: 📋 Final orders table structure:
+{
+  "0": {
+    "cid": 0,
+    "name": "id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "lower(hex(randomblob(16)))",
+    "pk": 1
+  },
+  "1": {
+    "cid": 1,
+    "name": "order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "2": {
+    "cid": 2,
+    "name": "external_order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "3": {
+    "cid": 3,
+    "name": "restaurant_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "4": {
+    "cid": 4,
+    "name": "idempotency_key",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "5": {
+    "cid": 5,
+    "name": "customer_name",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "6": {
+    "cid": 6,
+    "name": "customer_phone",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "7": {
+    "cid": 7,
+    "name": "customer_email",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "8": {
+    "cid": 8,
+    "name": "order_type",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "9": {
+    "cid": 9,
+    "name": "order_time",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "10": {
+    "cid": 10,
+    "name": "requested_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "11": {
+    "cid": 11,
+    "name": "subtotal",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "12": {
+    "cid": 12,
+    "name": "tax",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "13": {
+    "cid": 13,
+    "name": "tip",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "14": {
+    "cid": 14,
+    "name": "discount",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "15": {
+    "cid": 15,
+    "name": "delivery_fee",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "16": {
+    "cid": 16,
+    "name": "total",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "17": {
+    "cid": 17,
+    "name": "payment_method",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "18": {
+    "cid": 18,
+    "name": "payment_status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'pending'",
+    "pk": 0
+  },
+  "19": {
+    "cid": 19,
+    "name": "payment_transaction_id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "20": {
+    "cid": 20,
+    "name": "status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'received'",
+    "pk": 0
+  },
+  "21": {
+    "cid": 21,
+    "name": "estimated_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "22": {
+    "cid": 22,
+    "name": "cancellation_reason",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "23": {
+    "cid": 23,
+    "name": "notes",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "24": {
+    "cid": 24,
+    "name": "created_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "25": {
+    "cid": 25,
+    "name": "updated_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "26": {
+    "cid": 26,
+    "name": "customer_address",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "27": {
+    "cid": 27,
+    "name": "payment_amount",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "28": {
+    "cid": 28,
+    "name": "source",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'api'",
+    "pk": 0
+  },
+  "29": {
+    "cid": 29,
+    "name": "webhook_metadata",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "30": {
+    "cid": 30,
+    "name": "original_order_id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "31": {
+    "cid": 31,
+    "name": "webhook_created_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.588] INFO: 🎉 OhMyApp.io migration completed successfully!
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.598] INFO: 🧪 Testing new database structure...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.604] INFO: ✅ All new order columns are present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.606] INFO: ✅ order_items.category column is present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.608] INFO: ✅ All new order_item_modifiers columns are present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.609] INFO: 🎯 Database structure test completed!
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.609] INFO: ✅ Database migration completed
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.619] INFO: 🚀 Order Gateway API started on port 3000
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.708] INFO: 📖 API Index: http://localhost:3000/api
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.738] INFO: 💓 Health Check: http://localhost:3000/health
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.739] INFO: 🌍 Environment: development
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:53:52.739] INFO: 🎣 OhMyApp.io webhook support: ENABLED
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:54:29.074] INFO: Closing SQLite database...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 00:54:29.075] INFO: SIGINT received, shutting down gracefully
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.795] INFO: 🔒 Proxy trust enabled for production deployment
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.803] INFO: 🔄 Applying OhMyApp.io support migration...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.822] INFO: 🗄️ Connected to SQLite database
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.826] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN customer_address TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.830] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN payment_amount REAL DEFAULT 0...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.831] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN source TEXT DEFAULT 'api'...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.833] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN webhook_metadata TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.834] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN original_order_id TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.835] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN webhook_created_at TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.836] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_items ADD COLUMN category TEXT DEFAULT 'General'...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.839] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_item_modifiers ADD COLUMN modifier_id TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.841] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_item_modifiers ADD COLUMN quantity INTEGER DEFAULT 1...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.852] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_source ON orders(source)...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.855] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_original_order_id ON orders(original_order...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.857] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_source_created ON orders(source, created_a...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.865] INFO: 📋 Final orders table structure:
+{
+  "0": {
+    "cid": 0,
+    "name": "id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "lower(hex(randomblob(16)))",
+    "pk": 1
+  },
+  "1": {
+    "cid": 1,
+    "name": "order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "2": {
+    "cid": 2,
+    "name": "external_order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "3": {
+    "cid": 3,
+    "name": "restaurant_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "4": {
+    "cid": 4,
+    "name": "idempotency_key",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "5": {
+    "cid": 5,
+    "name": "customer_name",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "6": {
+    "cid": 6,
+    "name": "customer_phone",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "7": {
+    "cid": 7,
+    "name": "customer_email",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "8": {
+    "cid": 8,
+    "name": "order_type",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "9": {
+    "cid": 9,
+    "name": "order_time",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "10": {
+    "cid": 10,
+    "name": "requested_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "11": {
+    "cid": 11,
+    "name": "subtotal",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "12": {
+    "cid": 12,
+    "name": "tax",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "13": {
+    "cid": 13,
+    "name": "tip",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "14": {
+    "cid": 14,
+    "name": "discount",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "15": {
+    "cid": 15,
+    "name": "delivery_fee",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "16": {
+    "cid": 16,
+    "name": "total",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "17": {
+    "cid": 17,
+    "name": "payment_method",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "18": {
+    "cid": 18,
+    "name": "payment_status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'pending'",
+    "pk": 0
+  },
+  "19": {
+    "cid": 19,
+    "name": "payment_transaction_id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "20": {
+    "cid": 20,
+    "name": "status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'received'",
+    "pk": 0
+  },
+  "21": {
+    "cid": 21,
+    "name": "estimated_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "22": {
+    "cid": 22,
+    "name": "cancellation_reason",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "23": {
+    "cid": 23,
+    "name": "notes",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "24": {
+    "cid": 24,
+    "name": "created_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "25": {
+    "cid": 25,
+    "name": "updated_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "26": {
+    "cid": 26,
+    "name": "customer_address",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "27": {
+    "cid": 27,
+    "name": "payment_amount",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "28": {
+    "cid": 28,
+    "name": "source",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'api'",
+    "pk": 0
+  },
+  "29": {
+    "cid": 29,
+    "name": "webhook_metadata",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "30": {
+    "cid": 30,
+    "name": "original_order_id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "31": {
+    "cid": 31,
+    "name": "webhook_created_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.869] INFO: 🎉 OhMyApp.io migration completed successfully!
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.869] INFO: 🧪 Testing new database structure...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.871] INFO: ✅ All new order columns are present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.872] INFO: ✅ order_items.category column is present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.873] INFO: ✅ All new order_item_modifiers columns are present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.874] INFO: 🎯 Database structure test completed!
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.875] INFO: ✅ Database migration completed
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.887] INFO: 🚀 Order Gateway API started on port 3000
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.887] INFO: 📖 API Index: http://localhost:3000/api
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.888] INFO: 💓 Health Check: http://localhost:3000/health
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.888] INFO: 🌍 Environment: development
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:06:37.891] INFO: 🎣 OhMyApp.io webhook support: ENABLED
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:29.366] INFO: Closing SQLite database...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:29.367] INFO: SIGINT received, shutting down gracefully
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.761] INFO: 🔒 Proxy trust enabled for production deployment
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.768] INFO: 🔄 Applying OhMyApp.io support migration...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.782] INFO: 🗄️ Connected to SQLite database
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.788] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN customer_address TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.790] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN payment_amount REAL DEFAULT 0...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.791] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN source TEXT DEFAULT 'api'...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.792] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN webhook_metadata TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.793] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN original_order_id TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.794] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN webhook_created_at TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.795] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_items ADD COLUMN category TEXT DEFAULT 'General'...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.796] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_item_modifiers ADD COLUMN modifier_id TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.797] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_item_modifiers ADD COLUMN quantity INTEGER DEFAULT 1...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.799] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_source ON orders(source)...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.800] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_original_order_id ON orders(original_order...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.801] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_source_created ON orders(source, created_a...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.804] INFO: 📋 Final orders table structure:
+{
+  "0": {
+    "cid": 0,
+    "name": "id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "lower(hex(randomblob(16)))",
+    "pk": 1
+  },
+  "1": {
+    "cid": 1,
+    "name": "order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "2": {
+    "cid": 2,
+    "name": "external_order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "3": {
+    "cid": 3,
+    "name": "restaurant_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "4": {
+    "cid": 4,
+    "name": "idempotency_key",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "5": {
+    "cid": 5,
+    "name": "customer_name",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "6": {
+    "cid": 6,
+    "name": "customer_phone",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "7": {
+    "cid": 7,
+    "name": "customer_email",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "8": {
+    "cid": 8,
+    "name": "order_type",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "9": {
+    "cid": 9,
+    "name": "order_time",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "10": {
+    "cid": 10,
+    "name": "requested_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "11": {
+    "cid": 11,
+    "name": "subtotal",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "12": {
+    "cid": 12,
+    "name": "tax",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "13": {
+    "cid": 13,
+    "name": "tip",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "14": {
+    "cid": 14,
+    "name": "discount",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "15": {
+    "cid": 15,
+    "name": "delivery_fee",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "16": {
+    "cid": 16,
+    "name": "total",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "17": {
+    "cid": 17,
+    "name": "payment_method",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "18": {
+    "cid": 18,
+    "name": "payment_status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'pending'",
+    "pk": 0
+  },
+  "19": {
+    "cid": 19,
+    "name": "payment_transaction_id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "20": {
+    "cid": 20,
+    "name": "status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'received'",
+    "pk": 0
+  },
+  "21": {
+    "cid": 21,
+    "name": "estimated_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "22": {
+    "cid": 22,
+    "name": "cancellation_reason",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "23": {
+    "cid": 23,
+    "name": "notes",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "24": {
+    "cid": 24,
+    "name": "created_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "25": {
+    "cid": 25,
+    "name": "updated_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "26": {
+    "cid": 26,
+    "name": "customer_address",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "27": {
+    "cid": 27,
+    "name": "payment_amount",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "28": {
+    "cid": 28,
+    "name": "source",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'api'",
+    "pk": 0
+  },
+  "29": {
+    "cid": 29,
+    "name": "webhook_metadata",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "30": {
+    "cid": 30,
+    "name": "original_order_id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "31": {
+    "cid": 31,
+    "name": "webhook_created_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.808] INFO: 🎉 OhMyApp.io migration completed successfully!
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.809] INFO: 🧪 Testing new database structure...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.811] INFO: ✅ All new order columns are present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.815] INFO: ✅ order_items.category column is present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.817] INFO: ✅ All new order_item_modifiers columns are present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.817] INFO: 🎯 Database structure test completed!
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.817] INFO: ✅ Database migration completed
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.825] INFO: 🚀 Order Gateway API started on port 3000
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.826] INFO: 📖 API Index: http://localhost:3000/api
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.827] INFO: 💓 Health Check: http://localhost:3000/health
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.827] INFO: 🌍 Environment: development
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:07:53.829] INFO: 🎣 OhMyApp.io webhook support: ENABLED
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:13.764] INFO: Closing SQLite database...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:13.766] INFO: SIGINT received, shutting down gracefully
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.016] INFO: 🔒 Proxy trust enabled for production deployment
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.026] INFO: 🔄 Applying OhMyApp.io support migration...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.035] INFO: 🗄️ Connected to SQLite database
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.041] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN customer_address TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.044] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN payment_amount REAL DEFAULT 0...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.049] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN source TEXT DEFAULT 'api'...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.053] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN webhook_metadata TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.055] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN original_order_id TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.058] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN webhook_created_at TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.059] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_items ADD COLUMN category TEXT DEFAULT 'General'...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.060] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_item_modifiers ADD COLUMN modifier_id TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.061] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_item_modifiers ADD COLUMN quantity INTEGER DEFAULT 1...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.065] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_source ON orders(source)...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.067] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_original_order_id ON orders(original_order...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.069] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_source_created ON orders(source, created_a...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.073] INFO: 📋 Final orders table structure:
+{
+  "0": {
+    "cid": 0,
+    "name": "id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "lower(hex(randomblob(16)))",
+    "pk": 1
+  },
+  "1": {
+    "cid": 1,
+    "name": "order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "2": {
+    "cid": 2,
+    "name": "external_order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "3": {
+    "cid": 3,
+    "name": "restaurant_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "4": {
+    "cid": 4,
+    "name": "idempotency_key",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "5": {
+    "cid": 5,
+    "name": "customer_name",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "6": {
+    "cid": 6,
+    "name": "customer_phone",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "7": {
+    "cid": 7,
+    "name": "customer_email",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "8": {
+    "cid": 8,
+    "name": "order_type",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "9": {
+    "cid": 9,
+    "name": "order_time",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "10": {
+    "cid": 10,
+    "name": "requested_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "11": {
+    "cid": 11,
+    "name": "subtotal",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "12": {
+    "cid": 12,
+    "name": "tax",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "13": {
+    "cid": 13,
+    "name": "tip",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "14": {
+    "cid": 14,
+    "name": "discount",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "15": {
+    "cid": 15,
+    "name": "delivery_fee",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "16": {
+    "cid": 16,
+    "name": "total",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "17": {
+    "cid": 17,
+    "name": "payment_method",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "18": {
+    "cid": 18,
+    "name": "payment_status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'pending'",
+    "pk": 0
+  },
+  "19": {
+    "cid": 19,
+    "name": "payment_transaction_id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "20": {
+    "cid": 20,
+    "name": "status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'received'",
+    "pk": 0
+  },
+  "21": {
+    "cid": 21,
+    "name": "estimated_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "22": {
+    "cid": 22,
+    "name": "cancellation_reason",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "23": {
+    "cid": 23,
+    "name": "notes",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "24": {
+    "cid": 24,
+    "name": "created_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "25": {
+    "cid": 25,
+    "name": "updated_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "26": {
+    "cid": 26,
+    "name": "customer_address",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "27": {
+    "cid": 27,
+    "name": "payment_amount",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "28": {
+    "cid": 28,
+    "name": "source",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'api'",
+    "pk": 0
+  },
+  "29": {
+    "cid": 29,
+    "name": "webhook_metadata",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "30": {
+    "cid": 30,
+    "name": "original_order_id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "31": {
+    "cid": 31,
+    "name": "webhook_created_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.077] INFO: 🎉 OhMyApp.io migration completed successfully!
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.077] INFO: 🧪 Testing new database structure...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.081] INFO: ✅ All new order columns are present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.084] INFO: ✅ order_items.category column is present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.087] INFO: ✅ All new order_item_modifiers columns are present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.090] INFO: 🎯 Database structure test completed!
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.091] INFO: ✅ Database migration completed
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.102] INFO: 🚀 Order Gateway API started on port 3000
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.102] INFO: 📖 API Index: http://localhost:3000/api
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.104] INFO: 💓 Health Check: http://localhost:3000/health
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.109] INFO: 🌍 Environment: development
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:23.110] INFO: 🎣 OhMyApp.io webhook support: ENABLED
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.816] INFO: 🔒 Proxy trust enabled for production deployment
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.824] INFO: 🔄 Applying OhMyApp.io support migration...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.830] INFO: 🗄️ Connected to SQLite database
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.839] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN customer_address TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.842] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN payment_amount REAL DEFAULT 0...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.843] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN source TEXT DEFAULT 'api'...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.844] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN webhook_metadata TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.845] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN original_order_id TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.846] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN webhook_created_at TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.848] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_items ADD COLUMN category TEXT DEFAULT 'General'...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.848] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_item_modifiers ADD COLUMN modifier_id TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.849] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_item_modifiers ADD COLUMN quantity INTEGER DEFAULT 1...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.850] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_source ON orders(source)...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.852] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_original_order_id ON orders(original_order...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.855] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_source_created ON orders(source, created_a...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.861] INFO: 📋 Final orders table structure:
+{
+  "0": {
+    "cid": 0,
+    "name": "id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "lower(hex(randomblob(16)))",
+    "pk": 1
+  },
+  "1": {
+    "cid": 1,
+    "name": "order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "2": {
+    "cid": 2,
+    "name": "external_order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "3": {
+    "cid": 3,
+    "name": "restaurant_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "4": {
+    "cid": 4,
+    "name": "idempotency_key",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "5": {
+    "cid": 5,
+    "name": "customer_name",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "6": {
+    "cid": 6,
+    "name": "customer_phone",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "7": {
+    "cid": 7,
+    "name": "customer_email",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "8": {
+    "cid": 8,
+    "name": "order_type",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "9": {
+    "cid": 9,
+    "name": "order_time",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "10": {
+    "cid": 10,
+    "name": "requested_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "11": {
+    "cid": 11,
+    "name": "subtotal",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "12": {
+    "cid": 12,
+    "name": "tax",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "13": {
+    "cid": 13,
+    "name": "tip",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "14": {
+    "cid": 14,
+    "name": "discount",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "15": {
+    "cid": 15,
+    "name": "delivery_fee",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "16": {
+    "cid": 16,
+    "name": "total",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "17": {
+    "cid": 17,
+    "name": "payment_method",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "18": {
+    "cid": 18,
+    "name": "payment_status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'pending'",
+    "pk": 0
+  },
+  "19": {
+    "cid": 19,
+    "name": "payment_transaction_id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "20": {
+    "cid": 20,
+    "name": "status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'received'",
+    "pk": 0
+  },
+  "21": {
+    "cid": 21,
+    "name": "estimated_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "22": {
+    "cid": 22,
+    "name": "cancellation_reason",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "23": {
+    "cid": 23,
+    "name": "notes",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "24": {
+    "cid": 24,
+    "name": "created_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "25": {
+    "cid": 25,
+    "name": "updated_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "26": {
+    "cid": 26,
+    "name": "customer_address",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "27": {
+    "cid": 27,
+    "name": "payment_amount",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "28": {
+    "cid": 28,
+    "name": "source",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'api'",
+    "pk": 0
+  },
+  "29": {
+    "cid": 29,
+    "name": "webhook_metadata",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "30": {
+    "cid": 30,
+    "name": "original_order_id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "31": {
+    "cid": 31,
+    "name": "webhook_created_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.864] INFO: 🎉 OhMyApp.io migration completed successfully!
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.865] INFO: 🧪 Testing new database structure...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.866] INFO: ✅ All new order columns are present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.867] INFO: ✅ order_items.category column is present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:42.868] INFO: ✅ All new order_item_modifiers columns are present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:50.427] INFO: Closing SQLite database...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:17:50.428] INFO: SIGINT received, shutting down gracefully
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.774] INFO: 🔒 Proxy trust enabled for production deployment
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.786] INFO: 🔄 Applying OhMyApp.io support migration...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.797] INFO: 🗄️ Connected to SQLite database
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.803] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN customer_address TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.805] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN payment_amount REAL DEFAULT 0...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.807] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN source TEXT DEFAULT 'api'...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.809] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN webhook_metadata TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.811] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN original_order_id TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.812] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN webhook_created_at TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.813] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_items ADD COLUMN category TEXT DEFAULT 'General'...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.814] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_item_modifiers ADD COLUMN modifier_id TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.817] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_item_modifiers ADD COLUMN quantity INTEGER DEFAULT 1...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.818] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_source ON orders(source)...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.819] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_original_order_id ON orders(original_order...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.819] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_source_created ON orders(source, created_a...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.821] INFO: 📋 Final orders table structure:
+{
+  "0": {
+    "cid": 0,
+    "name": "id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "lower(hex(randomblob(16)))",
+    "pk": 1
+  },
+  "1": {
+    "cid": 1,
+    "name": "order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "2": {
+    "cid": 2,
+    "name": "external_order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "3": {
+    "cid": 3,
+    "name": "restaurant_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "4": {
+    "cid": 4,
+    "name": "idempotency_key",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "5": {
+    "cid": 5,
+    "name": "customer_name",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "6": {
+    "cid": 6,
+    "name": "customer_phone",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "7": {
+    "cid": 7,
+    "name": "customer_email",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "8": {
+    "cid": 8,
+    "name": "order_type",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "9": {
+    "cid": 9,
+    "name": "order_time",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "10": {
+    "cid": 10,
+    "name": "requested_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "11": {
+    "cid": 11,
+    "name": "subtotal",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "12": {
+    "cid": 12,
+    "name": "tax",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "13": {
+    "cid": 13,
+    "name": "tip",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "14": {
+    "cid": 14,
+    "name": "discount",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "15": {
+    "cid": 15,
+    "name": "delivery_fee",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "16": {
+    "cid": 16,
+    "name": "total",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "17": {
+    "cid": 17,
+    "name": "payment_method",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "18": {
+    "cid": 18,
+    "name": "payment_status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'pending'",
+    "pk": 0
+  },
+  "19": {
+    "cid": 19,
+    "name": "payment_transaction_id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "20": {
+    "cid": 20,
+    "name": "status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'received'",
+    "pk": 0
+  },
+  "21": {
+    "cid": 21,
+    "name": "estimated_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "22": {
+    "cid": 22,
+    "name": "cancellation_reason",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "23": {
+    "cid": 23,
+    "name": "notes",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "24": {
+    "cid": 24,
+    "name": "created_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "25": {
+    "cid": 25,
+    "name": "updated_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "26": {
+    "cid": 26,
+    "name": "customer_address",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "27": {
+    "cid": 27,
+    "name": "payment_amount",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "28": {
+    "cid": 28,
+    "name": "source",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'api'",
+    "pk": 0
+  },
+  "29": {
+    "cid": 29,
+    "name": "webhook_metadata",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "30": {
+    "cid": 30,
+    "name": "original_order_id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "31": {
+    "cid": 31,
+    "name": "webhook_created_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.822] INFO: 🎉 OhMyApp.io migration completed successfully!
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.823] INFO: 🧪 Testing new database structure...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.830] INFO: ✅ All new order columns are present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.834] INFO: ✅ order_items.category column is present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.837] INFO: ✅ All new order_item_modifiers columns are present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.837] INFO: 🎯 Database structure test completed!
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.839] INFO: ✅ Database migration completed
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.851] INFO: 🚀 Order Gateway API started on port 3000
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.851] INFO: 📖 API Index: http://localhost:3000/api
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.853] INFO: 💓 Health Check: http://localhost:3000/health
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.857] INFO: 🌍 Environment: development
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:32.861] INFO: 🎣 OhMyApp.io webhook support: ENABLED
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:18:48.533] INFO: POST /api/v1/orders
+{
+  "service": "pos-order-gateway-api",
+  "ip": "::ffff:127.0.0.1",
+  "ips": [],
+  "remoteAddress": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65"
+}
+[2025-11-04 01:18:48.534] WARN: Authentication failed: Invalid API key
+{
+  "service": "pos-order-gateway-api",
+  "ip": "::ffff:127.0.0.1",
+  "path": "/",
+  "apiKeyPrefix": "test-api...",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65"
+}
+[2025-11-04 01:19:00.468] INFO: POST /api/v1/orders
+{
+  "service": "pos-order-gateway-api",
+  "ip": "::ffff:127.0.0.1",
+  "ips": [],
+  "remoteAddress": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65"
+}
+[2025-11-04 01:19:00.469] WARN: Authentication failed: Invalid API key
+{
+  "service": "pos-order-gateway-api",
+  "ip": "::ffff:127.0.0.1",
+  "path": "/",
+  "apiKeyPrefix": "test-api...",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65"
+}
+[2025-11-04 01:19:59.765] INFO: POST /api/v1/orders
+{
+  "service": "pos-order-gateway-api",
+  "ip": "::ffff:127.0.0.1",
+  "ips": [],
+  "remoteAddress": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65"
+}
+[2025-11-04 01:19:59.765] WARN: Authentication failed: Invalid API key
+{
+  "service": "pos-order-gateway-api",
+  "ip": "::ffff:127.0.0.1",
+  "path": "/",
+  "apiKeyPrefix": "sync-age...",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65"
+}
+[2025-11-04 01:22:34.530] INFO: POST /api/v1/orders
+{
+  "service": "pos-order-gateway-api",
+  "ip": "::ffff:127.0.0.1",
+  "ips": [],
+  "remoteAddress": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65"
+}
+[2025-11-04 01:22:34.531] INFO: Authentication successful
+{
+  "service": "pos-order-gateway-api",
+  "client": "Mobile App",
+  "ip": "::ffff:127.0.0.1",
+  "path": "/"
+}
+[2025-11-04 01:22:34.535] DEBUG: 📨 REQUEST DEBUG - Order Creation Request
+{
+  "service": "pos-order-gateway-api",
+  "method": "POST",
+  "url": "/",
+  "headers": {
+    "x-api-key": "[SANITIZED]",
+    "content-type": "application/json",
+    "user-agent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65",
+    "host": "localhost:3000",
+    "content-length": "1510",
+    "connection": "Keep-Alive"
+  },
+  "query": {},
+  "params": {},
+  "bodySize": 684,
+  "bodyType": "object",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65",
+  "ip": "::ffff:127.0.0.1"
+}
+[2025-11-04 01:22:34.536] DEBUG: 🔍 PAYLOAD DEBUG - Order Creation Request - Body
+{
+  "service": "pos-order-gateway-api",
+  "payloadSize": 933,
+  "payloadType": "object",
+  "isArray": false,
+  "keys": [
+    "order_type",
+    "tax",
+    "order_id",
+    "order_time",
+    "subtotal",
+    "customer_name",
+    "restaurant_id",
+    "payment_status",
+    "customer_address",
+    "external_order_id",
+    "customer_phone",
+    "payment_method",
+    "customer_email",
+    "tip",
+    "items",
+    "total"
+  ],
+  "payload": "{\n  \"order_type\": \"delivery\",\n  \"tax\": 2.55,\n  \"order_id\": \"TEST-20251104012234\",\n  \"order_time\": \"2025-11-04T01:22:34Z\",\n  \"subtotal\": 25.5,\n  \"customer_name\": \"John Doe\",\n  \"restaurant_id\": \"REST-001\",\n  \"payment_status\": \"paid\",\n  \"customer_address\": \"123 Main St, City, State 12345\",\n  \"external_order_id\": \"EXT-TEST-20251104012234\",\n  \"customer_phone\": \"+1234567890\",\n  \"payment_method\": \"credit_card\",\n  \"customer_email\": \"john@example.com\",\n  \"tip\": 5,\n  \"items\": [\n    {\n      \"name\": \"Burger\",\n      \"item_id\": \"ITEM-001\",\n      \"quantity\": 2,\n      \"price\": 10,\n      \"category\": \"Main Course\",\n      \"modifiers\": [\n        {\n          \"price\": 1.5,\n          \"modifier_id\": \"MOD-001\",\n          \"name\": \"Extra Cheese\",\n          \"quantity\": 1\n        }\n      ]\n    },\n    {\n      \"price\": 5.5,\n      \"quantity\": 1,\n      \"item_id\": \"ITEM-002\",\n      \"name\": \"Fries\",\n      \"category\": \"Sides\"\n    }\n  ],\n  \"total\": 33.05\n}"
+}
+[2025-11-04 01:22:34.537] DEBUG: 👣 STEP-BY-STEP DEBUG - Order Creation Process (FAILED)
+{
+  "service": "pos-order-gateway-api",
+  "totalSteps": 1,
+  "steps": [
+    {
+      "step": 1,
+      "description": "Error occurred",
+      "status": "failed",
+      "data": null,
+      "duration": 3,
+      "error": "Cannot read properties of undefined (reading 'detectOhMyAppWebhook')"
+    }
+  ]
+}
+[2025-11-04 01:22:34.538] ERROR: ❌ ORDER CREATION FAILED - Detailed Debug
+{
+  "service": "pos-order-gateway-api",
+  "error": "Cannot read properties of undefined (reading 'detectOhMyAppWebhook')",
+  "stack": "TypeError: Cannot read properties of undefined (reading 'detectOhMyAppWebhook')\n    at createOrder (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\controllers\\orderController.js:19:37)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\middleware\\auth.js:68:5\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)",
+  "processingTime": "3ms",
+  "failedAtStep": 1,
+  "requestAnalysis": {
+    "hasBody": true,
+    "bodyKeys": [
+      "order_type",
+      "tax",
+      "order_id",
+      "order_time",
+      "subtotal",
+      "customer_name",
+      "restaurant_id",
+      "payment_status",
+      "customer_address",
+      "external_order_id",
+      "customer_phone",
+      "payment_method",
+      "customer_email",
+      "tip",
+      "items",
+      "total"
+    ],
+    "method": "POST",
+    "url": "/",
+    "contentType": "application/json",
+    "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65"
+  },
+  "processedOrderSnapshot": "Transformation not reached"
+}
+[2025-11-04 01:22:34.541] ERROR: API Error:
+{
+  "service": "pos-order-gateway-api",
+  "error": "Cannot read properties of undefined (reading 'detectOhMyAppWebhook')",
+  "stack": "TypeError: Cannot read properties of undefined (reading 'detectOhMyAppWebhook')\n    at createOrder (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\controllers\\orderController.js:19:37)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\middleware\\auth.js:68:5\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)",
+  "path": "/api/v1/orders",
+  "method": "POST",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65",
+  "body": {
+    "order_type": "delivery",
+    "tax": 2.55,
+    "order_id": "TEST-20251104012234",
+    "order_time": "2025-11-04T01:22:34Z",
+    "subtotal": 25.5,
+    "customer_name": "John Doe",
+    "restaurant_id": "REST-001",
+    "payment_status": "paid",
+    "customer_address": "123 Main St, City, State 12345",
+    "external_order_id": "EXT-TEST-20251104012234",
+    "customer_phone": "+1234567890",
+    "payment_method": "credit_card",
+    "customer_email": "john@example.com",
+    "tip": 5,
+    "items": [
+      {
+        "name": "Burger",
+        "item_id": "ITEM-001",
+        "quantity": 2,
+        "price": 10,
+        "category": "Main Course",
+        "modifiers": [
+          {
+            "price": 1.5,
+            "modifier_id": "MOD-001",
+            "name": "Extra Cheese",
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "price": 5.5,
+        "quantity": 1,
+        "item_id": "ITEM-002",
+        "name": "Fries",
+        "category": "Sides"
+      }
+    ],
+    "total": 33.05
+  }
+}
+[2025-11-04 01:26:54.456] INFO: 🔒 Proxy trust enabled for production deployment
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.466] INFO: 🔄 Applying OhMyApp.io support migration...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.470] INFO: 🗄️ Connected to SQLite database
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.480] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN customer_address TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.482] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN payment_amount REAL DEFAULT 0...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.484] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN source TEXT DEFAULT 'api'...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.485] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN webhook_metadata TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.486] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN original_order_id TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.487] INFO: ⚠️ Skipped (already exists): ALTER TABLE orders ADD COLUMN webhook_created_at TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.489] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_items ADD COLUMN category TEXT DEFAULT 'General'...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.490] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_item_modifiers ADD COLUMN modifier_id TEXT...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.490] INFO: ⚠️ Skipped (already exists): ALTER TABLE order_item_modifiers ADD COLUMN quantity INTEGER DEFAULT 1...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.492] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_source ON orders(source)...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.493] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_original_order_id ON orders(original_order...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.496] INFO: ✅ Applied: CREATE INDEX IF NOT EXISTS idx_orders_source_created ON orders(source, created_a...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.498] INFO: 📋 Final orders table structure:
+{
+  "0": {
+    "cid": 0,
+    "name": "id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "lower(hex(randomblob(16)))",
+    "pk": 1
+  },
+  "1": {
+    "cid": 1,
+    "name": "order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "2": {
+    "cid": 2,
+    "name": "external_order_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "3": {
+    "cid": 3,
+    "name": "restaurant_id",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "4": {
+    "cid": 4,
+    "name": "idempotency_key",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "5": {
+    "cid": 5,
+    "name": "customer_name",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "6": {
+    "cid": 6,
+    "name": "customer_phone",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "7": {
+    "cid": 7,
+    "name": "customer_email",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "8": {
+    "cid": 8,
+    "name": "order_type",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "9": {
+    "cid": 9,
+    "name": "order_time",
+    "type": "TEXT",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "10": {
+    "cid": 10,
+    "name": "requested_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "11": {
+    "cid": 11,
+    "name": "subtotal",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "12": {
+    "cid": 12,
+    "name": "tax",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "13": {
+    "cid": 13,
+    "name": "tip",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "14": {
+    "cid": 14,
+    "name": "discount",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "15": {
+    "cid": 15,
+    "name": "delivery_fee",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "16": {
+    "cid": 16,
+    "name": "total",
+    "type": "REAL",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "17": {
+    "cid": 17,
+    "name": "payment_method",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "18": {
+    "cid": 18,
+    "name": "payment_status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'pending'",
+    "pk": 0
+  },
+  "19": {
+    "cid": 19,
+    "name": "payment_transaction_id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "20": {
+    "cid": 20,
+    "name": "status",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'received'",
+    "pk": 0
+  },
+  "21": {
+    "cid": 21,
+    "name": "estimated_time",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "22": {
+    "cid": 22,
+    "name": "cancellation_reason",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "23": {
+    "cid": 23,
+    "name": "notes",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "24": {
+    "cid": 24,
+    "name": "created_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "25": {
+    "cid": 25,
+    "name": "updated_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "datetime('now')",
+    "pk": 0
+  },
+  "26": {
+    "cid": 26,
+    "name": "customer_address",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "27": {
+    "cid": 27,
+    "name": "payment_amount",
+    "type": "REAL",
+    "notnull": 0,
+    "dflt_value": "0",
+    "pk": 0
+  },
+  "28": {
+    "cid": 28,
+    "name": "source",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": "'api'",
+    "pk": 0
+  },
+  "29": {
+    "cid": 29,
+    "name": "webhook_metadata",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "30": {
+    "cid": 30,
+    "name": "original_order_id",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "31": {
+    "cid": 31,
+    "name": "webhook_created_at",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.500] INFO: 🎉 OhMyApp.io migration completed successfully!
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.501] INFO: 🧪 Testing new database structure...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.502] INFO: ✅ All new order columns are present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.504] INFO: ✅ order_items.category column is present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.508] INFO: ✅ All new order_item_modifiers columns are present
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.510] INFO: 🎯 Database structure test completed!
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.513] INFO: ✅ Database migration completed
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.519] INFO: 🚀 Order Gateway API started on port 3000
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.520] INFO: 📖 API Index: http://localhost:3000/api
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.520] INFO: 💓 Health Check: http://localhost:3000/health
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.523] INFO: 🌍 Environment: development
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:26:54.524] INFO: 🎣 OhMyApp.io webhook support: ENABLED
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:27:09.980] INFO: POST /api/v1/orders
+{
+  "service": "pos-order-gateway-api",
+  "ip": "::ffff:127.0.0.1",
+  "ips": [],
+  "remoteAddress": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65"
+}
+[2025-11-04 01:27:10.007] INFO: Authentication successful
+{
+  "service": "pos-order-gateway-api",
+  "client": "Mobile App",
+  "ip": "::ffff:127.0.0.1",
+  "path": "/"
+}
+[2025-11-04 01:27:10.013] DEBUG: 📨 REQUEST DEBUG - Order Creation Request
+{
+  "service": "pos-order-gateway-api",
+  "method": "POST",
+  "url": "/",
+  "headers": {
+    "x-api-key": "[SANITIZED]",
+    "content-type": "application/json",
+    "user-agent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65",
+    "host": "localhost:3000",
+    "content-length": "1510",
+    "connection": "Keep-Alive"
+  },
+  "query": {},
+  "params": {},
+  "bodySize": 684,
+  "bodyType": "object",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65",
+  "ip": "::ffff:127.0.0.1"
+}
+[2025-11-04 01:27:10.014] DEBUG: 🔍 PAYLOAD DEBUG - Order Creation Request - Body
+{
+  "service": "pos-order-gateway-api",
+  "payloadSize": 933,
+  "payloadType": "object",
+  "isArray": false,
+  "keys": [
+    "order_type",
+    "tax",
+    "order_id",
+    "order_time",
+    "subtotal",
+    "customer_name",
+    "restaurant_id",
+    "payment_status",
+    "customer_address",
+    "external_order_id",
+    "customer_phone",
+    "payment_method",
+    "customer_email",
+    "tip",
+    "items",
+    "total"
+  ],
+  "payload": "{\n  \"order_type\": \"delivery\",\n  \"tax\": 2.55,\n  \"order_id\": \"TEST-20251104012709\",\n  \"order_time\": \"2025-11-04T01:27:09Z\",\n  \"subtotal\": 25.5,\n  \"customer_name\": \"John Doe\",\n  \"restaurant_id\": \"REST-001\",\n  \"payment_status\": \"paid\",\n  \"customer_address\": \"123 Main St, City, State 12345\",\n  \"external_order_id\": \"EXT-TEST-20251104012709\",\n  \"customer_phone\": \"+1234567890\",\n  \"payment_method\": \"credit_card\",\n  \"customer_email\": \"john@example.com\",\n  \"tip\": 5,\n  \"items\": [\n    {\n      \"name\": \"Burger\",\n      \"item_id\": \"ITEM-001\",\n      \"quantity\": 2,\n      \"price\": 10,\n      \"category\": \"Main Course\",\n      \"modifiers\": [\n        {\n          \"price\": 1.5,\n          \"modifier_id\": \"MOD-001\",\n          \"name\": \"Extra Cheese\",\n          \"quantity\": 1\n        }\n      ]\n    },\n    {\n      \"price\": 5.5,\n      \"quantity\": 1,\n      \"item_id\": \"ITEM-002\",\n      \"name\": \"Fries\",\n      \"category\": \"Sides\"\n    }\n  ],\n  \"total\": 33.05\n}"
+}
+[2025-11-04 01:27:10.014] DEBUG: 🔍 PAYLOAD DEBUG - Raw Order Data
+{
+  "service": "pos-order-gateway-api",
+  "payloadSize": 933,
+  "payloadType": "object",
+  "isArray": false,
+  "keys": [
+    "order_type",
+    "tax",
+    "order_id",
+    "order_time",
+    "subtotal",
+    "customer_name",
+    "restaurant_id",
+    "payment_status",
+    "customer_address",
+    "external_order_id",
+    "customer_phone",
+    "payment_method",
+    "customer_email",
+    "tip",
+    "items",
+    "total"
+  ],
+  "payload": "{\n  \"order_type\": \"delivery\",\n  \"tax\": 2.55,\n  \"order_id\": \"TEST-20251104012709\",\n  \"order_time\": \"2025-11-04T01:27:09Z\",\n  \"subtotal\": 25.5,\n  \"customer_name\": \"John Doe\",\n  \"restaurant_id\": \"REST-001\",\n  \"payment_status\": \"paid\",\n  \"customer_address\": \"123 Main St, City, State 12345\",\n  \"external_order_id\": \"EXT-TEST-20251104012709\",\n  \"customer_phone\": \"+1234567890\",\n  \"payment_method\": \"credit_card\",\n  \"customer_email\": \"john@example.com\",\n  \"tip\": 5,\n  \"items\": [\n    {\n      \"name\": \"Burger\",\n      \"item_id\": \"ITEM-001\",\n      \"quantity\": 2,\n      \"price\": 10,\n      \"category\": \"Main Course\",\n      \"modifiers\": [\n        {\n          \"price\": 1.5,\n          \"modifier_id\": \"MOD-001\",\n          \"name\": \"Extra Cheese\",\n          \"quantity\": 1\n        }\n      ]\n    },\n    {\n      \"price\": 5.5,\n      \"quantity\": 1,\n      \"item_id\": \"ITEM-002\",\n      \"name\": \"Fries\",\n      \"category\": \"Sides\"\n    }\n  ],\n  \"total\": 33.05\n}"
+}
+[2025-11-04 01:27:10.017] DEBUG: 🔑 Generated new idempotency key
+{
+  "service": "pos-order-gateway-api",
+  "idempotencyKey": "4989e0f9-de47-45e2-b1d9-31b881ba4b7f"
+}
+[2025-11-04 01:27:10.017] DEBUG: 📊 ORDER ANALYSIS - Pre-processing
+{
+  "service": "pos-order-gateway-api",
+  "hasOrderId": false,
+  "hasCustomer": false,
+  "hasItems": true,
+  "itemCount": 2,
+  "hasTotals": true,
+  "hasPayment": false,
+  "originalFields": [
+    "order_type",
+    "tax",
+    "order_id",
+    "order_time",
+    "subtotal",
+    "customer_name",
+    "restaurant_id",
+    "payment_status",
+    "customer_address",
+    "external_order_id",
+    "customer_phone",
+    "payment_method",
+    "customer_email",
+    "tip",
+    "items",
+    "total"
+  ]
+}
+[2025-11-04 01:27:10.017] INFO: Processing order data:
+{
+  "service": "pos-order-gateway-api",
+  "orderData": {
+    "order_type": "delivery",
+    "tax": 2.55,
+    "order_id": "TEST-20251104012709",
+    "order_time": "2025-11-04T01:27:09Z",
+    "subtotal": 25.5,
+    "customer_name": "John Doe",
+    "restaurant_id": "REST-001",
+    "payment_status": "paid",
+    "customer_address": "123 Main St, City, State 12345",
+    "external_order_id": "EXT-TEST-20251104012709",
+    "customer_phone": "+1234567890",
+    "payment_method": "credit_card",
+    "customer_email": "john@example.com",
+    "tip": 5,
+    "items": [
+      {
+        "name": "Burger",
+        "item_id": "ITEM-001",
+        "quantity": 2,
+        "price": 10,
+        "category": "Main Course",
+        "modifiers": [
+          {
+            "price": 1.5,
+            "modifier_id": "MOD-001",
+            "name": "Extra Cheese",
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "price": 5.5,
+        "quantity": 1,
+        "item_id": "ITEM-002",
+        "name": "Fries",
+        "category": "Sides"
+      }
+    ],
+    "total": 33.05
+  }
+}
+[2025-11-04 01:27:10.018] DEBUG: 📋 PROCESSING ORDER DATA
+{
+  "service": "pos-order-gateway-api",
+  "usingExtractedData": false,
+  "extractionPath": "direct",
+  "dataKeys": [
+    "order_type",
+    "tax",
+    "order_id",
+    "order_time",
+    "subtotal",
+    "customer_name",
+    "restaurant_id",
+    "payment_status",
+    "customer_address",
+    "external_order_id",
+    "customer_phone",
+    "payment_method",
+    "customer_email",
+    "tip",
+    "items",
+    "total"
+  ],
+  "hasOrderId": true,
+  "hasCustomer": false,
+  "hasItems": true
+}
+[2025-11-04 01:27:10.019] DEBUG: 🔄 TRANSFORMATION DEBUG - Order Data Processing
+{
+  "service": "pos-order-gateway-api",
+  "beforeType": "object",
+  "beforeKeys": [
+    "order_type",
+    "tax",
+    "order_id",
+    "order_time",
+    "subtotal",
+    "customer_name",
+    "restaurant_id",
+    "payment_status",
+    "customer_address",
+    "external_order_id",
+    "customer_phone",
+    "payment_method",
+    "customer_email",
+    "tip",
+    "items",
+    "total"
+  ],
+  "beforeSample": "{\"order_type\":\"delivery\",\"tax\":2.55,\"order_id\":\"TEST-20251104012709\",\"order_time\":\"2025-11-04T01:27:09Z\",\"subtotal\":25.5,\"customer_name\":\"John Doe\",\"restaurant_id\":\"REST-001\",\"payment_status\":\"paid\",\"...",
+  "afterType": "object",
+  "afterKeys": [
+    "orderId",
+    "externalOrderId",
+    "restaurantId",
+    "customer",
+    "orderType",
+    "orderTime",
+    "requestedTime",
+    "items",
+    "totals",
+    "payment",
+    "notes",
+    "status",
+    "source",
+    "webhookMetadata",
+    "originalOrderId",
+    "createdAt",
+    "_ohmyAppFields"
+  ],
+  "afterSample": "{\"orderId\":\"TEST-20251104012709\",\"externalOrderId\":\"EXT-TEST-20251104012709\",\"restaurantId\":\"REST-001\",\"customer\":{\"name\":\"John Doe\",\"phone\":\"+1234567890\",\"email\":\"john@example.com\",\"address\":null},\"o...",
+  "transformationDetails": {
+    "fieldsGenerated": [
+      "orderId",
+      "externalOrderId"
+    ],
+    "customerFieldsMapped": [
+      "name",
+      "phone",
+      "email",
+      "address"
+    ],
+    "itemsProcessed": 2,
+    "totalsCalculated": [
+      "subtotal",
+      "tax",
+      "tip",
+      "discount",
+      "deliveryFee",
+      "total"
+    ],
+    "paymentFieldsMapped": [
+      "method",
+      "status",
+      "transactionId",
+      "amount"
+    ]
+  }
+}
+[2025-11-04 01:27:10.019] INFO: Processed order ready for service:
+{
+  "service": "pos-order-gateway-api",
+  "processedOrder": {
+    "orderId": "TEST-20251104012709",
+    "externalOrderId": "EXT-TEST-20251104012709",
+    "restaurantId": "REST-001",
+    "customer": {
+      "name": "John Doe",
+      "phone": "+1234567890",
+      "email": "john@example.com",
+      "address": null
+    },
+    "orderType": "delivery",
+    "orderTime": "2025-11-04T01:27:09Z",
+    "requestedTime": null,
+    "items": [
+      {
+        "itemId": "ITEM-001",
+        "name": "Burger",
+        "quantity": 2,
+        "unitPrice": 10,
+        "totalPrice": 0,
+        "specialInstructions": null,
+        "modifiers": [
+          {
+            "name": "Extra Cheese",
+            "price": 1.5
+          }
+        ]
+      },
+      {
+        "itemId": "ITEM-002",
+        "name": "Fries",
+        "quantity": 1,
+        "unitPrice": 5.5,
+        "totalPrice": 0,
+        "specialInstructions": null,
+        "modifiers": []
+      }
+    ],
+    "totals": {
+      "subtotal": 25.5,
+      "tax": 2.55,
+      "tip": 5,
+      "discount": 0,
+      "deliveryFee": 0,
+      "total": 33.05
+    },
+    "payment": {
+      "method": "credit_card",
+      "status": "paid",
+      "transactionId": null,
+      "amount": 0
+    },
+    "notes": "",
+    "status": "received",
+    "source": "api",
+    "webhookMetadata": null,
+    "originalOrderId": null,
+    "createdAt": null,
+    "_ohmyAppFields": {
+      "hasShippingFee": false,
+      "hasServiceFee": false,
+      "hasAddress": false,
+      "hasWebhookMetadata": false
+    }
+  }
+}
+[2025-11-04 01:27:10.021] DEBUG: 📋 PROCESSED ORDER ANALYSIS
+{
+  "service": "pos-order-gateway-api",
+  "structure": {
+    "orderId": "TEST-20251104012709",
+    "hasExternalId": true,
+    "restaurantId": "REST-001",
+    "customerComplete": true,
+    "orderType": "delivery",
+    "itemCount": 2,
+    "totalAmount": 33.05,
+    "paymentStatus": "paid",
+    "hasNotes": false
+  },
+  "itemDetails": [
+    {
+      "index": 0,
+      "name": "Burger",
+      "quantity": 2,
+      "unitPrice": 10,
+      "hasModifiers": true,
+      "modifierCount": 1
+    },
+    {
+      "index": 1,
+      "name": "Fries",
+      "quantity": 1,
+      "unitPrice": 5.5,
+      "hasModifiers": false,
+      "modifierCount": 0
+    }
+  ],
+  "financials": {
+    "subtotal": 25.5,
+    "tax": 2.55,
+    "tip": 5,
+    "total": 33.05,
+    "calculatedTotal": 33.05
+  }
+}
+[2025-11-04 01:27:10.022] INFO: Creating enhanced order TEST-20251104012709
+{
+  "service": "pos-order-gateway-api",
+  "client": "Mobile App",
+  "orderId": "TEST-20251104012709",
+  "externalOrderId": "EXT-TEST-20251104012709",
+  "restaurantId": "REST-001",
+  "customerEmail": "john@example.com",
+  "orderType": "delivery",
+  "requestedTime": null,
+  "itemCount": 2,
+  "total": 33.05,
+  "paymentStatus": "paid"
+}
+[2025-11-04 01:27:10.023] DEBUG: 🔍 PAYLOAD DEBUG - Service - Incoming Order Data
+{
+  "service": "pos-order-gateway-api",
+  "payloadSize": 1332,
+  "payloadType": "object",
+  "isArray": false,
+  "keys": [
+    "orderId",
+    "externalOrderId",
+    "restaurantId",
+    "customer",
+    "orderType",
+    "orderTime",
+    "requestedTime",
+    "items",
+    "totals",
+    "payment",
+    "notes",
+    "status",
+    "source",
+    "webhookMetadata",
+    "originalOrderId",
+    "createdAt",
+    "_ohmyAppFields"
+  ],
+  "payload": "{\n  \"orderId\": \"TEST-20251104012709\",\n  \"externalOrderId\": \"EXT-TEST-20251104012709\",\n  \"restaurantId\": \"REST-001\",\n  \"customer\": {\n    \"name\": \"John Doe\",\n    \"phone\": \"+1234567890\",\n    \"email\": \"john@example.com\",\n    \"address\": null\n  },\n  \"orderType\": \"delivery\",\n  \"orderTime\": \"2025-11-04T01:27:09Z\",\n  \"requestedTime\": null,\n  \"items\": [\n    {\n      \"itemId\": \"ITEM-001\",\n      \"name\": \"Burger\",\n      \"quantity\": 2,\n      \"unitPrice\": 10,\n      \"totalPrice\": 0,\n      \"specialInstructions\": null,\n      \"modifiers\": [\n        {\n          \"name\": \"Extra Cheese\",\n          \"price\": 1.5\n        }\n      ]\n    },\n    {\n      \"itemId\": \"ITEM-002\",\n      \"name\": \"Fries\",\n      \"quantity\": 1,\n      \"unitPrice\": 5.5,\n      \"totalPrice\": 0,\n      \"specialInstructions\": null,\n      \"modifiers\": []\n    }\n  ],\n  \"totals\": {\n    \"subtotal\": 25.5,\n    \"tax\": 2.55,\n    \"tip\": 5,\n    \"discount\": 0,\n    \"deliveryFee\": 0,\n    \"total\": 33.05\n  },\n  \"payment\": {\n    \"method\": \"credit_card\",\n    \"status\"... [TRUNCATED]"
+}
+[2025-11-04 01:27:10.023] DEBUG: 🔧 SERVICE DEBUG - Create Order Called
+{
+  "service": "pos-order-gateway-api",
+  "orderId": "TEST-20251104012709",
+  "idempotencyKey": "4989e0f9-de47-45e2-b1d9-31b881ba4b7f",
+  "hasCustomer": true,
+  "itemCount": 2,
+  "totalAmount": 33.05
+}
+[2025-11-04 01:27:10.024] DEBUG: 🗄️ DATABASE DEBUG - Idempotency Check
+{
+  "service": "pos-order-gateway-api",
+  "query": "SELECT id, order_id, status FROM orders WHERE idempotency_key = ?",
+  "parameterCount": 1,
+  "parameters": [
+    {
+      "index": 0,
+      "type": "string",
+      "value": "4989e0f9-de47-45e2-b1d9-31b881ba4b7f"
+    }
+  ],
+  "resultInfo": null
+}
+[2025-11-04 01:27:10.025] DEBUG: 🗄️ DATABASE DEBUG - Idempotency Check Result
+{
+  "service": "pos-order-gateway-api",
+  "query": "SELECT id, order_id, status FROM orders WHERE idempotency_key = ?",
+  "parameterCount": 1,
+  "parameters": [
+    {
+      "index": 0,
+      "type": "string",
+      "value": "4989e0f9-de47-45e2-b1d9-31b881ba4b7f"
+    }
+  ],
+  "resultInfo": {
+    "hasRows": 0,
+    "changes": "unknown",
+    "lastID": "unknown"
+  }
+}
+[2025-11-04 01:27:10.026] DEBUG: 🆔 Generated internal ID
+{
+  "service": "pos-order-gateway-api",
+  "internalId": "4213055a-8aa8-4e5a-a9a8-e64238ae15d7",
+  "publicOrderId": "TEST-20251104012709"
+}
+[2025-11-04 01:27:10.026] INFO: Creating order with data:
+{
+  "service": "pos-order-gateway-api",
+  "internalId": "4213055a-8aa8-4e5a-a9a8-e64238ae15d7",
+  "orderId": "TEST-20251104012709",
+  "externalOrderId": "EXT-TEST-20251104012709",
+  "customer": {
+    "name": "John Doe",
+    "phone": "+1234567890",
+    "email": "john@example.com",
+    "address": null
+  },
+  "orderType": "delivery",
+  "totals": {
+    "subtotal": 25.5,
+    "tax": 2.55,
+    "tip": 5,
+    "discount": 0,
+    "deliveryFee": 0,
+    "total": 33.05
+  }
+}
+[2025-11-04 01:27:10.030] DEBUG: 💾 SQL PARAMETERS PREPARED
+{
+  "service": "pos-order-gateway-api",
+  "parameterCount": 28,
+  "parameters": [
+    {
+      "index": 0,
+      "type": "string",
+      "value": "4213055a-8aa8-4e5a-a9a8-e64238ae15d7",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 1,
+      "type": "string",
+      "value": "TEST-20251104012709",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 2,
+      "type": "string",
+      "value": "EXT-TEST-20251104012709",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 3,
+      "type": "string",
+      "value": "REST-001",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 4,
+      "type": "string",
+      "value": "4989e0f9-de47-45e2-b1d9-31b881ba4b7f",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 5,
+      "type": "string",
+      "value": "John Doe",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 6,
+      "type": "string",
+      "value": "+1234567890",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 7,
+      "type": "string",
+      "value": "john@example.com",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 8,
+      "type": "object",
+      "value": null,
+      "isNull": true,
+      "isEmpty": false
+    },
+    {
+      "index": 9,
+      "type": "string",
+      "value": "delivery",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 10,
+      "type": "string",
+      "value": "2025-11-04T01:27:09Z",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 11,
+      "type": "object",
+      "value": null,
+      "isNull": true,
+      "isEmpty": false
+    },
+    {
+      "index": 12,
+      "type": "number",
+      "value": 25.5,
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 13,
+      "type": "number",
+      "value": 2.55,
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 14,
+      "type": "number",
+      "value": 5,
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 15,
+      "type": "number",
+      "value": 0,
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 16,
+      "type": "number",
+      "value": 0,
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 17,
+      "type": "number",
+      "value": 33.05,
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 18,
+      "type": "string",
+      "value": "credit_card",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 19,
+      "type": "string",
+      "value": "paid",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 20,
+      "type": "object",
+      "value": null,
+      "isNull": true,
+      "isEmpty": false
+    },
+    {
+      "index": 21,
+      "type": "number",
+      "value": 0,
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 22,
+      "type": "string",
+      "value": "",
+      "isNull": false,
+      "isEmpty": true
+    },
+    {
+      "index": 23,
+      "type": "string",
+      "value": "received",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 24,
+      "type": "string",
+      "value": "api",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 25,
+      "type": "object",
+      "value": null,
+      "isNull": true,
+      "isEmpty": false
+    },
+    {
+      "index": 26,
+      "type": "object",
+      "value": null,
+      "isNull": true,
+      "isEmpty": false
+    },
+    {
+      "index": 27,
+      "type": "object",
+      "value": null,
+      "isNull": true,
+      "isEmpty": false
+    }
+  ]
+}
+[2025-11-04 01:27:10.032] DEBUG: 📊 Database columns check: hasNewColumns=true
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:27:10.032] DEBUG: ✅ Using enhanced OhMyApp.io database format
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:27:10.032] DEBUG: 🗄️ DATABASE DEBUG - Main Order Insert
+{
+  "service": "pos-order-gateway-api",
+  "query": "INSERT INTO orders ( id, order_id, external_order_id, restaurant_id, idempotency_key, customer_name, customer_phone, customer_email, customer_address, order_type, order_time, requested_time, subtotal, tax, tip, discount, delivery_fee, total, payment_method, payment_status, payment_transaction_id, payment_amount, notes, status, source, webhook_metadata, original_order_id, webhook_created_at, created_at, updated_at ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now') )",
+  "parameterCount": 28,
+  "parameters": [
+    {
+      "index": 0,
+      "type": "string",
+      "value": "4213055a-8aa8-4e5a-a9a8-e64238ae15d7"
+    },
+    {
+      "index": 1,
+      "type": "string",
+      "value": "TEST-20251104012709"
+    },
+    {
+      "index": 2,
+      "type": "string",
+      "value": "EXT-TEST-20251104012709"
+    },
+    {
+      "index": 3,
+      "type": "string",
+      "value": "REST-001"
+    },
+    {
+      "index": 4,
+      "type": "string",
+      "value": "4989e0f9-de47-45e2-b1d9-31b881ba4b7f"
+    },
+    {
+      "index": 5,
+      "type": "string",
+      "value": "John Doe"
+    },
+    {
+      "index": 6,
+      "type": "string",
+      "value": "+1234567890"
+    },
+    {
+      "index": 7,
+      "type": "string",
+      "value": "john@example.com"
+    },
+    {
+      "index": 8,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 9,
+      "type": "string",
+      "value": "delivery"
+    },
+    {
+      "index": 10,
+      "type": "string",
+      "value": "2025-11-04T01:27:09Z"
+    },
+    {
+      "index": 11,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 12,
+      "type": "number",
+      "value": 25.5
+    },
+    {
+      "index": 13,
+      "type": "number",
+      "value": 2.55
+    },
+    {
+      "index": 14,
+      "type": "number",
+      "value": 5
+    },
+    {
+      "index": 15,
+      "type": "number",
+      "value": 0
+    },
+    {
+      "index": 16,
+      "type": "number",
+      "value": 0
+    },
+    {
+      "index": 17,
+      "type": "number",
+      "value": 33.05
+    },
+    {
+      "index": 18,
+      "type": "string",
+      "value": "credit_card"
+    },
+    {
+      "index": 19,
+      "type": "string",
+      "value": "paid"
+    },
+    {
+      "index": 20,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 21,
+      "type": "number",
+      "value": 0
+    },
+    {
+      "index": 22,
+      "type": "string",
+      "value": ""
+    },
+    {
+      "index": 23,
+      "type": "string",
+      "value": "received"
+    },
+    {
+      "index": 24,
+      "type": "string",
+      "value": "api"
+    },
+    {
+      "index": 25,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 26,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 27,
+      "type": "object",
+      "value": null
+    }
+  ],
+  "resultInfo": null
+}
+[2025-11-04 01:27:10.036] DEBUG: 👣 STEP-BY-STEP DEBUG - Order Service Process (FAILED)
+{
+  "service": "pos-order-gateway-api",
+  "totalSteps": 4,
+  "steps": [
+    {
+      "step": 1,
+      "description": "Service method called with order data",
+      "status": "completed",
+      "data": [
+        "orderId",
+        "hasIdempotencyKey"
+      ],
+      "duration": 1,
+      "error": null
+    },
+    {
+      "step": 2,
+      "description": "Idempotency check completed",
+      "status": "completed",
+      "data": [
+        "existingOrderFound"
+      ],
+      "duration": 2,
+      "error": null
+    },
+    {
+      "step": 3,
+      "description": "Internal ID generated",
+      "status": "completed",
+      "data": [
+        "internalId"
+      ],
+      "duration": 3,
+      "error": null
+    },
+    {
+      "step": 4,
+      "description": "Service error occurred",
+      "status": "failed",
+      "data": null,
+      "duration": 12,
+      "error": "SQLITE_CONSTRAINT: CHECK constraint failed: payment_status IN ('pending', 'authorized', 'captured', 'failed')"
+    }
+  ]
+}
+[2025-11-04 01:27:10.036] ERROR: ❌ SERVICE CREATION FAILED - Detailed Debug
+{
+  "service": "pos-order-gateway-api",
+  "error": "SQLITE_CONSTRAINT: CHECK constraint failed: payment_status IN ('pending', 'authorized', 'captured', 'failed')",
+  "stack": "Error: SQLITE_CONSTRAINT: CHECK constraint failed: payment_status IN ('pending', 'authorized', 'captured', 'failed')\n--> in Statement#run([\n  '4213055a-8aa8-4e5a-a9a8-e64238ae15d7',\n  'TEST-20251104012709',\n  'EXT-TEST-20251104012709',\n  'REST-001',\n  '4989e0f9-de47-45e2-b1d9-31b881ba4b7f',\n  'John Doe',\n  '+1234567890',\n  'john@example.com',\n  null,\n  'delivery',\n  '2025-11-04T01:27:09Z',\n  null,\n  25.5,\n  2.55,\n  5,\n  0,\n  0,\n  33.05,\n  'credit_card',\n  'paid',\n  null,\n  0,\n  '',\n  'received',\n  'api',\n  null,\n  null,\n  null\n], [Function (anonymous)])\n    at Database.<anonymous> (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\sqlite3\\lib\\sqlite3.js:76:19)\n    at Database.<anonymous> (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\sqlite3\\lib\\sqlite3.js:20:19)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\config\\database-sqlite.js:27:8\n    at new Promise (<anonymous>)\n    at Object.run (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\config\\database-sqlite.js:26:10)\n    at OrderService.createOrder (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\services\\orderService.js:184:42)\n    at async OrderController.createOrder (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\controllers\\orderController.js:305:21)",
+  "sqliteError": "SQLITE_CONSTRAINT",
+  "serviceProcessingTime": "12ms",
+  "failedAtStep": 4,
+  "orderDataSnapshot": {
+    "orderId": "TEST-20251104012709",
+    "externalOrderId": "EXT-TEST-20251104012709",
+    "hasCustomer": true,
+    "hasItems": true,
+    "itemCount": 2,
+    "hasTotals": true,
+    "totalAmount": 33.05
+  },
+  "databaseState": {
+    "lastQuery": "Check logs for last executed query",
+    "errorCode": "SQLITE_CONSTRAINT",
+    "errorErrno": 19
+  }
+}
+[2025-11-04 01:27:10.037] DEBUG: 👣 STEP-BY-STEP DEBUG - Order Creation Process (FAILED)
+{
+  "service": "pos-order-gateway-api",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "description": "Incoming request logged",
+      "status": "completed",
+      "data": [
+        "method",
+        "url",
+        "bodySize",
+        "isOhMyAppWebhook",
+        "webhookConfidence"
+      ],
+      "duration": 2,
+      "error": null
+    },
+    {
+      "step": 2,
+      "description": "Raw order data extracted and analyzed",
+      "status": "completed",
+      "data": [
+        "hasData",
+        "dataType",
+        "keys",
+        "nullCount",
+        "dataExtracted",
+        "extractionPath"
+      ],
+      "duration": 3,
+      "error": null
+    },
+    {
+      "step": 3,
+      "description": "Idempotency key processed",
+      "status": "completed",
+      "data": [
+        "hasKey",
+        "generated"
+      ],
+      "duration": 5,
+      "error": null
+    },
+    {
+      "step": 4,
+      "description": "Order data transformation completed",
+      "status": "completed",
+      "data": [
+        "itemsProcessed",
+        "totalAmount",
+        "hasCustomer"
+      ],
+      "duration": 7,
+      "error": null
+    },
+    {
+      "step": 5,
+      "description": "Calling order service",
+      "status": "in-progress",
+      "data": [
+        "orderId",
+        "idempotencyKey"
+      ],
+      "duration": 10,
+      "error": null
+    },
+    {
+      "step": 6,
+      "description": "Error occurred",
+      "status": "failed",
+      "data": null,
+      "duration": 25,
+      "error": "SQLITE_CONSTRAINT: CHECK constraint failed: payment_status IN ('pending', 'authorized', 'captured', 'failed')"
+    }
+  ]
+}
+[2025-11-04 01:27:10.038] ERROR: ❌ ORDER CREATION FAILED - Detailed Debug
+{
+  "service": "pos-order-gateway-api",
+  "error": "SQLITE_CONSTRAINT: CHECK constraint failed: payment_status IN ('pending', 'authorized', 'captured', 'failed')",
+  "stack": "Error: SQLITE_CONSTRAINT: CHECK constraint failed: payment_status IN ('pending', 'authorized', 'captured', 'failed')\n--> in Statement#run([\n  '4213055a-8aa8-4e5a-a9a8-e64238ae15d7',\n  'TEST-20251104012709',\n  'EXT-TEST-20251104012709',\n  'REST-001',\n  '4989e0f9-de47-45e2-b1d9-31b881ba4b7f',\n  'John Doe',\n  '+1234567890',\n  'john@example.com',\n  null,\n  'delivery',\n  '2025-11-04T01:27:09Z',\n  null,\n  25.5,\n  2.55,\n  5,\n  0,\n  0,\n  33.05,\n  'credit_card',\n  'paid',\n  null,\n  0,\n  '',\n  'received',\n  'api',\n  null,\n  null,\n  null\n], [Function (anonymous)])\n    at Database.<anonymous> (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\sqlite3\\lib\\sqlite3.js:76:19)\n    at Database.<anonymous> (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\sqlite3\\lib\\sqlite3.js:20:19)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\config\\database-sqlite.js:27:8\n    at new Promise (<anonymous>)\n    at Object.run (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\config\\database-sqlite.js:26:10)\n    at OrderService.createOrder (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\services\\orderService.js:184:42)\n    at async OrderController.createOrder (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\controllers\\orderController.js:305:21)",
+  "processingTime": "25ms",
+  "failedAtStep": 6,
+  "requestAnalysis": {
+    "hasBody": true,
+    "bodyKeys": [
+      "order_type",
+      "tax",
+      "order_id",
+      "order_time",
+      "subtotal",
+      "customer_name",
+      "restaurant_id",
+      "payment_status",
+      "customer_address",
+      "external_order_id",
+      "customer_phone",
+      "payment_method",
+      "customer_email",
+      "tip",
+      "items",
+      "total"
+    ],
+    "method": "POST",
+    "url": "/",
+    "contentType": "application/json",
+    "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65"
+  },
+  "processedOrderSnapshot": "Transformation completed"
+}
+[2025-11-04 01:27:10.045] ERROR: API Error:
+{
+  "service": "pos-order-gateway-api",
+  "error": "SQLITE_CONSTRAINT: CHECK constraint failed: payment_status IN ('pending', 'authorized', 'captured', 'failed')",
+  "stack": "Error: SQLITE_CONSTRAINT: CHECK constraint failed: payment_status IN ('pending', 'authorized', 'captured', 'failed')\n--> in Statement#run([\n  '4213055a-8aa8-4e5a-a9a8-e64238ae15d7',\n  'TEST-20251104012709',\n  'EXT-TEST-20251104012709',\n  'REST-001',\n  '4989e0f9-de47-45e2-b1d9-31b881ba4b7f',\n  'John Doe',\n  '+1234567890',\n  'john@example.com',\n  null,\n  'delivery',\n  '2025-11-04T01:27:09Z',\n  null,\n  25.5,\n  2.55,\n  5,\n  0,\n  0,\n  33.05,\n  'credit_card',\n  'paid',\n  null,\n  0,\n  '',\n  'received',\n  'api',\n  null,\n  null,\n  null\n], [Function (anonymous)])\n    at Database.<anonymous> (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\sqlite3\\lib\\sqlite3.js:76:19)\n    at Database.<anonymous> (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\sqlite3\\lib\\sqlite3.js:20:19)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\config\\database-sqlite.js:27:8\n    at new Promise (<anonymous>)\n    at Object.run (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\config\\database-sqlite.js:26:10)\n    at OrderService.createOrder (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\services\\orderService.js:184:42)\n    at async OrderController.createOrder (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\controllers\\orderController.js:305:21)",
+  "path": "/api/v1/orders",
+  "method": "POST",
+  "ip": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65",
+  "body": {
+    "order_type": "delivery",
+    "tax": 2.55,
+    "order_id": "TEST-20251104012709",
+    "order_time": "2025-11-04T01:27:09Z",
+    "subtotal": 25.5,
+    "customer_name": "John Doe",
+    "restaurant_id": "REST-001",
+    "payment_status": "paid",
+    "customer_address": "123 Main St, City, State 12345",
+    "external_order_id": "EXT-TEST-20251104012709",
+    "customer_phone": "+1234567890",
+    "payment_method": "credit_card",
+    "customer_email": "john@example.com",
+    "tip": 5,
+    "items": [
+      {
+        "name": "Burger",
+        "item_id": "ITEM-001",
+        "quantity": 2,
+        "price": 10,
+        "category": "Main Course",
+        "modifiers": [
+          {
+            "price": 1.5,
+            "modifier_id": "MOD-001",
+            "name": "Extra Cheese",
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "price": 5.5,
+        "quantity": 1,
+        "item_id": "ITEM-002",
+        "name": "Fries",
+        "category": "Sides"
+      }
+    ],
+    "total": 33.05
+  }
+}
+[2025-11-04 01:29:02.911] INFO: POST /api/v1/orders
+{
+  "service": "pos-order-gateway-api",
+  "ip": "::ffff:127.0.0.1",
+  "ips": [],
+  "remoteAddress": "::ffff:127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65"
+}
+[2025-11-04 01:29:02.912] INFO: Authentication successful
+{
+  "service": "pos-order-gateway-api",
+  "client": "Mobile App",
+  "ip": "::ffff:127.0.0.1",
+  "path": "/"
+}
+[2025-11-04 01:29:02.915] DEBUG: 📨 REQUEST DEBUG - Order Creation Request
+{
+  "service": "pos-order-gateway-api",
+  "method": "POST",
+  "url": "/",
+  "headers": {
+    "x-api-key": "[SANITIZED]",
+    "content-type": "application/json",
+    "user-agent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65",
+    "host": "localhost:3000",
+    "content-length": "1514",
+    "connection": "Keep-Alive"
+  },
+  "query": {},
+  "params": {},
+  "bodySize": 688,
+  "bodyType": "object",
+  "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.65",
+  "ip": "::ffff:127.0.0.1"
+}
+[2025-11-04 01:29:02.916] DEBUG: 🔍 PAYLOAD DEBUG - Order Creation Request - Body
+{
+  "service": "pos-order-gateway-api",
+  "payloadSize": 937,
+  "payloadType": "object",
+  "isArray": false,
+  "keys": [
+    "order_type",
+    "tax",
+    "order_id",
+    "order_time",
+    "subtotal",
+    "customer_name",
+    "restaurant_id",
+    "payment_status",
+    "customer_address",
+    "external_order_id",
+    "customer_phone",
+    "payment_method",
+    "customer_email",
+    "tip",
+    "items",
+    "total"
+  ],
+  "payload": "{\n  \"order_type\": \"delivery\",\n  \"tax\": 2.55,\n  \"order_id\": \"TEST-20251104012902\",\n  \"order_time\": \"2025-11-04T01:29:02Z\",\n  \"subtotal\": 25.5,\n  \"customer_name\": \"John Doe\",\n  \"restaurant_id\": \"REST-001\",\n  \"payment_status\": \"captured\",\n  \"customer_address\": \"123 Main St, City, State 12345\",\n  \"external_order_id\": \"EXT-TEST-20251104012902\",\n  \"customer_phone\": \"+1234567890\",\n  \"payment_method\": \"credit_card\",\n  \"customer_email\": \"john@example.com\",\n  \"tip\": 5,\n  \"items\": [\n    {\n      \"name\": \"Burger\",\n      \"item_id\": \"ITEM-001\",\n      \"quantity\": 2,\n      \"price\": 10,\n      \"category\": \"Main Course\",\n      \"modifiers\": [\n        {\n          \"price\": 1.5,\n          \"modifier_id\": \"MOD-001\",\n          \"name\": \"Extra Cheese\",\n          \"quantity\": 1\n        }\n      ]\n    },\n    {\n      \"price\": 5.5,\n      \"quantity\": 1,\n      \"item_id\": \"ITEM-002\",\n      \"name\": \"Fries\",\n      \"category\": \"Sides\"\n    }\n  ],\n  \"total\": 33.05\n}"
+}
+[2025-11-04 01:29:02.916] DEBUG: 🔍 PAYLOAD DEBUG - Raw Order Data
+{
+  "service": "pos-order-gateway-api",
+  "payloadSize": 937,
+  "payloadType": "object",
+  "isArray": false,
+  "keys": [
+    "order_type",
+    "tax",
+    "order_id",
+    "order_time",
+    "subtotal",
+    "customer_name",
+    "restaurant_id",
+    "payment_status",
+    "customer_address",
+    "external_order_id",
+    "customer_phone",
+    "payment_method",
+    "customer_email",
+    "tip",
+    "items",
+    "total"
+  ],
+  "payload": "{\n  \"order_type\": \"delivery\",\n  \"tax\": 2.55,\n  \"order_id\": \"TEST-20251104012902\",\n  \"order_time\": \"2025-11-04T01:29:02Z\",\n  \"subtotal\": 25.5,\n  \"customer_name\": \"John Doe\",\n  \"restaurant_id\": \"REST-001\",\n  \"payment_status\": \"captured\",\n  \"customer_address\": \"123 Main St, City, State 12345\",\n  \"external_order_id\": \"EXT-TEST-20251104012902\",\n  \"customer_phone\": \"+1234567890\",\n  \"payment_method\": \"credit_card\",\n  \"customer_email\": \"john@example.com\",\n  \"tip\": 5,\n  \"items\": [\n    {\n      \"name\": \"Burger\",\n      \"item_id\": \"ITEM-001\",\n      \"quantity\": 2,\n      \"price\": 10,\n      \"category\": \"Main Course\",\n      \"modifiers\": [\n        {\n          \"price\": 1.5,\n          \"modifier_id\": \"MOD-001\",\n          \"name\": \"Extra Cheese\",\n          \"quantity\": 1\n        }\n      ]\n    },\n    {\n      \"price\": 5.5,\n      \"quantity\": 1,\n      \"item_id\": \"ITEM-002\",\n      \"name\": \"Fries\",\n      \"category\": \"Sides\"\n    }\n  ],\n  \"total\": 33.05\n}"
+}
+[2025-11-04 01:29:02.917] DEBUG: 🔑 Generated new idempotency key
+{
+  "service": "pos-order-gateway-api",
+  "idempotencyKey": "885a7c9d-d0de-434a-8ae1-216785f42b5d"
+}
+[2025-11-04 01:29:02.917] DEBUG: 📊 ORDER ANALYSIS - Pre-processing
+{
+  "service": "pos-order-gateway-api",
+  "hasOrderId": false,
+  "hasCustomer": false,
+  "hasItems": true,
+  "itemCount": 2,
+  "hasTotals": true,
+  "hasPayment": false,
+  "originalFields": [
+    "order_type",
+    "tax",
+    "order_id",
+    "order_time",
+    "subtotal",
+    "customer_name",
+    "restaurant_id",
+    "payment_status",
+    "customer_address",
+    "external_order_id",
+    "customer_phone",
+    "payment_method",
+    "customer_email",
+    "tip",
+    "items",
+    "total"
+  ]
+}
+[2025-11-04 01:29:02.917] INFO: Processing order data:
+{
+  "service": "pos-order-gateway-api",
+  "orderData": {
+    "order_type": "delivery",
+    "tax": 2.55,
+    "order_id": "TEST-20251104012902",
+    "order_time": "2025-11-04T01:29:02Z",
+    "subtotal": 25.5,
+    "customer_name": "John Doe",
+    "restaurant_id": "REST-001",
+    "payment_status": "captured",
+    "customer_address": "123 Main St, City, State 12345",
+    "external_order_id": "EXT-TEST-20251104012902",
+    "customer_phone": "+1234567890",
+    "payment_method": "credit_card",
+    "customer_email": "john@example.com",
+    "tip": 5,
+    "items": [
+      {
+        "name": "Burger",
+        "item_id": "ITEM-001",
+        "quantity": 2,
+        "price": 10,
+        "category": "Main Course",
+        "modifiers": [
+          {
+            "price": 1.5,
+            "modifier_id": "MOD-001",
+            "name": "Extra Cheese",
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "price": 5.5,
+        "quantity": 1,
+        "item_id": "ITEM-002",
+        "name": "Fries",
+        "category": "Sides"
+      }
+    ],
+    "total": 33.05
+  }
+}
+[2025-11-04 01:29:02.918] DEBUG: 📋 PROCESSING ORDER DATA
+{
+  "service": "pos-order-gateway-api",
+  "usingExtractedData": false,
+  "extractionPath": "direct",
+  "dataKeys": [
+    "order_type",
+    "tax",
+    "order_id",
+    "order_time",
+    "subtotal",
+    "customer_name",
+    "restaurant_id",
+    "payment_status",
+    "customer_address",
+    "external_order_id",
+    "customer_phone",
+    "payment_method",
+    "customer_email",
+    "tip",
+    "items",
+    "total"
+  ],
+  "hasOrderId": true,
+  "hasCustomer": false,
+  "hasItems": true
+}
+[2025-11-04 01:29:02.918] DEBUG: 🔄 TRANSFORMATION DEBUG - Order Data Processing
+{
+  "service": "pos-order-gateway-api",
+  "beforeType": "object",
+  "beforeKeys": [
+    "order_type",
+    "tax",
+    "order_id",
+    "order_time",
+    "subtotal",
+    "customer_name",
+    "restaurant_id",
+    "payment_status",
+    "customer_address",
+    "external_order_id",
+    "customer_phone",
+    "payment_method",
+    "customer_email",
+    "tip",
+    "items",
+    "total"
+  ],
+  "beforeSample": "{\"order_type\":\"delivery\",\"tax\":2.55,\"order_id\":\"TEST-20251104012902\",\"order_time\":\"2025-11-04T01:29:02Z\",\"subtotal\":25.5,\"customer_name\":\"John Doe\",\"restaurant_id\":\"REST-001\",\"payment_status\":\"capture...",
+  "afterType": "object",
+  "afterKeys": [
+    "orderId",
+    "externalOrderId",
+    "restaurantId",
+    "customer",
+    "orderType",
+    "orderTime",
+    "requestedTime",
+    "items",
+    "totals",
+    "payment",
+    "notes",
+    "status",
+    "source",
+    "webhookMetadata",
+    "originalOrderId",
+    "createdAt",
+    "_ohmyAppFields"
+  ],
+  "afterSample": "{\"orderId\":\"TEST-20251104012902\",\"externalOrderId\":\"EXT-TEST-20251104012902\",\"restaurantId\":\"REST-001\",\"customer\":{\"name\":\"John Doe\",\"phone\":\"+1234567890\",\"email\":\"john@example.com\",\"address\":null},\"o...",
+  "transformationDetails": {
+    "fieldsGenerated": [
+      "orderId",
+      "externalOrderId"
+    ],
+    "customerFieldsMapped": [
+      "name",
+      "phone",
+      "email",
+      "address"
+    ],
+    "itemsProcessed": 2,
+    "totalsCalculated": [
+      "subtotal",
+      "tax",
+      "tip",
+      "discount",
+      "deliveryFee",
+      "total"
+    ],
+    "paymentFieldsMapped": [
+      "method",
+      "status",
+      "transactionId",
+      "amount"
+    ]
+  }
+}
+[2025-11-04 01:29:02.918] INFO: Processed order ready for service:
+{
+  "service": "pos-order-gateway-api",
+  "processedOrder": {
+    "orderId": "TEST-20251104012902",
+    "externalOrderId": "EXT-TEST-20251104012902",
+    "restaurantId": "REST-001",
+    "customer": {
+      "name": "John Doe",
+      "phone": "+1234567890",
+      "email": "john@example.com",
+      "address": null
+    },
+    "orderType": "delivery",
+    "orderTime": "2025-11-04T01:29:02Z",
+    "requestedTime": null,
+    "items": [
+      {
+        "itemId": "ITEM-001",
+        "name": "Burger",
+        "quantity": 2,
+        "unitPrice": 10,
+        "totalPrice": 0,
+        "specialInstructions": null,
+        "modifiers": [
+          {
+            "name": "Extra Cheese",
+            "price": 1.5
+          }
+        ]
+      },
+      {
+        "itemId": "ITEM-002",
+        "name": "Fries",
+        "quantity": 1,
+        "unitPrice": 5.5,
+        "totalPrice": 0,
+        "specialInstructions": null,
+        "modifiers": []
+      }
+    ],
+    "totals": {
+      "subtotal": 25.5,
+      "tax": 2.55,
+      "tip": 5,
+      "discount": 0,
+      "deliveryFee": 0,
+      "total": 33.05
+    },
+    "payment": {
+      "method": "credit_card",
+      "status": "captured",
+      "transactionId": null,
+      "amount": 0
+    },
+    "notes": "",
+    "status": "received",
+    "source": "api",
+    "webhookMetadata": null,
+    "originalOrderId": null,
+    "createdAt": null,
+    "_ohmyAppFields": {
+      "hasShippingFee": false,
+      "hasServiceFee": false,
+      "hasAddress": false,
+      "hasWebhookMetadata": false
+    }
+  }
+}
+[2025-11-04 01:29:02.919] DEBUG: 📋 PROCESSED ORDER ANALYSIS
+{
+  "service": "pos-order-gateway-api",
+  "structure": {
+    "orderId": "TEST-20251104012902",
+    "hasExternalId": true,
+    "restaurantId": "REST-001",
+    "customerComplete": true,
+    "orderType": "delivery",
+    "itemCount": 2,
+    "totalAmount": 33.05,
+    "paymentStatus": "captured",
+    "hasNotes": false
+  },
+  "itemDetails": [
+    {
+      "index": 0,
+      "name": "Burger",
+      "quantity": 2,
+      "unitPrice": 10,
+      "hasModifiers": true,
+      "modifierCount": 1
+    },
+    {
+      "index": 1,
+      "name": "Fries",
+      "quantity": 1,
+      "unitPrice": 5.5,
+      "hasModifiers": false,
+      "modifierCount": 0
+    }
+  ],
+  "financials": {
+    "subtotal": 25.5,
+    "tax": 2.55,
+    "tip": 5,
+    "total": 33.05,
+    "calculatedTotal": 33.05
+  }
+}
+[2025-11-04 01:29:02.919] INFO: Creating enhanced order TEST-20251104012902
+{
+  "service": "pos-order-gateway-api",
+  "client": "Mobile App",
+  "orderId": "TEST-20251104012902",
+  "externalOrderId": "EXT-TEST-20251104012902",
+  "restaurantId": "REST-001",
+  "customerEmail": "john@example.com",
+  "orderType": "delivery",
+  "requestedTime": null,
+  "itemCount": 2,
+  "total": 33.05,
+  "paymentStatus": "captured"
+}
+[2025-11-04 01:29:02.920] DEBUG: 🔍 PAYLOAD DEBUG - Service - Incoming Order Data
+{
+  "service": "pos-order-gateway-api",
+  "payloadSize": 1336,
+  "payloadType": "object",
+  "isArray": false,
+  "keys": [
+    "orderId",
+    "externalOrderId",
+    "restaurantId",
+    "customer",
+    "orderType",
+    "orderTime",
+    "requestedTime",
+    "items",
+    "totals",
+    "payment",
+    "notes",
+    "status",
+    "source",
+    "webhookMetadata",
+    "originalOrderId",
+    "createdAt",
+    "_ohmyAppFields"
+  ],
+  "payload": "{\n  \"orderId\": \"TEST-20251104012902\",\n  \"externalOrderId\": \"EXT-TEST-20251104012902\",\n  \"restaurantId\": \"REST-001\",\n  \"customer\": {\n    \"name\": \"John Doe\",\n    \"phone\": \"+1234567890\",\n    \"email\": \"john@example.com\",\n    \"address\": null\n  },\n  \"orderType\": \"delivery\",\n  \"orderTime\": \"2025-11-04T01:29:02Z\",\n  \"requestedTime\": null,\n  \"items\": [\n    {\n      \"itemId\": \"ITEM-001\",\n      \"name\": \"Burger\",\n      \"quantity\": 2,\n      \"unitPrice\": 10,\n      \"totalPrice\": 0,\n      \"specialInstructions\": null,\n      \"modifiers\": [\n        {\n          \"name\": \"Extra Cheese\",\n          \"price\": 1.5\n        }\n      ]\n    },\n    {\n      \"itemId\": \"ITEM-002\",\n      \"name\": \"Fries\",\n      \"quantity\": 1,\n      \"unitPrice\": 5.5,\n      \"totalPrice\": 0,\n      \"specialInstructions\": null,\n      \"modifiers\": []\n    }\n  ],\n  \"totals\": {\n    \"subtotal\": 25.5,\n    \"tax\": 2.55,\n    \"tip\": 5,\n    \"discount\": 0,\n    \"deliveryFee\": 0,\n    \"total\": 33.05\n  },\n  \"payment\": {\n    \"method\": \"credit_card\",\n    \"status\"... [TRUNCATED]"
+}
+[2025-11-04 01:29:02.920] DEBUG: 🔧 SERVICE DEBUG - Create Order Called
+{
+  "service": "pos-order-gateway-api",
+  "orderId": "TEST-20251104012902",
+  "idempotencyKey": "885a7c9d-d0de-434a-8ae1-216785f42b5d",
+  "hasCustomer": true,
+  "itemCount": 2,
+  "totalAmount": 33.05
+}
+[2025-11-04 01:29:02.920] DEBUG: 🗄️ DATABASE DEBUG - Idempotency Check
+{
+  "service": "pos-order-gateway-api",
+  "query": "SELECT id, order_id, status FROM orders WHERE idempotency_key = ?",
+  "parameterCount": 1,
+  "parameters": [
+    {
+      "index": 0,
+      "type": "string",
+      "value": "885a7c9d-d0de-434a-8ae1-216785f42b5d"
+    }
+  ],
+  "resultInfo": null
+}
+[2025-11-04 01:29:02.921] DEBUG: 🗄️ DATABASE DEBUG - Idempotency Check Result
+{
+  "service": "pos-order-gateway-api",
+  "query": "SELECT id, order_id, status FROM orders WHERE idempotency_key = ?",
+  "parameterCount": 1,
+  "parameters": [
+    {
+      "index": 0,
+      "type": "string",
+      "value": "885a7c9d-d0de-434a-8ae1-216785f42b5d"
+    }
+  ],
+  "resultInfo": {
+    "hasRows": 0,
+    "changes": "unknown",
+    "lastID": "unknown"
+  }
+}
+[2025-11-04 01:29:02.921] DEBUG: 🆔 Generated internal ID
+{
+  "service": "pos-order-gateway-api",
+  "internalId": "054f25f2-0d90-4be5-92c7-e4ff27ace2df",
+  "publicOrderId": "TEST-20251104012902"
+}
+[2025-11-04 01:29:02.922] INFO: Creating order with data:
+{
+  "service": "pos-order-gateway-api",
+  "internalId": "054f25f2-0d90-4be5-92c7-e4ff27ace2df",
+  "orderId": "TEST-20251104012902",
+  "externalOrderId": "EXT-TEST-20251104012902",
+  "customer": {
+    "name": "John Doe",
+    "phone": "+1234567890",
+    "email": "john@example.com",
+    "address": null
+  },
+  "orderType": "delivery",
+  "totals": {
+    "subtotal": 25.5,
+    "tax": 2.55,
+    "tip": 5,
+    "discount": 0,
+    "deliveryFee": 0,
+    "total": 33.05
+  }
+}
+[2025-11-04 01:29:02.923] DEBUG: 💾 SQL PARAMETERS PREPARED
+{
+  "service": "pos-order-gateway-api",
+  "parameterCount": 28,
+  "parameters": [
+    {
+      "index": 0,
+      "type": "string",
+      "value": "054f25f2-0d90-4be5-92c7-e4ff27ace2df",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 1,
+      "type": "string",
+      "value": "TEST-20251104012902",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 2,
+      "type": "string",
+      "value": "EXT-TEST-20251104012902",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 3,
+      "type": "string",
+      "value": "REST-001",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 4,
+      "type": "string",
+      "value": "885a7c9d-d0de-434a-8ae1-216785f42b5d",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 5,
+      "type": "string",
+      "value": "John Doe",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 6,
+      "type": "string",
+      "value": "+1234567890",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 7,
+      "type": "string",
+      "value": "john@example.com",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 8,
+      "type": "object",
+      "value": null,
+      "isNull": true,
+      "isEmpty": false
+    },
+    {
+      "index": 9,
+      "type": "string",
+      "value": "delivery",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 10,
+      "type": "string",
+      "value": "2025-11-04T01:29:02Z",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 11,
+      "type": "object",
+      "value": null,
+      "isNull": true,
+      "isEmpty": false
+    },
+    {
+      "index": 12,
+      "type": "number",
+      "value": 25.5,
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 13,
+      "type": "number",
+      "value": 2.55,
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 14,
+      "type": "number",
+      "value": 5,
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 15,
+      "type": "number",
+      "value": 0,
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 16,
+      "type": "number",
+      "value": 0,
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 17,
+      "type": "number",
+      "value": 33.05,
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 18,
+      "type": "string",
+      "value": "credit_card",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 19,
+      "type": "string",
+      "value": "captured",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 20,
+      "type": "object",
+      "value": null,
+      "isNull": true,
+      "isEmpty": false
+    },
+    {
+      "index": 21,
+      "type": "number",
+      "value": 0,
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 22,
+      "type": "string",
+      "value": "",
+      "isNull": false,
+      "isEmpty": true
+    },
+    {
+      "index": 23,
+      "type": "string",
+      "value": "received",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 24,
+      "type": "string",
+      "value": "api",
+      "isNull": false,
+      "isEmpty": false
+    },
+    {
+      "index": 25,
+      "type": "object",
+      "value": null,
+      "isNull": true,
+      "isEmpty": false
+    },
+    {
+      "index": 26,
+      "type": "object",
+      "value": null,
+      "isNull": true,
+      "isEmpty": false
+    },
+    {
+      "index": 27,
+      "type": "object",
+      "value": null,
+      "isNull": true,
+      "isEmpty": false
+    }
+  ]
+}
+[2025-11-04 01:29:02.925] DEBUG: 📊 Database columns check: hasNewColumns=true
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:29:02.925] DEBUG: ✅ Using enhanced OhMyApp.io database format
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:29:02.926] DEBUG: 🗄️ DATABASE DEBUG - Main Order Insert
+{
+  "service": "pos-order-gateway-api",
+  "query": "INSERT INTO orders ( id, order_id, external_order_id, restaurant_id, idempotency_key, customer_name, customer_phone, customer_email, customer_address, order_type, order_time, requested_time, subtotal, tax, tip, discount, delivery_fee, total, payment_method, payment_status, payment_transaction_id, payment_amount, notes, status, source, webhook_metadata, original_order_id, webhook_created_at, created_at, updated_at ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now') )",
+  "parameterCount": 28,
+  "parameters": [
+    {
+      "index": 0,
+      "type": "string",
+      "value": "054f25f2-0d90-4be5-92c7-e4ff27ace2df"
+    },
+    {
+      "index": 1,
+      "type": "string",
+      "value": "TEST-20251104012902"
+    },
+    {
+      "index": 2,
+      "type": "string",
+      "value": "EXT-TEST-20251104012902"
+    },
+    {
+      "index": 3,
+      "type": "string",
+      "value": "REST-001"
+    },
+    {
+      "index": 4,
+      "type": "string",
+      "value": "885a7c9d-d0de-434a-8ae1-216785f42b5d"
+    },
+    {
+      "index": 5,
+      "type": "string",
+      "value": "John Doe"
+    },
+    {
+      "index": 6,
+      "type": "string",
+      "value": "+1234567890"
+    },
+    {
+      "index": 7,
+      "type": "string",
+      "value": "john@example.com"
+    },
+    {
+      "index": 8,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 9,
+      "type": "string",
+      "value": "delivery"
+    },
+    {
+      "index": 10,
+      "type": "string",
+      "value": "2025-11-04T01:29:02Z"
+    },
+    {
+      "index": 11,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 12,
+      "type": "number",
+      "value": 25.5
+    },
+    {
+      "index": 13,
+      "type": "number",
+      "value": 2.55
+    },
+    {
+      "index": 14,
+      "type": "number",
+      "value": 5
+    },
+    {
+      "index": 15,
+      "type": "number",
+      "value": 0
+    },
+    {
+      "index": 16,
+      "type": "number",
+      "value": 0
+    },
+    {
+      "index": 17,
+      "type": "number",
+      "value": 33.05
+    },
+    {
+      "index": 18,
+      "type": "string",
+      "value": "credit_card"
+    },
+    {
+      "index": 19,
+      "type": "string",
+      "value": "captured"
+    },
+    {
+      "index": 20,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 21,
+      "type": "number",
+      "value": 0
+    },
+    {
+      "index": 22,
+      "type": "string",
+      "value": ""
+    },
+    {
+      "index": 23,
+      "type": "string",
+      "value": "received"
+    },
+    {
+      "index": 24,
+      "type": "string",
+      "value": "api"
+    },
+    {
+      "index": 25,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 26,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 27,
+      "type": "object",
+      "value": null
+    }
+  ],
+  "resultInfo": null
+}
+[2025-11-04 01:29:02.967] DEBUG: 🗄️ DATABASE DEBUG - Main Order Insert Result
+{
+  "service": "pos-order-gateway-api",
+  "query": "INSERT INTO orders ( id, order_id, external_order_id, restaurant_id, idempotency_key, customer_name, customer_phone, customer_email, customer_address, order_type, order_time, requested_time, subtotal, tax, tip, discount, delivery_fee, total, payment_method, payment_status, payment_transaction_id, payment_amount, notes, status, source, webhook_metadata, original_order_id, webhook_created_at, created_at, updated_at ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now') )",
+  "parameterCount": 28,
+  "parameters": [
+    {
+      "index": 0,
+      "type": "string",
+      "value": "054f25f2-0d90-4be5-92c7-e4ff27ace2df"
+    },
+    {
+      "index": 1,
+      "type": "string",
+      "value": "TEST-20251104012902"
+    },
+    {
+      "index": 2,
+      "type": "string",
+      "value": "EXT-TEST-20251104012902"
+    },
+    {
+      "index": 3,
+      "type": "string",
+      "value": "REST-001"
+    },
+    {
+      "index": 4,
+      "type": "string",
+      "value": "885a7c9d-d0de-434a-8ae1-216785f42b5d"
+    },
+    {
+      "index": 5,
+      "type": "string",
+      "value": "John Doe"
+    },
+    {
+      "index": 6,
+      "type": "string",
+      "value": "+1234567890"
+    },
+    {
+      "index": 7,
+      "type": "string",
+      "value": "john@example.com"
+    },
+    {
+      "index": 8,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 9,
+      "type": "string",
+      "value": "delivery"
+    },
+    {
+      "index": 10,
+      "type": "string",
+      "value": "2025-11-04T01:29:02Z"
+    },
+    {
+      "index": 11,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 12,
+      "type": "number",
+      "value": 25.5
+    },
+    {
+      "index": 13,
+      "type": "number",
+      "value": 2.55
+    },
+    {
+      "index": 14,
+      "type": "number",
+      "value": 5
+    },
+    {
+      "index": 15,
+      "type": "number",
+      "value": 0
+    },
+    {
+      "index": 16,
+      "type": "number",
+      "value": 0
+    },
+    {
+      "index": 17,
+      "type": "number",
+      "value": 33.05
+    },
+    {
+      "index": 18,
+      "type": "string",
+      "value": "credit_card"
+    },
+    {
+      "index": 19,
+      "type": "string",
+      "value": "captured"
+    },
+    {
+      "index": 20,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 21,
+      "type": "number",
+      "value": 0
+    },
+    {
+      "index": 22,
+      "type": "string",
+      "value": ""
+    },
+    {
+      "index": 23,
+      "type": "string",
+      "value": "received"
+    },
+    {
+      "index": 24,
+      "type": "string",
+      "value": "api"
+    },
+    {
+      "index": 25,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 26,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 27,
+      "type": "object",
+      "value": null
+    }
+  ],
+  "resultInfo": {
+    "hasRows": 1,
+    "changes": 1,
+    "lastID": 2
+  }
+}
+[2025-11-04 01:29:02.967] DEBUG: ✅ ORDER RECORD INSERTED
+{
+  "service": "pos-order-gateway-api",
+  "internalId": "054f25f2-0d90-4be5-92c7-e4ff27ace2df",
+  "orderId": "TEST-20251104012902",
+  "changes": 1,
+  "lastID": 2
+}
+[2025-11-04 01:29:02.967] INFO: Order main record inserted successfully
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:29:02.968] DEBUG: 🛒 PROCESSING ORDER ITEMS
+{
+  "service": "pos-order-gateway-api",
+  "itemCount": 2,
+  "items": [
+    {
+      "index": 0,
+      "name": "Burger",
+      "quantity": 2,
+      "unitPrice": 10,
+      "hasModifiers": true,
+      "modifierCount": 1
+    },
+    {
+      "index": 1,
+      "name": "Fries",
+      "quantity": 1,
+      "unitPrice": 5.5,
+      "hasModifiers": false,
+      "modifierCount": 0
+    }
+  ]
+}
+[2025-11-04 01:29:02.968] DEBUG: 🗄️ DATABASE DEBUG - Item 1 Insert
+{
+  "service": "pos-order-gateway-api",
+  "query": "INSERT INTO order_items ( id, order_id, item_id, name, quantity, unit_price, total_price, special_instructions, category, created_at ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))",
+  "parameterCount": 9,
+  "parameters": [
+    {
+      "index": 0,
+      "type": "string",
+      "value": "2e90d6ae-8c91-433a-b047-dbae24854393"
+    },
+    {
+      "index": 1,
+      "type": "string",
+      "value": "054f25f2-0d90-4be5-92c7-e4ff27ace2df"
+    },
+    {
+      "index": 2,
+      "type": "string",
+      "value": "ITEM-001"
+    },
+    {
+      "index": 3,
+      "type": "string",
+      "value": "Burger"
+    },
+    {
+      "index": 4,
+      "type": "number",
+      "value": 2
+    },
+    {
+      "index": 5,
+      "type": "number",
+      "value": 10
+    },
+    {
+      "index": 6,
+      "type": "number",
+      "value": 0
+    },
+    {
+      "index": 7,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 8,
+      "type": "string",
+      "value": "General"
+    }
+  ],
+  "resultInfo": null
+}
+[2025-11-04 01:29:03.011] DEBUG: 🗄️ DATABASE DEBUG - Item 1 Insert Result
+{
+  "service": "pos-order-gateway-api",
+  "query": "INSERT INTO order_items ( id, order_id, item_id, name, quantity, unit_price, total_price, special_instructions, category, created_at ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))",
+  "parameterCount": 9,
+  "parameters": [
+    {
+      "index": 0,
+      "type": "string",
+      "value": "2e90d6ae-8c91-433a-b047-dbae24854393"
+    },
+    {
+      "index": 1,
+      "type": "string",
+      "value": "054f25f2-0d90-4be5-92c7-e4ff27ace2df"
+    },
+    {
+      "index": 2,
+      "type": "string",
+      "value": "ITEM-001"
+    },
+    {
+      "index": 3,
+      "type": "string",
+      "value": "Burger"
+    },
+    {
+      "index": 4,
+      "type": "number",
+      "value": 2
+    },
+    {
+      "index": 5,
+      "type": "number",
+      "value": 10
+    },
+    {
+      "index": 6,
+      "type": "number",
+      "value": 0
+    },
+    {
+      "index": 7,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 8,
+      "type": "string",
+      "value": "General"
+    }
+  ],
+  "resultInfo": {
+    "hasRows": 1,
+    "changes": 1,
+    "lastID": 3
+  }
+}
+[2025-11-04 01:29:03.011] DEBUG: 🏷️ Processing 1 modifiers for item Burger
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:29:03.012] DEBUG: 🗄️ DATABASE DEBUG - Item 1 Modifier 1 Insert
+{
+  "service": "pos-order-gateway-api",
+  "query": "INSERT INTO order_item_modifiers ( id, order_item_id, modifier_id, name, price, quantity, created_at ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'))",
+  "parameterCount": 6,
+  "parameters": [
+    {
+      "index": 0,
+      "type": "string",
+      "value": "d1c0ee94-1049-4da2-a675-6ac10e1b9643"
+    },
+    {
+      "index": 1,
+      "type": "string",
+      "value": "2e90d6ae-8c91-433a-b047-dbae24854393"
+    },
+    {
+      "index": 2,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 3,
+      "type": "string",
+      "value": "Extra Cheese"
+    },
+    {
+      "index": 4,
+      "type": "number",
+      "value": 1.5
+    },
+    {
+      "index": 5,
+      "type": "number",
+      "value": 1
+    }
+  ],
+  "resultInfo": null
+}
+[2025-11-04 01:29:03.049] DEBUG: 🗄️ DATABASE DEBUG - Item 1 Modifier 1 Result
+{
+  "service": "pos-order-gateway-api",
+  "query": "INSERT INTO order_item_modifiers ( id, order_item_id, modifier_id, name, price, quantity, created_at ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'))",
+  "parameterCount": 6,
+  "parameters": [
+    {
+      "index": 0,
+      "type": "string",
+      "value": "d1c0ee94-1049-4da2-a675-6ac10e1b9643"
+    },
+    {
+      "index": 1,
+      "type": "string",
+      "value": "2e90d6ae-8c91-433a-b047-dbae24854393"
+    },
+    {
+      "index": 2,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 3,
+      "type": "string",
+      "value": "Extra Cheese"
+    },
+    {
+      "index": 4,
+      "type": "number",
+      "value": 1.5
+    },
+    {
+      "index": 5,
+      "type": "number",
+      "value": 1
+    }
+  ],
+  "resultInfo": {
+    "hasRows": 1,
+    "changes": 1,
+    "lastID": 2
+  }
+}
+[2025-11-04 01:29:03.049] DEBUG: 🗄️ DATABASE DEBUG - Item 2 Insert
+{
+  "service": "pos-order-gateway-api",
+  "query": "INSERT INTO order_items ( id, order_id, item_id, name, quantity, unit_price, total_price, special_instructions, category, created_at ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))",
+  "parameterCount": 9,
+  "parameters": [
+    {
+      "index": 0,
+      "type": "string",
+      "value": "9fc8a5d6-2237-4d7c-afce-04d43de64a7d"
+    },
+    {
+      "index": 1,
+      "type": "string",
+      "value": "054f25f2-0d90-4be5-92c7-e4ff27ace2df"
+    },
+    {
+      "index": 2,
+      "type": "string",
+      "value": "ITEM-002"
+    },
+    {
+      "index": 3,
+      "type": "string",
+      "value": "Fries"
+    },
+    {
+      "index": 4,
+      "type": "number",
+      "value": 1
+    },
+    {
+      "index": 5,
+      "type": "number",
+      "value": 5.5
+    },
+    {
+      "index": 6,
+      "type": "number",
+      "value": 0
+    },
+    {
+      "index": 7,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 8,
+      "type": "string",
+      "value": "General"
+    }
+  ],
+  "resultInfo": null
+}
+[2025-11-04 01:29:03.090] DEBUG: 🗄️ DATABASE DEBUG - Item 2 Insert Result
+{
+  "service": "pos-order-gateway-api",
+  "query": "INSERT INTO order_items ( id, order_id, item_id, name, quantity, unit_price, total_price, special_instructions, category, created_at ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))",
+  "parameterCount": 9,
+  "parameters": [
+    {
+      "index": 0,
+      "type": "string",
+      "value": "9fc8a5d6-2237-4d7c-afce-04d43de64a7d"
+    },
+    {
+      "index": 1,
+      "type": "string",
+      "value": "054f25f2-0d90-4be5-92c7-e4ff27ace2df"
+    },
+    {
+      "index": 2,
+      "type": "string",
+      "value": "ITEM-002"
+    },
+    {
+      "index": 3,
+      "type": "string",
+      "value": "Fries"
+    },
+    {
+      "index": 4,
+      "type": "number",
+      "value": 1
+    },
+    {
+      "index": 5,
+      "type": "number",
+      "value": 5.5
+    },
+    {
+      "index": 6,
+      "type": "number",
+      "value": 0
+    },
+    {
+      "index": 7,
+      "type": "object",
+      "value": null
+    },
+    {
+      "index": 8,
+      "type": "string",
+      "value": "General"
+    }
+  ],
+  "resultInfo": {
+    "hasRows": 1,
+    "changes": 1,
+    "lastID": 4
+  }
+}
+[2025-11-04 01:29:03.090] INFO: Inserted 2 items for order TEST-20251104012902
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:29:03.091] INFO: Order created successfully: TEST-20251104012902
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:29:03.097] DEBUG: 👣 STEP-BY-STEP DEBUG - Order Service Process
+{
+  "service": "pos-order-gateway-api",
+  "totalSteps": 7,
+  "steps": [
+    {
+      "step": 1,
+      "description": "Service method called with order data",
+      "status": "completed",
+      "data": [
+        "orderId",
+        "hasIdempotencyKey"
+      ],
+      "duration": null,
+      "error": null
+    },
+    {
+      "step": 2,
+      "description": "Idempotency check completed",
+      "status": "completed",
+      "data": [
+        "existingOrderFound"
+      ],
+      "duration": 1,
+      "error": null
+    },
+    {
+      "step": 3,
+      "description": "Internal ID generated",
+      "status": "completed",
+      "data": [
+        "internalId"
+      ],
+      "duration": 1,
+      "error": null
+    },
+    {
+      "step": 4,
+      "description": "Main order record inserted",
+      "status": "completed",
+      "data": [
+        "changes",
+        "lastID"
+      ],
+      "duration": 47,
+      "error": null
+    },
+    {
+      "step": 5,
+      "description": "Order items processed",
+      "status": "completed",
+      "data": [
+        "itemsInserted"
+      ],
+      "duration": 170,
+      "error": null
+    },
+    {
+      "step": 6,
+      "description": "Retrieving created order",
+      "status": "in-progress",
+      "data": [
+        "orderId"
+      ],
+      "duration": 171,
+      "error": null
+    },
+    {
+      "step": 7,
+      "description": "Order retrieval completed",
+      "status": "completed",
+      "data": [
+        "hasOrder",
+        "orderItemCount"
+      ],
+      "duration": 177,
+      "error": null
+    }
+  ]
+}
+[2025-11-04 01:29:03.098] DEBUG: 🎯 SERVICE COMPLETION SUCCESS
+{
+  "service": "pos-order-gateway-api",
+  "orderId": "TEST-20251104012902",
+  "totalServiceTime": "177ms",
+  "stepsCompleted": 7,
+  "finalOrder": {
+    "id": "TEST-20251104012902",
+    "itemCount": 2,
+    "totalAmount": 33.05,
+    "status": "received"
+  }
+}
+[2025-11-04 01:29:03.098] DEBUG: 👣 STEP-BY-STEP DEBUG - Order Creation Process
+{
+  "service": "pos-order-gateway-api",
+  "totalSteps": 6,
+  "steps": [
+    {
+      "step": 1,
+      "description": "Incoming request logged",
+      "status": "completed",
+      "data": [
+        "method",
+        "url",
+        "bodySize",
+        "isOhMyAppWebhook",
+        "webhookConfidence"
+      ],
+      "duration": 1,
+      "error": null
+    },
+    {
+      "step": 2,
+      "description": "Raw order data extracted and analyzed",
+      "status": "completed",
+      "data": [
+        "hasData",
+        "dataType",
+        "keys",
+        "nullCount",
+        "dataExtracted",
+        "extractionPath"
+      ],
+      "duration": 1,
+      "error": null
+    },
+    {
+      "step": 3,
+      "description": "Idempotency key processed",
+      "status": "completed",
+      "data": [
+        "hasKey",
+        "generated"
+      ],
+      "duration": 2,
+      "error": null
+    },
+    {
+      "step": 4,
+      "description": "Order data transformation completed",
+      "status": "completed",
+      "data": [
+        "itemsProcessed",
+        "totalAmount",
+        "hasCustomer"
+      ],
+      "duration": 3,
+      "error": null
+    },
+    {
+      "step": 5,
+      "description": "Calling order service",
+      "status": "in-progress",
+      "data": [
+        "orderId",
+        "idempotencyKey"
+      ],
+      "duration": 5,
+      "error": null
+    },
+    {
+      "step": 6,
+      "description": "Order service completed successfully",
+      "status": "completed",
+      "data": [
+        "createdOrderId",
+        "serviceResponse"
+      ],
+      "duration": 183,
+      "error": null
+    }
+  ]
+}
+[2025-11-04 01:29:03.098] DEBUG: 🎉 ORDER CREATION SUCCESS
+{
+  "service": "pos-order-gateway-api",
+  "orderId": "TEST-20251104012902",
+  "totalProcessingTime": "183ms",
+  "stepsCompleted": 6,
+  "client": "Mobile App",
+  "finalOrderStructure": {
+    "hasItems": true,
+    "itemCount": 2,
+    "totalAmount": 33.05,
+    "status": "received"
+  }
+}
+[2025-11-04 01:30:30.477] INFO: Closing SQLite database...
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-04 01:30:30.478] INFO: SIGINT received, shutting down gracefully
+{
+  "service": "pos-order-gateway-api"
+}

@@ -19,17 +19,24 @@ SETUP STEPS
 
 That's it! The API will be running at http://localhost:3000
 
+PRODUCTION API: https://ordergatewayapi.onrender.com
+
 QUICK TEST
 ----------
-Open your browser and go to:
+Local development:
 http://localhost:3000/health
+
+Production:
+https://ordergatewayapi.onrender.com/health
 
 You should see: {"status": "ok", "database": "connected"}
 
 API ENDPOINTS
 =============
 
-Base URL: http://localhost:3000/api/v1
+Base URL: 
+- Development: http://localhost:3000/api/v1
+- Production: https://ordergatewayapi.onrender.com/api/v1
 
 Authentication: Add header "X-API-Key: pos-mobile-app-key" to all requests
 

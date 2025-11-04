@@ -11,6 +11,7 @@ const { authMiddleware } = require('./src/middleware/auth');
 const orderRoutes = require('./src/routes/orders');
 const menuRoutes = require('./src/routes/menu');
 const statusRoutes = require('./src/routes/status');
+const logsRoutes = require('./src/routes/logs');
 
 // Auto-apply OhMyApp.io migration on startup
 const { applyOhMyAppMigration } = require('./database/migrate-ohmyapp-support');
@@ -151,6 +152,7 @@ app.get('/api', (req, res) => {
 app.use('/api/v1/orders', authMiddleware, orderRoutes);
 app.use('/api/v1/menu', authMiddleware, menuRoutes);
 app.use('/api/v1/status', statusRoutes);
+app.use('/api/v1/logs', authMiddleware, logsRoutes);
 app.use('*', (req, res) => {
   res.status(404).json({
     error: 'Endpoint not found',

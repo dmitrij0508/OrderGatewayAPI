@@ -2,6 +2,8 @@
 
 A reusable REST API for restaurant ordering systems, designed to integrate with mobile apps, websites, and POS systems.
 
+**🌐 Production API:** https://ordergatewayapi.onrender.com
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -40,7 +42,7 @@ npm run dev
 npm start
 ```
 
-The API will be available at `http://localhost:3000`
+The API will be available at `http://localhost:3000` (development) or `https://ordergatewayapi.onrender.com` (production)
 
 ## 📖 API Documentation
 
@@ -48,7 +50,7 @@ The API will be available at `http://localhost:3000`
 All endpoints require an API key in the `X-API-Key` header:
 
 ```bash
-curl -H "X-API-Key: pos-mobile-app-key" http://localhost:3000/api/v1/orders
+curl -H "X-API-Key: pos-mobile-app-key" https://ordergatewayapi.onrender.com/api/v1/orders
 ```
 
 ### Available API Keys
@@ -205,10 +207,10 @@ cancelled (any time before completed)
 
 ```bash
 # Health check
-curl http://localhost:3000/health
+curl https://ordergatewayapi.onrender.com/health
 
 # Create test order
-curl -X POST http://localhost:3000/api/v1/orders \
+curl -X POST https://ordergatewayapi.onrender.com/api/v1/orders \
   -H "Content-Type: application/json" \
   -H "X-API-Key: pos-mobile-app-key" \
   -H "X-Idempotency-Key: $(uuidgen)" \
@@ -280,7 +282,7 @@ server {
 ### Mobile App (React Native)
 ```javascript
 const api = {
-  baseURL: 'https://api.yourrestaurant.com/api/v1',
+  baseURL: 'https://ordergatewayapi.onrender.com/api/v1',
   apiKey: 'pos-mobile-app-key'
 };
 
