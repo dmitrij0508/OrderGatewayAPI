@@ -67,7 +67,7 @@ class OrderService {
         totals: orderData.totals
       });
 
-      // SERVICE STEP 4: Prepare and log SQL parameters
+      // SERVICE STEP 4: Prepare and log SQL parameters with OhMyApp.io fields
       const orderInsertParams = [
         internalId,
         orderData.orderId,
@@ -77,6 +77,8 @@ class OrderService {
         orderData.customer.name,
         orderData.customer.phone || 'N/A',
         orderData.customer.email,
+        // Handle customer address for OhMyApp.io
+        orderData.customer.address ? JSON.stringify(orderData.customer.address) : null,
         orderData.orderType,
         orderData.orderTime,
         orderData.requestedTime,
@@ -89,8 +91,15 @@ class OrderService {
         orderData.payment?.method,
         orderData.payment?.status || 'pending',
         orderData.payment?.transactionId,
+        // Handle payment amount for OhMyApp.io
+        orderData.payment?.amount || 0,
         orderData.notes || '',
-        orderData.status || 'received'
+        orderData.status || 'received',
+        // Handle OhMyApp.io specific fields
+        orderData.source || 'api',
+        orderData.webhookMetadata ? JSON.stringify(orderData.webhookMetadata) : null,
+        orderData.originalOrderId || null,
+        orderData.createdAt || null
       ];
 
       logger.debug('💾 SQL PARAMETERS PREPARED', {
@@ -104,22 +113,24 @@ class OrderService {
         }))
       });
 
-      // SERVICE STEP 5: Insert main order record with detailed logging
+      // SERVICE STEP 5: Insert main order record with OhMyApp.io fields
       const orderInsertQuery = `
         INSERT INTO orders (
           id, order_id, external_order_id, restaurant_id, idempotency_key,
-          customer_name, customer_phone, customer_email,
+          customer_name, customer_phone, customer_email, customer_address,
           order_type, order_time, requested_time,
           subtotal, tax, tip, discount, delivery_fee, total,
-          payment_method, payment_status, payment_transaction_id,
-          notes, status, created_at, updated_at
+          payment_method, payment_status, payment_transaction_id, payment_amount,
+          notes, status, source, webhook_metadata, original_order_id, webhook_created_at,
+          created_at, updated_at
         ) VALUES (
           ?, ?, ?, ?, ?, 
-          ?, ?, ?, 
+          ?, ?, ?, ?,
           ?, ?, ?, 
           ?, ?, ?, ?, ?, ?, 
-          ?, ?, ?, 
-          ?, ?, datetime('now'), datetime('now')
+          ?, ?, ?, ?,
+          ?, ?, ?, ?, ?, ?,
+          datetime('now'), datetime('now')
         )
       `;
 
@@ -163,8 +174,8 @@ class OrderService {
           
           const itemInsertQuery = `
             INSERT INTO order_items (
-              id, order_id, item_id, name, quantity, unit_price, total_price, special_instructions, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+              id, order_id, item_id, name, quantity, unit_price, total_price, special_instructions, category, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
           `;
 
           const itemParams = [
@@ -175,7 +186,8 @@ class OrderService {
             item.quantity || 1,
             item.unitPrice || 0,
             item.totalPrice || 0,
-            item.specialInstructions || null
+            item.specialInstructions || null,
+            item.category || 'General' // OhMyApp.io specific field
           ];
 
           logger.debugDatabase(`Item ${i + 1} Insert`, itemInsertQuery, itemParams);
@@ -190,15 +202,17 @@ class OrderService {
               const modifier = item.modifiers[j];
               const modifierInsertQuery = `
                 INSERT INTO order_item_modifiers (
-                  id, order_item_id, name, price, created_at
-                ) VALUES (?, ?, ?, ?, datetime('now'))
+                  id, order_item_id, modifier_id, name, price, quantity, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
               `;
 
               const modifierParams = [
                 uuidv4(),
                 itemId,
+                modifier.modifierId || null, // OhMyApp.io specific field
                 modifier.name || 'Unknown Modifier',
-                modifier.price || 0
+                modifier.price || 0,
+                modifier.quantity || 1 // OhMyApp.io specific field
               ];
 
               logger.debugDatabase(`Item ${i + 1} Modifier ${j + 1} Insert`, modifierInsertQuery, modifierParams);
@@ -317,7 +331,7 @@ class OrderService {
       `, [order.id]);
       const itemsWithModifiers = await Promise.all(itemsResult.rows.map(async (item) => {
         const modifiersResult = await database.query(`
-          SELECT name, price FROM order_item_modifiers WHERE order_item_id = ?
+          SELECT modifier_id, name, price, quantity FROM order_item_modifiers WHERE order_item_id = ?
         `, [item.id]);
         return {
           itemId: item.item_id,
@@ -325,9 +339,12 @@ class OrderService {
           quantity: item.quantity,
           unitPrice: parseFloat(item.unit_price),
           totalPrice: parseFloat(item.total_price),
+          category: item.category || 'General',
           modifiers: modifiersResult.rows.map(mod => ({
+            modifierId: mod.modifier_id,
             name: mod.name,
-            price: parseFloat(mod.price)
+            price: parseFloat(mod.price),
+            quantity: mod.quantity || 1
           })),
           specialInstructions: item.special_instructions
         };
@@ -339,7 +356,8 @@ class OrderService {
         customer: {
           name: order.customer_name,
           phone: order.customer_phone,
-          email: order.customer_email
+          email: order.customer_email,
+          address: order.customer_address ? JSON.parse(order.customer_address) : null
         },
         orderType: order.order_type,
         orderTime: order.order_time,
@@ -356,10 +374,15 @@ class OrderService {
         payment: {
           method: order.payment_method,
           status: order.payment_status,
-          transactionId: order.payment_transaction_id
+          transactionId: order.payment_transaction_id,
+          amount: parseFloat(order.payment_amount || 0)
         },
         notes: order.notes,
         status: order.status,
+        source: order.source || 'api',
+        webhookMetadata: order.webhook_metadata ? JSON.parse(order.webhook_metadata) : null,
+        originalOrderId: order.original_order_id,
+        webhookCreatedAt: order.webhook_created_at,
         createdAt: order.created_at,
         updatedAt: order.updated_at
       };

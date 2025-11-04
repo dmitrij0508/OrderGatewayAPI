@@ -11,6 +11,9 @@ const { authMiddleware } = require('./src/middleware/auth');
 const orderRoutes = require('./src/routes/orders');
 const menuRoutes = require('./src/routes/menu');
 const statusRoutes = require('./src/routes/status');
+
+// Auto-apply OhMyApp.io migration on startup
+const { applyOhMyAppMigration } = require('./database/migrate-ohmyapp-support');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -167,10 +170,26 @@ process.on('SIGINT', async () => {
   await database.end();
   process.exit(0);
 });
-app.listen(PORT, () => {
-  logger.info(`🚀 Order Gateway API started on port ${PORT}`);
-  logger.info(`📖 API Index: http://localhost:${PORT}/api`);
-  logger.info(`💓 Health Check: http://localhost:${PORT}/health`);
-  logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+// Apply database migration before starting server
+async function startServer() {
+  try {
+    // Apply OhMyApp.io migration
+    await applyOhMyAppMigration();
+    logger.info('✅ Database migration completed');
+    
+    // Start the server
+    app.listen(PORT, () => {
+      logger.info(`🚀 Order Gateway API started on port ${PORT}`);
+      logger.info(`📖 API Index: http://localhost:${PORT}/api`);
+      logger.info(`💓 Health Check: http://localhost:${PORT}/health`);
+      logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      logger.info(`🎣 OhMyApp.io webhook support: ENABLED`);
+    });
+  } catch (error) {
+    logger.error('💥 Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
 module.exports = app;

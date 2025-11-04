@@ -127,11 +127,19 @@ class OrderController {
         externalOrderId: dataToProcess.externalOrderId || dataToProcess.external_order_id || dataToProcess.orderId || dataToProcess.order_id || dataToProcess.id || `EXT-${Date.now()}`,
         restaurantId: dataToProcess.restaurantId || dataToProcess.restaurant_id || dataToProcess.merchantId || dataToProcess.merchant_id || 'NYC-DELI-001',
         
-        // Enhanced customer information with multiple field name support
+        // Enhanced customer information with OhMyApp.io address support
         customer: {
           name: dataToProcess.customer?.name || dataToProcess.customer?.customer_name || dataToProcess.customerName || dataToProcess.customer_name || dataToProcess.client?.name || 'Unknown Customer',
           phone: dataToProcess.customer?.phone || dataToProcess.customer?.phone_number || dataToProcess.customerPhone || dataToProcess.customer_phone || dataToProcess.phone || 'N/A',
-          email: dataToProcess.customer?.email || dataToProcess.customer?.email_address || dataToProcess.customerEmail || dataToProcess.customer_email || dataToProcess.email || null
+          email: dataToProcess.customer?.email || dataToProcess.customer?.email_address || dataToProcess.customerEmail || dataToProcess.customer_email || dataToProcess.email || null,
+          // Handle OhMyApp.io customer address
+          address: dataToProcess.customer?.address ? {
+            street: dataToProcess.customer.address.street || '',
+            city: dataToProcess.customer.address.city || '',
+            state: dataToProcess.customer.address.state || '',
+            zipCode: dataToProcess.customer.address.zipCode || '',
+            full: `${dataToProcess.customer.address.street || ''} ${dataToProcess.customer.address.city || ''} ${dataToProcess.customer.address.state || ''} ${dataToProcess.customer.address.zipCode || ''}`.trim()
+          } : null
         },
         
         // Enhanced order details with multiple field name support
@@ -161,26 +169,53 @@ class OrderController {
           modifiers: []
         })) : []),
         
-        // Enhanced totals with multiple field name support
+        // Enhanced totals with OhMyApp.io specific fields
         totals: {
           subtotal: parseFloat(dataToProcess.totals?.subtotal || dataToProcess.subtotal || dataToProcess.sub_total || dataToProcess.itemsTotal|| dataToProcess.items_total || 0),
           tax: parseFloat(dataToProcess.totals?.tax || dataToProcess.tax || dataToProcess.tax_amount || dataToProcess.salesTax || dataToProcess.sales_tax || 0),
           tip: parseFloat(dataToProcess.totals?.tip || dataToProcess.tip || dataToProcess.tip_amount || dataToProcess.gratuity || 0),
           discount: parseFloat(dataToProcess.totals?.discount || dataToProcess.discount || dataToProcess.discount_amount || 0),
-          deliveryFee: parseFloat(dataToProcess.totals?.deliveryFee || dataToProcess.deliveryFee || dataToProcess.delivery_fee || dataToProcess.shippingCost || dataToProcess.shipping_cost || 0),
+          // Handle OhMyApp.io specific delivery fee fields - combine shippingFee + serviceFee
+          deliveryFee: parseFloat(
+            dataToProcess.totals?.deliveryFee || 
+            dataToProcess.deliveryFee || 
+            dataToProcess.delivery_fee || 
+            dataToProcess.shippingCost || 
+            dataToProcess.shipping_cost ||
+            // OhMyApp.io specific: combine shippingFee and serviceFee
+            ((parseFloat(dataToProcess.totals?.shippingFee || 0)) + (parseFloat(dataToProcess.totals?.serviceFee || 0))) ||
+            0
+          ),
           total: parseFloat(dataToProcess.totals?.total || dataToProcess.total || dataToProcess.total_amount || dataToProcess.grandTotal || dataToProcess.grand_total || dataToProcess.finalAmount || dataToProcess.final_amount || 0)
         },
         
-        // Enhanced payment information with multiple field name support
+        // Enhanced payment information with OhMyApp.io specific fields
         payment: {
           method: dataToProcess.payment?.method || dataToProcess.payment?.payment_method || dataToProcess.paymentMethod || dataToProcess.payment_method || dataToProcess.paymentType || dataToProcess.payment_type || null,
           status: dataToProcess.payment?.status || dataToProcess.payment?.payment_status || dataToProcess.paymentStatus || dataToProcess.payment_status || dataToProcess.status || 'pending',
-          transactionId: dataToProcess.payment?.transactionId || dataToProcess.payment?.transaction_id || dataToProcess.transactionId || dataToProcess.transaction_id || dataToProcess.paymentId || dataToProcess.payment_id || null
+          transactionId: dataToProcess.payment?.transactionId || dataToProcess.payment?.transaction_id || dataToProcess.transactionId || dataToProcess.transaction_id || dataToProcess.paymentId || dataToProcess.payment_id || null,
+          // Handle OhMyApp.io payment amount field
+          amount: parseFloat(dataToProcess.payment?.amount || 0)
         },
         
-        // Enhanced notes and status with multiple field name support
+        // Enhanced notes and status with OhMyApp.io specific fields
         notes: dataToProcess.notes || dataToProcess.special_instructions || dataToProcess.specialInstructions || dataToProcess.comments || dataToProcess.remarks || '',
-        status: dataToProcess.status || dataToProcess.order_status || dataToProcess.orderStatus || 'received'
+        status: dataToProcess.status || dataToProcess.order_status || dataToProcess.orderStatus || 'received',
+        
+        // Handle OhMyApp.io specific fields
+        source: dataToProcess.source || 'api',
+        webhookMetadata: dataToProcess.webhookMetadata || null,
+        originalOrderId: dataToProcess.originalOrderId || null,
+        createdAt: dataToProcess.createdAt || null,
+        
+        // Additional OhMyApp.io fields for debugging
+        _ohmyAppFields: {
+          hasShippingFee: !!(dataToProcess.totals?.shippingFee),
+          hasServiceFee: !!(dataToProcess.totals?.serviceFee),
+          hasAddress: !!(dataToProcess.customer?.address),
+          hasWebhookMetadata: !!(dataToProcess.webhookMetadata),
+          source: dataToProcess.source
+        }
       };
 
       // STEP 6: Debug transformation results
@@ -363,11 +398,24 @@ class OrderController {
     const indicators = [];
     let confidence = 0;
     
-    // Check User-Agent
+    // Check User-Agent - OhMyApp.io sends "OhMyApp-Webhook/1.7.1"
     const userAgent = req.get('User-Agent') || '';
-    if (userAgent.toLowerCase().includes('ohmyapp') || userAgent.toLowerCase().includes('webhook')) {
-      indicators.push('User-Agent contains webhook/ohmyapp indicators');
+    if (userAgent.includes('OhMyApp-Webhook')) {
+      indicators.push('User-Agent is OhMyApp-Webhook');
+      confidence += 50;
+    } else if (userAgent.toLowerCase().includes('ohmyapp')) {
+      indicators.push('User-Agent contains ohmyapp');
       confidence += 30;
+    } else if (userAgent.toLowerCase().includes('webhook')) {
+      indicators.push('User-Agent contains webhook');
+      confidence += 15;
+    }
+    
+    // Check for OhMyApp.io specific headers
+    const webhookSource = req.get('X-Webhook-Source');
+    if (webhookSource && webhookSource.includes('ohmyapp')) {
+      indicators.push(`X-Webhook-Source header: ${webhookSource}`);
+      confidence += 40;
     }
     
     // Check Origin/Referer
@@ -387,29 +435,71 @@ class OrderController {
       }
     });
     
-    // Check payload structure for OhMyApp patterns
+    // Check payload structure for OhMyApp.io specific patterns
     const body = req.body;
     if (body && typeof body === 'object') {
-      // Common OhMyApp webhook patterns
-      if (body.event || body.eventType) {
-        indicators.push('Event-based payload structure');
+      // OhMyApp.io specific fields
+      if (body.source === 'ohmyapp-webhook') {
+        indicators.push('Source field indicates ohmyapp-webhook');
+        confidence += 35;
+      }
+      
+      if (body.webhookMetadata) {
+        indicators.push('WebhookMetadata present (OhMyApp pattern)');
+        confidence += 20;
+      }
+      
+      if (body.originalOrderId) {
+        indicators.push('OriginalOrderId present (OhMyApp pattern)');
         confidence += 15;
       }
-      if (body.data || body.payload) {
-        indicators.push('Nested data structure (webhook pattern)');
+      
+      // Check for OhMyApp.io specific totals structure
+      if (body.totals && (body.totals.shippingFee !== undefined || body.totals.serviceFee !== undefined)) {
+        indicators.push('OhMyApp.io totals structure (shippingFee/serviceFee)');
+        confidence += 25;
+      }
+      
+      // Check for OhMyApp.io customer address structure
+      if (body.customer && body.customer.address && body.customer.address.street !== undefined) {
+        indicators.push('OhMyApp.io customer address structure');
+        confidence += 15;
+      }
+      
+      // Check for items with modifiers structure
+      if (body.items && Array.isArray(body.items) && body.items.some(item => item.modifiers && Array.isArray(item.modifiers))) {
+        const hasModifierIds = body.items.some(item => 
+          item.modifiers && item.modifiers.some(mod => mod.modifierId)
+        );
+        if (hasModifierIds) {
+          indicators.push('OhMyApp.io modifier structure (modifierId present)');
+          confidence += 15;
+        }
+      }
+      
+      // Common webhook patterns
+      if (body.event || body.eventType) {
+        indicators.push('Event-based payload structure');
         confidence += 10;
       }
-      if (body.timestamp || body.created_at) {
+      if (body.createdAt || body.timestamp) {
         indicators.push('Timestamp field present');
         confidence += 5;
       }
     }
     
     return {
-      isWebhook: confidence > 20,
+      isWebhook: confidence > 25,
       confidence: Math.min(confidence, 100),
       indicators,
-      source: confidence > 50 ? 'OhMyApp.io' : 'Unknown'
+      source: confidence > 60 ? 'OhMyApp.io' : (confidence > 30 ? 'Webhook' : 'Unknown'),
+      detectedFields: body ? {
+        hasSource: !!body.source,
+        sourceValue: body.source,
+        hasWebhookMetadata: !!body.webhookMetadata,
+        hasOhMyAppTotals: !!(body.totals && (body.totals.shippingFee !== undefined || body.totals.serviceFee !== undefined)),
+        hasOhMyAppAddress: !!(body.customer && body.customer.address)
+      } : null
     };
   }
 
