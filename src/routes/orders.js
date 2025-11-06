@@ -1,7 +1,111 @@
 const express = require('express');
 const router = express.Router();
-const orderController = require('../controllers/orderController');
-const { requirePermission } = require('../middleware/auth');
+const fs = require('fs');
+const path = require('path');
+const { saveWebhookDebug } = require('../utils/webhookDebugger');
+const logger = require('../utils/logger');
+const requirePermission = require('../middleware/requirePermission');
+
+const debugDir = path.join(__dirname, '../../logs/webhook-debug');
+
+// Ensure debug folder exists
+if (!fs.existsSync(debugDir)) {
+  fs.mkdirSync(debugDir, { recursive: true });
+}
+
+/**
+ * ---------------------------------------------------------
+ * POST /debug/ohmyapp-webhook
+ * Capture raw OhMyApp webhook payloads for analysis
+ * ---------------------------------------------------------
+ */
+router.post(
+  '/debug/ohmyapp-webhook',
+  requirePermission('orders:create'),
+  async (req, res, next) => {
+    try {
+      const payload = req.body || {};
+
+      // Save raw payload
+      saveWebhookDebug('ohmyapp', payload, {
+        headers: req.headers,
+        ip: req.ip,
+        method: req.method,
+        url: req.originalUrl,
+        userAgent: req.get('User-Agent'),
+      });
+
+      // Console preview for quick verification
+      logger.info('🧾 [OHMYAPP WEBHOOK] Received payload', {
+        size: JSON.stringify(payload).length,
+        keys: Object.keys(payload || {}),
+      });
+
+      // Respond OK
+      res.json({ success: true, message: 'Webhook received and logged.' });
+    } catch (err) {
+      logger.error('❌ Error in /debug/ohmyapp-webhook:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+);
+
+/**
+ * ---------------------------------------------------------
+ * GET /debug/ohmyapp-webhook/recent
+ * View latest 10 saved webhook payload files
+ * ---------------------------------------------------------
+ */
+router.get('/debug/ohmyapp-webhook/recent', async (req, res) => {
+  try {
+    const files = fs
+      .readdirSync(debugDir)
+      .filter((f) => f.endsWith('.json'))
+      .sort((a, b) => fs.statSync(path.join(debugDir, b)).mtime - fs.statSync(path.join(debugDir, a)).mtime)
+      .slice(0, 10);
+
+    const recent = files.map((file) => {
+      const filePath = path.join(debugDir, file);
+      const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      return {
+        file,
+        timestamp: content.timestamp,
+        meta: content.meta,
+        payloadKeys: Object.keys(content.payload || {}),
+        path: `/logs/webhook-debug/${file}`,
+      };
+    });
+
+    res.json({ success: true, recent });
+  } catch (err) {
+    logger.error('Failed to read recent webhook debug files:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * ---------------------------------------------------------
+ * OPTIONAL: Auto cleanup old logs (7 days)
+ * ---------------------------------------------------------
+ */
+setInterval(() => {
+  try {
+    const now = Date.now();
+    const files = fs.readdirSync(debugDir);
+    files.forEach((f) => {
+      const filePath = path.join(debugDir, f);
+      const stats = fs.statSync(filePath);
+      if (now - stats.mtimeMs > 7 * 24 * 60 * 60 * 1000) {
+        fs.unlinkSync(filePath);
+        logger.info(`🧹 Deleted old webhook debug log: ${f}`);
+      }
+    });
+  } catch (cleanupErr) {
+    logger.error('Failed during webhook debug cleanup:', cleanupErr);
+  }
+}, 6 * 60 * 60 * 1000); // every 6 hours
+
+
 router.get('/',
   requirePermission('orders:read'),
   orderController.getAllOrders
