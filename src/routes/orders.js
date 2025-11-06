@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
+const orderController = require('../controllers/orderController');
+const { requirePermission } = require('../middleware/auth');
 const fs = require('fs');
 const path = require('path');
 const { saveWebhookDebug } = require('../utils/webhookDebugger');
 const logger = require('../utils/logger');
-const requirePermission = require('../middleware/requirePermission');
 
 const debugDir = path.join(__dirname, '../../logs/webhook-debug');
 
@@ -104,7 +105,6 @@ setInterval(() => {
     logger.error('Failed during webhook debug cleanup:', cleanupErr);
   }
 }, 6 * 60 * 60 * 1000); // every 6 hours
-
 
 router.get('/',
   requirePermission('orders:read'),
