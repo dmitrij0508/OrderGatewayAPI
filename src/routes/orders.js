@@ -5,7 +5,6 @@ const { requirePermission } = require('../middleware/auth');
 const fs = require('fs');
 const path = require('path');
 const { saveWebhookDebug } = require('../utils/webhookDebugger');
-const { requireFormUrlEncoded } = require('../middleware/contentType');
 const logger = require('../utils/logger');
 
 const debugDir = path.join(__dirname, '../../logs/webhook-debug');
@@ -113,8 +112,6 @@ router.get('/',
 );
 router.post('/',
   requirePermission('orders:create'),
-  // Enforce form-urlencoded for order creation requests
-  requireFormUrlEncoded,
   orderController.createOrder
 );
 router.get('/:orderId',
