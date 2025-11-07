@@ -130,7 +130,7 @@ app.get('/api', (req, res) => {
     description: 'Reusable REST endpoints for restaurant ordering integration',
     endpoints: {
       orders: {
-        'POST /api/v1/orders': 'Create new order',
+        'POST /api/v1/orders': 'Create new order (Content-Type: application/x-www-form-urlencoded)',
         'GET /api/v1/orders': 'Get all orders (with filters)',
         'GET /api/v1/orders/:id': 'Get order details',
         'GET /api/v1/orders/:id/status': 'Get order status',
@@ -146,6 +146,9 @@ app.get('/api', (req, res) => {
       }
     },
     authentication: 'API Key required in X-API-Key header',
+    contentTypes: {
+      createOrder: 'application/x-www-form-urlencoded'
+    },
     idempotency: 'Use X-Idempotency-Key header for safe retries'
   });
 });
@@ -211,5 +214,7 @@ async function startServer() {
   }
 }
 
-startServer();
+if (require.main === module) {
+  startServer();
+}
 module.exports = app;
