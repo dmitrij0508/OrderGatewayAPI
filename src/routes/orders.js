@@ -362,6 +362,46 @@ router.post('/debug',
   }
 );
 
+// SIMPLE PAYLOAD DEBUG ENDPOINT - No DB operations, just echo request
+router.post('/debug-payload',
+  requirePermission('orders:create'),
+  async (req, res) => {
+    try {
+      logger.debugRequest(req, 'Simple Payload Debug');
+
+      const info = {
+        timestamp: new Date().toISOString(),
+        method: req.method,
+        url: req.originalUrl,
+        contentType: req.get('Content-Type'),
+        contentLength: req.get('Content-Length'),
+        userAgent: req.get('User-Agent'),
+        ip: req.ip,
+        bodyType: typeof req.body,
+        bodySize: req.body ? JSON.stringify(req.body).length : 0,
+      };
+
+      return res.json({
+        success: true,
+        message: 'Payload received for debugging (no DB operations performed).',
+        info,
+        headers: logger.sanitizeObject(req.headers, ['authorization', 'cookie', 'x-api-key']),
+        query: req.query,
+        params: req.params,
+        body: req.body,
+      });
+    } catch (error) {
+      logger.error('Simple payload debug failed:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Payload debug failed',
+        message: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+);
+
 // PAYLOAD INSPECTION ENDPOINT - Detailed payload analysis without creation
 router.post('/debug/inspect-payload',
   requirePermission('orders:create'),
