@@ -131,6 +131,7 @@ app.get('/api', (req, res) => {
     endpoints: {
       orders: {
   'POST /api/v1/orders': 'Create new order',
+        'POST /api/v1/orders/debug-payload': 'Echo request for debugging (no DB)',
         'GET /api/v1/orders': 'Get all orders (with filters)',
         'GET /api/v1/orders/:id': 'Get order details',
         'GET /api/v1/orders/:id/status': 'Get order status',
