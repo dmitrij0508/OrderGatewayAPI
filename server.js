@@ -69,7 +69,17 @@ const limiter = rateLimit({
   }
 });
 app.use('/api/', limiter);
-app.use(express.json({ limit: '10mb' }));
+// Capture raw JSON body for endpoints that may send non-standard content-types
+app.use(express.json({
+  limit: '10mb',
+  verify: (req, res, buf) => {
+    try {
+      req.rawBody = buf && buf.length ? buf.toString('utf8') : null;
+    } catch (_) {
+      req.rawBody = null;
+    }
+  }
+}));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use((req, res, next) => {
   // Enhanced logging with proxy debugging information

@@ -11,13 +11,33 @@ class PayloadController {
   async savePayload(req, res, next) {
     try {
       // Minimal logic: take req.body.payload if provided, otherwise entire body.
-      const key = req.body.key || req.get('X-Payload-Key');
-      const description = req.body.description || req.get('X-Payload-Description');
-      const source = req.body.source || req.get('X-Payload-Source');
+      const key = (req.body && req.body.key) || req.get('X-Payload-Key');
+      const description = (req.body && req.body.description) || req.get('X-Payload-Description');
+      const source = (req.body && req.body.source) || req.get('X-Payload-Source');
 
-      const payload = Object.prototype.hasOwnProperty.call(req.body, 'payload')
-        ? req.body.payload
-        : req.body;
+      // Try to derive payload robustly
+      let payload;
+      if (req.body && typeof req.body === 'object' && Object.prototype.hasOwnProperty.call(req.body, 'payload')) {
+        payload = req.body.payload;
+      } else if (typeof req.body === 'string' && req.body.trim() !== '') {
+        // Body was parsed by express.text; try JSON parse, else store as string
+        try {
+          payload = JSON.parse(req.body);
+        } catch (_) {
+          payload = req.body; // keep raw string
+        }
+      } else if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
+        payload = req.body;
+      } else if (req.rawBody && req.rawBody.trim() !== '') {
+        // Fallback to rawBody captured by verify hook
+        try {
+          payload = JSON.parse(req.rawBody);
+        } catch (_) {
+          payload = req.rawBody; // keep raw string
+        }
+      } else {
+        payload = {}; // final fallback
+      }
 
       const result = await payloadService.save({ key, description, source, payload });
       res.status(201).json({

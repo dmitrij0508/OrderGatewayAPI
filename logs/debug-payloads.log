@@ -1711,3 +1711,212 @@
   "ip": "::ffff:127.0.0.1",
   "body": {}
 }
+[2025-11-11 05:53:02.924] INFO: 🔒 Proxy trust enabled for production deployment
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-11 05:53:02.924] INFO: 🔒 Proxy trust enabled for production deployment
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-11 05:53:02.996] INFO: 🗄️ Connected to SQLite database
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-11 05:53:03.040] INFO: POST /api/v1/payloads
+{
+  "service": "pos-order-gateway-api",
+  "ip": "::ffff:127.0.0.1",
+  "ips": [],
+  "remoteAddress": "::ffff:127.0.0.1"
+}
+[2025-11-11 05:53:03.045] INFO: Authentication successful
+{
+  "service": "pos-order-gateway-api",
+  "client": "Admin Dashboard",
+  "ip": "::ffff:127.0.0.1",
+  "path": "/"
+}
+[2025-11-11 05:53:03.049] DEBUG: 📨 REQUEST DEBUG - Save Payload
+{
+  "service": "pos-order-gateway-api",
+  "method": "POST",
+  "url": "/",
+  "headers": {
+    "host": "127.0.0.1:53879",
+    "accept-encoding": "gzip, deflate",
+    "x-api-key": "[SANITIZED]",
+    "content-type": "application/json",
+    "content-length": "116",
+    "connection": "close"
+  },
+  "query": {},
+  "params": {},
+  "bodySize": 116,
+  "bodyType": "object",
+  "ip": "::ffff:127.0.0.1"
+}
+[2025-11-11 05:53:03.049] DEBUG: 🔍 PAYLOAD DEBUG - Save Payload - Body
+{
+  "service": "pos-order-gateway-api",
+  "payloadSize": 148,
+  "payloadType": "object",
+  "isArray": false,
+  "keys": [
+    "key",
+    "description",
+    "source",
+    "payload"
+  ],
+  "payload": "{\n  \"key\": \"jest_sample_1762840382962\",\n  \"description\": \"Jest test payload\",\n  \"source\": \"jest\",\n  \"payload\": {\n    \"foo\": \"bar\",\n    \"n\": 42\n  }\n}"
+}
+[2025-11-11 05:53:03.050] DEBUG: 🗄️ DATABASE DEBUG - Save Payload
+{
+  "service": "pos-order-gateway-api",
+  "query": "INSERT INTO saved_payloads (payload_key, description, source, payload, created_at, updated_at) VALUES (?, ?, ?, ?, datetime('now'), datetime('now')) ON CONFLICT(payload_key) DO UPDATE SET description = COALESCE(excluded.description, saved_payloads.description), source = COALESCE(excluded.source, saved_payloads.source), payload = excluded.payload, updated_at = datetime('now') ;",
+  "parameterCount": 4,
+  "parameters": [
+    {
+      "index": 0,
+      "type": "string",
+      "value": "jest_sample_1762840382962"
+    },
+    {
+      "index": 1,
+      "type": "string",
+      "value": "Jest test payload"
+    },
+    {
+      "index": 2,
+      "type": "string",
+      "value": "jest"
+    },
+    {
+      "index": 3,
+      "type": "string",
+      "value": "{\"foo\":\"bar\",\"n\":42}"
+    }
+  ],
+  "resultInfo": null
+}
+[2025-11-11 05:53:02.996] INFO: 🗄️ Connected to SQLite database
+{
+  "service": "pos-order-gateway-api"
+}
+[2025-11-11 05:53:03.040] INFO: POST /api/v1/orders
+{
+  "service": "pos-order-gateway-api",
+  "ip": "::ffff:127.0.0.1",
+  "ips": [],
+  "remoteAddress": "::ffff:127.0.0.1"
+}
+[2025-11-11 05:53:03.044] WARN: Authentication failed: Invalid API key
+{
+  "service": "pos-order-gateway-api",
+  "ip": "::ffff:127.0.0.1",
+  "path": "/",
+  "apiKeyPrefix": "test-key..."
+}
+[2025-11-11 05:53:03.059] ERROR: Failed to save payload: SQLITE_ERROR: no such table: saved_payloads
+{
+  "service": "pos-order-gateway-api",
+  "errno": 1,
+  "code": "SQLITE_ERROR",
+  "stack": "Error: SQLITE_ERROR: no such table: saved_payloads"
+}
+[2025-11-11 05:53:03.062] ERROR: API Error:
+{
+  "service": "pos-order-gateway-api",
+  "error": "SQLITE_ERROR: no such table: saved_payloads",
+  "stack": "Error: SQLITE_ERROR: no such table: saved_payloads",
+  "path": "/api/v1/payloads",
+  "method": "POST",
+  "ip": "::ffff:127.0.0.1",
+  "body": {
+    "key": "jest_sample_1762840382962",
+    "description": "Jest test payload",
+    "source": "jest",
+    "payload": {
+      "foo": "bar",
+      "n": 42
+    }
+  }
+}
+[2025-11-11 05:53:03.070] INFO: POST /api/v1/orders
+{
+  "service": "pos-order-gateway-api",
+  "ip": "::ffff:127.0.0.1",
+  "ips": [],
+  "remoteAddress": "::ffff:127.0.0.1"
+}
+[2025-11-11 05:53:03.072] WARN: Authentication failed: Invalid API key
+{
+  "service": "pos-order-gateway-api",
+  "ip": "::ffff:127.0.0.1",
+  "path": "/",
+  "apiKeyPrefix": "test-key..."
+}
+[2025-11-11 05:53:03.097] INFO: GET /api/v1/payloads/jest_sample_1762840382962
+{
+  "service": "pos-order-gateway-api",
+  "ip": "::ffff:127.0.0.1",
+  "ips": [],
+  "remoteAddress": "::ffff:127.0.0.1"
+}
+[2025-11-11 05:53:03.100] INFO: Authentication successful
+{
+  "service": "pos-order-gateway-api",
+  "client": "Admin Dashboard",
+  "ip": "::ffff:127.0.0.1",
+  "path": "/jest_sample_1762840382962"
+}
+[2025-11-11 05:53:03.124] ERROR: Failed to load payload: SQLITE_ERROR: no such table: saved_payloads
+{
+  "service": "pos-order-gateway-api",
+  "errno": 1,
+  "code": "SQLITE_ERROR",
+  "__augmented": true,
+  "stack": "Error: SQLITE_ERROR: no such table: saved_payloads\n--> in Database#all('SELECT id, payload_key, description, source, payload, created_at, updated_at FROM saved_payloads WHERE payload_key = ?', [ 'jest_sample_1762840382962' ], [Function (anonymous)])\n    at all (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\config\\database-sqlite.js:16:8)\n    at new Promise (<anonymous>)\n    at Object.query (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\config\\database-sqlite.js:15:10)\n    at PayloadService.query [as getByKeyOrId] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\services\\payloadService.js:41:35)\n    at PayloadController.getByKeyOrId (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\controllers\\payloadController.js:54:43)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\middleware\\auth.js:68:5)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:284:15\n    at param (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:365:14)\n    at param (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:376:14)\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:421:3)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:175:3)\n    at router (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:47:12)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\middleware\\auth.js:46:3)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\server.js:107:3)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at urlencodedParser (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\body-parser\\lib\\types\\urlencoded.js:94:7)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at jsonParser (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\body-parser\\lib\\types\\json.js:113:7)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express-rate-limit\\dist\\index.cjs:807:7\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express-rate-limit\\dist\\index.cjs:691:5"
+}
+[2025-11-11 05:53:03.126] ERROR: API Error:
+{
+  "service": "pos-order-gateway-api",
+  "error": "SQLITE_ERROR: no such table: saved_payloads",
+  "stack": "Error: SQLITE_ERROR: no such table: saved_payloads\n--> in Database#all('SELECT id, payload_key, description, source, payload, created_at, updated_at FROM saved_payloads WHERE payload_key = ?', [ 'jest_sample_1762840382962' ], [Function (anonymous)])\n    at all (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\config\\database-sqlite.js:16:8)\n    at new Promise (<anonymous>)\n    at Object.query (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\config\\database-sqlite.js:15:10)\n    at PayloadService.query [as getByKeyOrId] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\services\\payloadService.js:41:35)\n    at PayloadController.getByKeyOrId (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\controllers\\payloadController.js:54:43)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\middleware\\auth.js:68:5)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:284:15\n    at param (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:365:14)\n    at param (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:376:14)\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:421:3)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:175:3)\n    at router (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:47:12)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\middleware\\auth.js:46:3)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\server.js:107:3)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at urlencodedParser (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\body-parser\\lib\\types\\urlencoded.js:94:7)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at jsonParser (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\body-parser\\lib\\types\\json.js:113:7)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express-rate-limit\\dist\\index.cjs:807:7\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express-rate-limit\\dist\\index.cjs:691:5",
+  "path": "/api/v1/payloads/jest_sample_1762840382962",
+  "method": "GET",
+  "ip": "::ffff:127.0.0.1",
+  "body": {}
+}
+[2025-11-11 05:53:03.145] INFO: GET /api/v1/payloads
+{
+  "service": "pos-order-gateway-api",
+  "ip": "::ffff:127.0.0.1",
+  "ips": [],
+  "remoteAddress": "::ffff:127.0.0.1"
+}
+[2025-11-11 05:53:03.147] INFO: Authentication successful
+{
+  "service": "pos-order-gateway-api",
+  "client": "Admin Dashboard",
+  "ip": "::ffff:127.0.0.1",
+  "path": "/"
+}
+[2025-11-11 05:53:03.153] ERROR: Failed to list payloads: SQLITE_ERROR: no such table: saved_payloads
+{
+  "service": "pos-order-gateway-api",
+  "errno": 1,
+  "code": "SQLITE_ERROR",
+  "__augmented": true,
+  "stack": "Error: SQLITE_ERROR: no such table: saved_payloads\n--> in Database#all('SELECT COUNT(*) as total FROM saved_payloads ', [], [Function (anonymous)])\n    at all (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\config\\database-sqlite.js:16:8)\n    at new Promise (<anonymous>)\n    at Object.query (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\config\\database-sqlite.js:15:10)\n    at PayloadService.query [as list] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\services\\payloadService.js:76:34)\n    at PayloadController.list (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\controllers\\payloadController.js:69:41)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\middleware\\auth.js:68:5)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:175:3)\n    at router (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:47:12)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\middleware\\auth.js:46:3)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\server.js:107:3)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at urlencodedParser (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\body-parser\\lib\\types\\urlencoded.js:94:7)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at jsonParser (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\body-parser\\lib\\types\\json.js:113:7)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express-rate-limit\\dist\\index.cjs:807:7\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express-rate-limit\\dist\\index.cjs:691:5"
+}
+[2025-11-11 05:53:03.155] ERROR: API Error:
+{
+  "service": "pos-order-gateway-api",
+  "error": "SQLITE_ERROR: no such table: saved_payloads",
+  "stack": "Error: SQLITE_ERROR: no such table: saved_payloads\n--> in Database#all('SELECT COUNT(*) as total FROM saved_payloads ', [], [Function (anonymous)])\n    at all (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\config\\database-sqlite.js:16:8)\n    at new Promise (<anonymous>)\n    at Object.query (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\config\\database-sqlite.js:15:10)\n    at PayloadService.query [as list] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\services\\payloadService.js:76:34)\n    at PayloadController.list (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\controllers\\payloadController.js:69:41)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\middleware\\auth.js:68:5)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:175:3)\n    at router (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:47:12)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\src\\middleware\\auth.js:46:3)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\server.js:107:3)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at urlencodedParser (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\body-parser\\lib\\types\\urlencoded.js:94:7)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at jsonParser (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\body-parser\\lib\\types\\json.js:113:7)\n    at Layer.handle [as handle_request] (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at trim_prefix (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express-rate-limit\\dist\\index.cjs:807:7\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at D:\\Software\\Dmitri\\Working\\POS_Mobile\\Git\\POSSyncAgent\\API\\node_modules\\express-rate-limit\\dist\\index.cjs:691:5",
+  "path": "/api/v1/payloads",
+  "method": "GET",
+  "ip": "::ffff:127.0.0.1",
+  "body": {}
+}
