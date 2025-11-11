@@ -148,3 +148,19 @@ CREATE TABLE IF NOT EXISTS api_usage (
 
 CREATE INDEX IF NOT EXISTS idx_api_usage_created_at ON api_usage(created_at);
 CREATE INDEX IF NOT EXISTS idx_api_usage_api_key ON api_usage(api_key_name);
+
+-- Saved payloads for debugging/POSTMAN reuse
+CREATE TABLE IF NOT EXISTS saved_payloads (
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    -- A human-friendly key to identify the payload (unique)
+    payload_key TEXT UNIQUE NOT NULL,
+    description TEXT,
+    source TEXT,
+    -- Raw JSON payload stored as text
+    payload TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_saved_payloads_created_at ON saved_payloads(created_at);
+CREATE INDEX IF NOT EXISTS idx_saved_payloads_source ON saved_payloads(source);

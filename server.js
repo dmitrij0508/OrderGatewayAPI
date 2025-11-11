@@ -12,9 +12,11 @@ const orderRoutes = require('./src/routes/orders');
 const menuRoutes = require('./src/routes/menu');
 const statusRoutes = require('./src/routes/status');
 const logsRoutes = require('./src/routes/logs');
+const payloadRoutes = require('./src/routes/payloads');
 
 // Auto-apply OhMyApp.io migration on startup
 const { applyOhMyAppMigration } = require('./database/migrate-ohmyapp-support');
+const { applySavedPayloadsMigration } = require('./database/migrate-saved-payloads');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -154,6 +156,7 @@ app.use('/api/v1/orders', authMiddleware, orderRoutes);
 app.use('/api/v1/menu', authMiddleware, menuRoutes);
 app.use('/api/v1/status', statusRoutes);
 app.use('/api/v1/logs', authMiddleware, logsRoutes);
+app.use('/api/v1/payloads', authMiddleware, payloadRoutes);
 app.use('*', (req, res) => {
   res.status(404).json({
     error: 'Endpoint not found',
@@ -178,8 +181,10 @@ async function startServer() {
   try {
     // Apply OhMyApp.io migration
     const migrationResult = await applyOhMyAppMigration();
+    // Apply Saved Payloads migration
+    const savedPayloadsMigration = await applySavedPayloadsMigration();
     
-    if (migrationResult.success || migrationResult.canProceed) {
+    if ((migrationResult.success || migrationResult.canProceed) && savedPayloadsMigration.success) {
       logger.info('✅ Database migration completed');
     } else {
       logger.warn('⚠️ Database migration had issues, but starting server anyway');
@@ -191,7 +196,8 @@ async function startServer() {
       logger.info(`📖 API Index: http://localhost:${PORT}/api`);
       logger.info(`💓 Health Check: http://localhost:${PORT}/health`);
       logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-      logger.info(`🎣 OhMyApp.io webhook support: ${migrationResult.success ? 'ENABLED' : 'PARTIAL'}`);
+  logger.info(`🎣 OhMyApp.io webhook support: ${migrationResult.success ? 'ENABLED' : 'PARTIAL'}`);
+  logger.info(`💾 Saved Payloads: ${savedPayloadsMigration.success ? 'ENABLED' : 'PARTIAL'}`);
       
       if (migrationResult.missingColumns > 0) {
         logger.warn(`⚠️ Some database columns are missing (${migrationResult.missingColumns}). OhMyApp.io features may be limited.`);
