@@ -15,4 +15,10 @@ router.get('/', requirePermission('orders:read'), payloadController.listPayloads
 // Load a saved payload by key or id
 router.get('/:idOrKey', requirePermission('orders:read'), payloadController.getPayload);
 
+// Raw-only payload (returns just the stored payload JSON/string)
+router.get('/raw/:idOrKey', requirePermission('orders:read'), payloadController.getRawPayload);
+
+// Echo endpoint for debugging what the server received
+router.post('/echo', requirePermission('orders:create'), payloadController.echo);
+
 module.exports = router;

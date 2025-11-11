@@ -6,6 +6,8 @@ class PayloadController {
     this.savePayload = this.savePayload.bind(this);
     this.getPayload = this.getPayload.bind(this);
     this.listPayloads = this.listPayloads.bind(this);
+    this.getRawPayload = this.getRawPayload.bind(this);
+    this.echo = this.echo.bind(this);
   }
 
   async savePayload(req, res, next) {
@@ -85,6 +87,32 @@ class PayloadController {
       logger.error('Failed to list payloads:', error);
       next(error);
     }
+  }
+
+  async getRawPayload(req, res, next) {
+    try {
+      const { idOrKey } = req.params;
+      const record = await payloadService.getByKeyOrId(idOrKey);
+      return res.json(record.payload);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async echo(req, res) {
+    const info = {
+      method: req.method,
+      url: req.originalUrl,
+      headers: req.headers,
+      contentType: req.get('Content-Type'),
+      contentLength: req.get('Content-Length'),
+      hasBodyObject: !!req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0,
+      isBodyString: typeof req.body === 'string',
+      bodyType: typeof req.body,
+      bodyKeys: req.body && typeof req.body === 'object' ? Object.keys(req.body) : null,
+      rawBodyLength: req.rawBody ? req.rawBody.length : 0
+    };
+    return res.json({ info, body: req.body, rawBodySample: req.rawBody ? req.rawBody.substring(0, 2000) : null });
   }
 }
 
