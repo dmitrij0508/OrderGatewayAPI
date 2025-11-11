@@ -10,9 +10,14 @@ class PayloadController {
 
   async savePayload(req, res, next) {
     try {
-      logger.debugRequest(req, 'Save Payload');
-      const { key, description, source } = req.body;
-      const payload = req.body.payload ?? req.body.data ?? req.body.raw ?? req.body;
+      // Minimal logic: take req.body.payload if provided, otherwise entire body.
+      const key = req.body.key || req.get('X-Payload-Key');
+      const description = req.body.description || req.get('X-Payload-Description');
+      const source = req.body.source || req.get('X-Payload-Source');
+
+      const payload = Object.prototype.hasOwnProperty.call(req.body, 'payload')
+        ? req.body.payload
+        : req.body;
 
       const result = await payloadService.save({ key, description, source, payload });
       res.status(201).json({
