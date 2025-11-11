@@ -31,7 +31,7 @@ class PayloadController {
       } else if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
         payload = req.body;
       } else if (req.rawBody && req.rawBody.trim() !== '') {
-        // Fallback to rawBody captured by verify hook
+        
         try {
           payload = JSON.parse(req.rawBody);
         } catch (_) {
