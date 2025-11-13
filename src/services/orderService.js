@@ -132,7 +132,7 @@ class OrderService {
         valErrors.push('items must be a non-empty array');
       } else {
         orderData.items.forEach((it, idx) => {
-          if (!it.itemId) valErrors.push(`items[${idx}].sku is required`);
+          if (!it.itemId) valErrors.push(`items[${idx}].sku_or_menuId is required`);
           if (!(Number.isFinite(it.quantity) && it.quantity > 0)) valErrors.push(`items[${idx}].qty must be > 0`);
           if (!(Number.isFinite(it.unitPrice) && it.unitPrice >= 0)) valErrors.push(`items[${idx}].price must be >= 0`);
         });
@@ -150,20 +150,30 @@ class OrderService {
         let finalUnit = Number(it.unitPrice) || 0;
         if (PRICE_AUTHORITY === 'POS') {
           try {
-            const posPrice = await posPriceService.getPriceForSku(it.itemId);
+            // Attempt dual-key lookup: precedence env ITEM_KEY_FIELD (default sku)
+            const precedence = (process.env.ITEM_KEY_FIELD || 'sku').toLowerCase();
+            const rawSku = it.itemId; // legacy resolved id may be sku
+            // rawMenuId carried from controller (if present)
+            const rawMenuId = it.rawMenuId;
+            let posPrice = null;
+            if (precedence === 'menuid' && rawMenuId) {
+              posPrice = await posPriceService.getPriceForKey(rawSku, rawMenuId, precedence);
+            } else {
+              posPrice = await posPriceService.getPriceForKey(rawSku, rawMenuId, precedence);
+            }
             if (posPrice !== null && Number.isFinite(posPrice)) {
               finalUnit = Number(posPrice);
             } else {
-              const err = new Error(`POS price not found for SKU ${it.itemId}`);
+              const err = new Error(`POS price not found for item key ${rawSku || rawMenuId}`);
               err.name = 'ValidationError';
-              err.details = [`SKU ${it.itemId} not found in POS catalog or has no price`];
+              err.details = [`Item key ${rawSku || rawMenuId} not found in POS catalog or has no price`];
               throw err;
             }
           } catch (e) {
             if (e.name === 'ValidationError') throw e;
-            const err = new Error(`POS price lookup failed for SKU ${it.itemId}`);
+            const err = new Error(`POS price lookup failed for item key ${it.itemId}`);
             err.name = 'ValidationError';
-            err.details = [`SKU ${it.itemId} lookup failed: ${e.message}`];
+            err.details = [`Item key ${it.itemId} lookup failed: ${e.message}`];
             throw err;
           }
         }
@@ -174,6 +184,7 @@ class OrderService {
       // Compute extended and reconcile totals
       const mapped = orderData.items.map(it => ({
         sku: it.itemId,
+        keySource: it.rawSku ? 'sku' : (it.rawMenuId ? 'menuId' : 'fallback'),
         name: it.name,
         qty: Number(it.quantity) || 0,
         unitPrice: Number(it.unitPrice) || 0,
