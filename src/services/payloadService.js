@@ -3,6 +3,27 @@ const logger = require('../utils/logger');
 
 class PayloadService {
   async save({ key, description = null, source = null, payload }) {
+    // Ensure migration ran (create table if missing) for test contexts
+    try {
+      const info = await database.query("PRAGMA table_info(saved_payloads)");
+      if (!info.rows || info.rows.length === 0) {
+        // Attempt lightweight create (idempotent)
+        await database.run(`CREATE TABLE IF NOT EXISTS saved_payloads (
+          id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+          payload_key TEXT UNIQUE NOT NULL,
+          description TEXT,
+          source TEXT,
+          payload TEXT NOT NULL,
+          created_at TEXT DEFAULT (datetime('now')),
+          updated_at TEXT DEFAULT (datetime('now'))
+        )`);
+        await database.run('CREATE INDEX IF NOT EXISTS idx_saved_payloads_created_at ON saved_payloads(created_at)');
+        await database.run('CREATE INDEX IF NOT EXISTS idx_saved_payloads_source ON saved_payloads(source)');
+        logger.info('🛠️ Auto-created saved_payloads table (late init)');
+      }
+    } catch (e) {
+      logger.warn('Failed auto-table check/create for saved_payloads', { error: e.message });
+    }
     if (!payload) {
       const err = new Error('Payload is required');
       err.name = 'ValidationError';
@@ -32,6 +53,24 @@ class PayloadService {
   }
 
   async getByKeyOrId(identifier) {
+    // Late init safeguard in read path too
+    try {
+      const info = await database.query("PRAGMA table_info(saved_payloads)");
+      if (!info.rows || info.rows.length === 0) {
+        await database.run(`CREATE TABLE IF NOT EXISTS saved_payloads (
+          id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+          payload_key TEXT UNIQUE NOT NULL,
+          description TEXT,
+          source TEXT,
+          payload TEXT NOT NULL,
+          created_at TEXT DEFAULT (datetime('now')),
+          updated_at TEXT DEFAULT (datetime('now'))
+        )`);
+        logger.info('🛠️ Auto-created saved_payloads table during getByKeyOrId');
+      }
+    } catch (e) {
+      logger.warn('Failed auto-table check in getByKeyOrId', { error: e.message });
+    }
     const isUuidLike = identifier.length > 30 && identifier.includes('-');
 
     const sql = isUuidLike
@@ -66,6 +105,24 @@ class PayloadService {
   }
 
   async list({ limit = 20, offset = 0, source } = {}) {
+    // Late init safeguard for list path
+    try {
+      const info = await database.query("PRAGMA table_info(saved_payloads)");
+      if (!info.rows || info.rows.length === 0) {
+        await database.run(`CREATE TABLE IF NOT EXISTS saved_payloads (
+          id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+          payload_key TEXT UNIQUE NOT NULL,
+          description TEXT,
+          source TEXT,
+          payload TEXT NOT NULL,
+          created_at TEXT DEFAULT (datetime('now')),
+          updated_at TEXT DEFAULT (datetime('now'))
+        )`);
+        logger.info('🛠️ Auto-created saved_payloads table during list');
+      }
+    } catch (e) {
+      logger.warn('Failed auto-table check in list', { error: e.message });
+    }
     const params = [];
     let where = '';
     if (source) {

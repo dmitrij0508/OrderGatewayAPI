@@ -85,6 +85,20 @@ CREATE TABLE IF NOT EXISTS menu_items (
     created_at TEXT DEFAULT (datetime('now'))
 );
 
+-- Optional POS authoritative SKU/price table (for price-authoritative mode)
+CREATE TABLE IF NOT EXISTS pos_skus (
+    sku TEXT PRIMARY KEY,
+    name TEXT,
+    price REAL NOT NULL,
+    taxable INTEGER DEFAULT 1,
+    active INTEGER DEFAULT 1,
+    last_updated TEXT DEFAULT (datetime('now')),
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_pos_skus_active ON pos_skus(active);
+CREATE INDEX IF NOT EXISTS idx_pos_skus_price ON pos_skus(price);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_orders_order_id ON orders(order_id);
 CREATE INDEX IF NOT EXISTS idx_orders_external_order_id ON orders(external_order_id);

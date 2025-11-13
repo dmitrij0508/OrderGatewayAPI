@@ -13,9 +13,17 @@ const errorHandler = (err, req, res, next) => {
   let status = 500;
   let message = 'Internal server error';
   let details = {};
-  if (err.name === 'ValidationError') {
+  if (err.statusCode) {
+    status = err.statusCode;
+    message = err.message || message;
+    if (err.details) details = err.details;
+  } else if (err.name === 'ValidationError') {
     status = 400;
     message = 'Validation failed';
+    details = err.details || {};
+  } else if (err.name === 'TotalsMismatchError' || err.message === 'Totals mismatch') {
+    status = 400;
+    message = 'Totals mismatch';
     details = err.details || {};
   } else if (err.name === 'UnauthorizedError') {
     status = 401;

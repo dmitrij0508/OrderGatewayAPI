@@ -1,6 +1,18 @@
 const database = require('../config/database');
 const logger = require('../utils/logger');
 const { v4: uuidv4 } = require('uuid');
+const posPriceService = require('./posPriceService');
+
+const PRICE_AUTHORITY = (process.env.PRICE_AUTHORITY || 'POS').toUpperCase(); // 'POS' or 'APP'
+const TOTALS_TOLERANCE = Number(process.env.TOTALS_TOLERANCE || '0.05');
+
+function calcItemExtended(item) {
+  const qty = Number(item.quantity) || 0;
+  const unit = Number(item.unitPrice) || 0;
+  const mods = Array.isArray(item.modifiers) ? item.modifiers.reduce((s, m) => s + (Number(m.price) || 0) * (m.quantity || 1), 0) : 0;
+  // Treat modifiers as per-line-unit deltas multiplied by quantity
+  return +(qty * unit + qty * mods).toFixed(2);
+}
 class OrderService {
   async createOrder(orderData, idempotencyKey) {
     const serviceStartTime = Date.now();
@@ -47,7 +59,7 @@ class OrderService {
         return await this.getOrderById(existingOrder.rows[0].order_id);
       }
 
-      // SERVICE STEP 3: Generate internal ID and prepare data
+  // SERVICE STEP 3: Generate internal ID and prepare data
       const internalId = uuidv4();
       logger.debug('🆔 Generated internal ID', { internalId, publicOrderId: orderData.orderId });
       serviceSteps.push({
@@ -113,7 +125,93 @@ class OrderService {
         }))
       });
 
+      // SERVICE STEP 4.5: Validation & totals reconciliation and price authority handling BEFORE inserts
+      // Validate required fields for items
+      const valErrors = [];
+      if (!orderData.items || !Array.isArray(orderData.items) || orderData.items.length === 0) {
+        valErrors.push('items must be a non-empty array');
+      } else {
+        orderData.items.forEach((it, idx) => {
+          if (!it.itemId) valErrors.push(`items[${idx}].sku is required`);
+          if (!(Number.isFinite(it.quantity) && it.quantity > 0)) valErrors.push(`items[${idx}].qty must be > 0`);
+          if (!(Number.isFinite(it.unitPrice) && it.unitPrice >= 0)) valErrors.push(`items[${idx}].price must be >= 0`);
+        });
+      }
+      if (valErrors.length) {
+        const err = new Error('Validation failed');
+        err.name = 'ValidationError';
+        err.details = valErrors;
+        throw err;
+      }
+
+      // Apply price authority: if POS, attempt SKU price lookup
+      const pricedItems = [];
+      for (const it of orderData.items) {
+        let finalUnit = Number(it.unitPrice) || 0;
+        if (PRICE_AUTHORITY === 'POS') {
+          try {
+            const posPrice = await posPriceService.getPriceForSku(it.itemId);
+            if (posPrice !== null && Number.isFinite(posPrice)) {
+              finalUnit = Number(posPrice);
+            } else {
+              const err = new Error(`POS price not found for SKU ${it.itemId}`);
+              err.name = 'ValidationError';
+              err.details = [`SKU ${it.itemId} not found in POS catalog or has no price`];
+              throw err;
+            }
+          } catch (e) {
+            if (e.name === 'ValidationError') throw e;
+            const err = new Error(`POS price lookup failed for SKU ${it.itemId}`);
+            err.name = 'ValidationError';
+            err.details = [`SKU ${it.itemId} lookup failed: ${e.message}`];
+            throw err;
+          }
+        }
+        pricedItems.push({ ...it, unitPrice: +Number(finalUnit).toFixed(2) });
+      }
+      orderData.items = pricedItems;
+
+      // Compute extended and reconcile totals
+      const mapped = orderData.items.map(it => ({
+        sku: it.itemId,
+        name: it.name,
+        qty: Number(it.quantity) || 0,
+        unitPrice: Number(it.unitPrice) || 0,
+        modsTotal: Array.isArray(it.modifiers) ? it.modifiers.reduce((s, m) => s + (Number(m.price) || 0) * (m.quantity || 1), 0) : 0,
+      })).map(l => ({ ...l, extended: +(l.qty * l.unitPrice + l.qty * l.modsTotal).toFixed(2) }));
+
+      const calcSubtotal = mapped.reduce((s, l) => s + l.extended, 0);
+      const expectedTotal = +(calcSubtotal + (orderData.totals.tax || 0) + (orderData.totals.tip || 0) + (orderData.totals.deliveryFee || 0) - (orderData.totals.discount || 0)).toFixed(2);
+      const subtotalDiff = Math.abs(calcSubtotal - (orderData.totals.subtotal || 0));
+      const totalDiff = Math.abs(expectedTotal - (orderData.totals.total || 0));
+
+      logger.info('🧾 MAPPED LINES (final-to-POS)', { lines: mapped, subtotal: +calcSubtotal.toFixed(2), expectedTotal });
+
+      if (subtotalDiff > TOTALS_TOLERANCE || totalDiff > TOTALS_TOLERANCE) {
+        const err = new Error('Totals reconciliation failed');
+        err.name = 'TotalsMismatchError';
+        err.details = {
+          calculatedSubtotal: +calcSubtotal.toFixed(2),
+          payloadSubtotal: orderData.totals.subtotal,
+          diffSubtotal: +subtotalDiff.toFixed(2),
+          calculatedTotal: expectedTotal,
+          payloadTotal: orderData.totals.total,
+          diffTotal: +totalDiff.toFixed(2),
+          tolerance: TOTALS_TOLERANCE
+        };
+        logger.warn('⚖️ Totals reconciliation failed', err.details);
+        throw err;
+      }
+
+      // Ensure totalPrice per item is aligned with final calculation
+      orderData.items = orderData.items.map((it) => ({
+        ...it,
+        totalPrice: calcItemExtended(it)
+      }));
+
       // SERVICE STEP 5: Insert main order record (check if new columns exist first)
+      // Begin transaction for atomic write
+      await database.run('BEGIN');
       let orderInsertQuery;
       let finalOrderInsertParams;
       
@@ -181,7 +279,7 @@ class OrderService {
 
       logger.debugDatabase('Main Order Insert', orderInsertQuery, finalOrderInsertParams);
       
-      const orderResult = await database.run(orderInsertQuery, finalOrderInsertParams);
+  const orderResult = await database.run(orderInsertQuery, finalOrderInsertParams);
       
       logger.debugDatabase('Main Order Insert Result', orderInsertQuery, finalOrderInsertParams, orderResult);
       logger.debug('✅ ORDER RECORD INSERTED', {
@@ -199,7 +297,7 @@ class OrderService {
 
       logger.info(`Order main record inserted successfully`);
 
-      // SERVICE STEP 6: Process items if any
+  // SERVICE STEP 6: Process items if any
       if (orderData.items && Array.isArray(orderData.items) && orderData.items.length > 0) {
         logger.debug('🛒 PROCESSING ORDER ITEMS', {
           itemCount: orderData.items.length,
@@ -217,22 +315,48 @@ class OrderService {
           const item = orderData.items[i];
           const itemId = uuidv4();
           
-          const itemInsertQuery = `
+          // Check if original_name column exists (cached after first check)
+          if (typeof this._hasOriginalNameColumn === 'undefined') {
+            try {
+              const info = await database.query("PRAGMA table_info(order_items)");
+              this._hasOriginalNameColumn = info.rows.some(c => c.name === 'original_name');
+            } catch (_) {
+              this._hasOriginalNameColumn = false;
+            }
+          }
+
+          const itemInsertQuery = this._hasOriginalNameColumn ? `
+            INSERT INTO order_items (
+              id, order_id, item_id, name, original_name, quantity, unit_price, total_price, special_instructions, category, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+          ` : `
             INSERT INTO order_items (
               id, order_id, item_id, name, quantity, unit_price, total_price, special_instructions, category, created_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
           `;
 
-          const itemParams = [
+          const originalName = item.originalName || item.fullDescription || item.rawName || item.name;
+          const itemParams = this._hasOriginalNameColumn ? [
             itemId,
-            internalId, // Use the main order internal ID
+            internalId,
+            item.itemId || `ITEM-${i + 1}`,
+            item.name || 'Unknown Item',
+            originalName || item.name || 'Unknown Item',
+            item.quantity || 1,
+            item.unitPrice || 0,
+            item.totalPrice || 0,
+            item.specialInstructions || null,
+            item.category || 'General'
+          ] : [
+            itemId,
+            internalId,
             item.itemId || `ITEM-${i + 1}`,
             item.name || 'Unknown Item',
             item.quantity || 1,
             item.unitPrice || 0,
             item.totalPrice || 0,
             item.specialInstructions || null,
-            item.category || 'General' // OhMyApp.io specific field
+            item.category || 'General'
           ];
 
           logger.debugDatabase(`Item ${i + 1} Insert`, itemInsertQuery, itemParams);
@@ -300,7 +424,10 @@ class OrderService {
 
       logger.info(`Order created successfully: ${orderData.orderId}`);
       
-      const createdOrder = await this.getOrderById(orderData.orderId);
+  const createdOrder = await this.getOrderById(orderData.orderId);
+
+  // Commit transaction if everything is OK
+  await database.run('COMMIT');
       
       serviceSteps.push({
         description: 'Order retrieval completed',
@@ -326,6 +453,8 @@ class OrderService {
       return createdOrder;
       
     } catch (error) {
+      // Rollback on any failure within transaction scope
+      try { await database.run('ROLLBACK'); } catch (_) {}
       const totalServiceDuration = Date.now() - serviceStartTime;
       serviceSteps.push({
         description: 'Service error occurred',
@@ -357,6 +486,19 @@ class OrderService {
           errorErrno: error.errno
         }
       });
+      // Re-throw validation and totals errors with structured payload
+      if (error.name === 'ValidationError') {
+        const e = new Error('Validation failed');
+        e.statusCode = 400;
+        e.details = error.details;
+        throw e;
+      }
+      if (error.name === 'TotalsMismatchError') {
+        const e = new Error('Totals mismatch');
+        e.statusCode = 400;
+        e.details = error.details;
+        throw e;
+      }
       throw error;
     }
   }
@@ -380,6 +522,7 @@ class OrderService {
         `, [item.id]);
         return {
           itemId: item.item_id,
+          originalName: item.original_name || null,
           name: item.name,
           quantity: item.quantity,
           unitPrice: parseFloat(item.unit_price),

@@ -159,9 +159,14 @@ class OrderController {
         orderTime: dataToProcess.orderTime || dataToProcess.order_time || dataToProcess.createdAt || dataToProcess.created_at || dataToProcess.timestamp || new Date().toISOString(),
         requestedTime: dataToProcess.requestedTime || dataToProcess.requested_time || dataToProcess.deliveryTime || dataToProcess.delivery_time || null,
         
-        // Enhanced item processing with multiple field name support
+        // Enhanced item processing with multiple field name support (treat itemId as SKU; prefer explicit sku field)
         items: Array.isArray(dataToProcess.items) ? dataToProcess.items.map(item => ({
-          itemId: item.itemId || item.item_id || item.id || item.productId || item.product_id || null,
+          // Support menuId/menu_id in addition to sku. Resolve a primary key (itemId) preferring sku, then menuId.
+          rawSku: item.sku || null,
+          rawMenuId: item.menuId || item.menu_id || null,
+          itemId: item.sku || item.menuId || item.menu_id || item.itemId || item.item_id || item.id || item.productId || item.product_id || null,
+          // Preserve the tablet/app full description as originalName if provided
+          originalName: item.description || item.fullDescription || item.full_description || item.longName || item.long_name || item.name || item.item_name || item.title || item.product_name || null,
           name: item.name || item.item_name || item.title || item.product_name || item.description || 'Unknown Item',
           quantity: parseInt(item.quantity || item.qty || item.amount || 1),
           unitPrice: parseFloat(item.unitPrice || item.unit_price || item.price || item.cost || 0),
@@ -172,7 +177,7 @@ class OrderController {
             price: parseFloat(modifier.price || modifier.cost || modifier.additional_cost || 0)
           })) : []
         })) : (Array.isArray(dataToProcess.orderItems) ? dataToProcess.orderItems.map(item => ({
-          itemId: item.itemId || item.item_id || item.id || null,
+          itemId: item.sku || item.itemId || item.item_id || item.id || null,
           name: item.name || item.item_name || 'Unknown Item',
           quantity: parseInt(item.quantity || 1),
           unitPrice: parseFloat(item.unitPrice || item.price || 0),
@@ -250,6 +255,64 @@ class OrderController {
       });
       
       logger.info('Processed order ready for service:', { processedOrder });
+
+      // STEP 5.1: Validate required fields and locale/formatting per policy
+      const validationErrors = [];
+      // Required fields: each item must have SKU (itemId), quantity, unitPrice
+      if (!processedOrder.items || !Array.isArray(processedOrder.items) || processedOrder.items.length === 0) {
+        validationErrors.push('items array is required and must contain at least one item');
+      } else {
+        processedOrder.items.forEach((it, idx) => {
+          if (!it.itemId) validationErrors.push(`items[${idx}].sku_or_menuId is required`);
+          if (!(Number.isFinite(it.quantity) && it.quantity > 0)) validationErrors.push(`items[${idx}].qty must be a positive number`);
+          if (!(Number.isFinite(it.unitPrice) && it.unitPrice >= 0)) validationErrors.push(`items[${idx}].price must be a number >= 0`);
+          // Locale/format guard: reject strings with commas or currency symbols (already parsed above, but if came as string, raw may include symbols)
+        });
+      }
+      // Totals present
+      const t = processedOrder.totals || {};
+      ['subtotal','tax','tip','discount','deliveryFee','total'].forEach(k => {
+        if (t[k] === undefined || t[k] === null || !Number.isFinite(t[k])) validationErrors.push(`totals.${k} must be a number`);
+      });
+      if (validationErrors.length > 0) {
+        logger.warn('❌ Order validation failed', { errors: validationErrors });
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: validationErrors,
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // STEP 5.2: Compute mapped line extensions and log (unit choice before POS authority override; final will be logged in service too)
+      const mappedLines = processedOrder.items.map((it) => {
+        const modsTotal = Array.isArray(it.modifiers) ? it.modifiers.reduce((s, m) => s + (Number.isFinite(m.price) ? m.price : 0) * (m.quantity || 1), 0) : 0;
+        const unit = Number(it.unitPrice);
+        const qty = Number(it.quantity);
+        const extended = +(qty * unit + qty * modsTotal).toFixed(2);
+        // Keep a preview for debugging only
+        // Include key resolution source for audit
+        const keySource = it.rawSku ? 'sku' : (it.rawMenuId ? 'menuId' : 'fallback');
+        return { sku: it.itemId, keySource, name: it.name, qty, unitPrice: unit, modsTotal: +modsTotal.toFixed(2), extended };
+      });
+      logger.info('🧾 MAPPED LINES (pre-POS-price)', { lines: mappedLines });
+
+      // STEP 5.3: Quick totals reconciliation (pre-POS override). Final reconciliation done in service after price-authority handling
+      const previewSubtotal = mappedLines.reduce((s, l) => s + l.extended, 0);
+      const previewTotal = +(previewSubtotal + t.tax + t.tip + (t.deliveryFee || 0) - (t.discount || 0)).toFixed(2);
+      const tolerance = Number(process.env.TOTALS_TOLERANCE || '0.05');
+      const subtotalDiff = Math.abs(previewSubtotal - t.subtotal);
+      const totalDiff = Math.abs(previewTotal - t.total);
+      if (subtotalDiff > tolerance || totalDiff > tolerance) {
+        logger.warn('⚖️ Totals mismatch (pre-POS-price)', {
+          previewSubtotal: +previewSubtotal.toFixed(2),
+          payloadSubtotal: t.subtotal,
+          diffSubtotal: +subtotalDiff.toFixed(2),
+          previewTotal,
+          payloadTotal: t.total,
+          diffTotal: +totalDiff.toFixed(2),
+          tolerance
+        });
+      }
 
       // STEP 7: Log detailed analysis of processed order
       logger.debug('📋 PROCESSED ORDER ANALYSIS', {

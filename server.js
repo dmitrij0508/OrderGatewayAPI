@@ -17,6 +17,8 @@ const payloadRoutes = require('./src/routes/payloads');
 // Auto-apply OhMyApp.io migration on startup
 const { applyOhMyAppMigration } = require('./database/migrate-ohmyapp-support');
 const { applySavedPayloadsMigration } = require('./database/migrate-saved-payloads');
+const { applyPosCatalogMigration } = require('./database/migrate-pos-catalog');
+const { applyOrderItemsOriginalNameMigration } = require('./database/migrate-order-items-original-name');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -68,7 +70,12 @@ const limiter = rateLimit({
     }
   }
 });
-app.use('/api/', limiter);
+// Apply rate limiter except during tests to avoid timer-based open handles
+if (process.env.NODE_ENV !== 'test') {
+  app.use('/api/', limiter);
+  // expose limiter for controlled shutdown in tests or other environments
+  app.set('rateLimiter', limiter);
+}
 // Capture raw JSON body for endpoints that may send non-standard content-types
 app.use(express.json({
   limit: '10mb',
@@ -191,8 +198,12 @@ async function startServer() {
   try {
     // Apply OhMyApp.io migration
     const migrationResult = await applyOhMyAppMigration();
-    // Apply Saved Payloads migration
+  // Apply Saved Payloads migration
     const savedPayloadsMigration = await applySavedPayloadsMigration();
+  // Apply POS Catalog migration (optional, for POS price-authoritative mode)
+  const posCatalogMigration = await applyPosCatalogMigration();
+  // Add column to preserve original item descriptions from tablet/app
+  const originalNameMigration = await applyOrderItemsOriginalNameMigration();
     
     if ((migrationResult.success || migrationResult.canProceed) && savedPayloadsMigration.success) {
       logger.info('✅ Database migration completed');
@@ -208,6 +219,8 @@ async function startServer() {
       logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   logger.info(`🎣 OhMyApp.io webhook support: ${migrationResult.success ? 'ENABLED' : 'PARTIAL'}`);
   logger.info(`💾 Saved Payloads: ${savedPayloadsMigration.success ? 'ENABLED' : 'PARTIAL'}`);
+  logger.info(`🏷️ POS Catalog: ${posCatalogMigration.success ? 'READY' : 'UNAVAILABLE'}`);
+  logger.info(`📝 Original Item Description: ${originalNameMigration.success ? 'ENABLED' : 'UNAVAILABLE'}`);
       
       if (migrationResult.missingColumns > 0) {
         logger.warn(`⚠️ Some database columns are missing (${migrationResult.missingColumns}). OhMyApp.io features may be limited.`);
@@ -228,7 +241,35 @@ async function startServer() {
   }
 }
 
+// Graceful shutdown helper for tests and controlled stops
+app.shutdown = async () => {
+  try {
+    const rl = app.get('rateLimiter');
+    if (rl && rl.store && typeof rl.store.shutdown === 'function') {
+      rl.store.shutdown();
+    }
+    await database.end();
+  } catch (e) {
+    logger.warn('Shutdown database end failed', { error: e.message });
+  }
+};
+
 if (require.main === module) {
   startServer();
+} else {
+  // Skip heavy migrations in test environment to avoid extra handles
+  if (process.env.NODE_ENV !== 'test') {
+    (async () => {
+      try {
+        await applyOhMyAppMigration();
+        await applySavedPayloadsMigration();
+  await applyPosCatalogMigration();
+  await applyOrderItemsOriginalNameMigration();
+        logger.info('🧪 Migrations applied for import context');
+      } catch (e) {
+        logger.warn('⚠️ Failed to apply migrations in import context', { error: e.message });
+      }
+    })();
+  }
 }
 module.exports = app;

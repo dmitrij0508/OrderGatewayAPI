@@ -8,11 +8,10 @@ const logFormat = winston.format.combine(
   winston.format.json()
 );
 
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
-  format: logFormat,
-  defaultMeta: { service: 'pos-order-gateway-api' },
-  transports: [
+// Select transports based on environment; avoid file I/O in tests to prevent open handles
+const baseTransports = [];
+if (process.env.NODE_ENV !== 'test') {
+  baseTransports.push(
     new winston.transports.File({
       filename: path.join(__dirname, '../../logs/error.log'),
       level: 'error'
@@ -20,7 +19,6 @@ const logger = winston.createLogger({
     new winston.transports.File({
       filename: path.join(__dirname, '../../logs/combined.log')
     }),
-    // Add dedicated debug log file for detailed payload debugging
     new winston.transports.File({
       filename: path.join(__dirname, '../../logs/debug-payloads.log'),
       level: 'debug',
@@ -32,7 +30,14 @@ const logger = winston.createLogger({
         })
       )
     })
-  ]
+  );
+}
+
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'info',
+  format: logFormat,
+  defaultMeta: { service: 'pos-order-gateway-api' },
+  transports: baseTransports
 });
 
 if (process.env.NODE_ENV !== 'production') {
