@@ -165,6 +165,8 @@ DB_PORT=5432
 DB_NAME=pos_gateway
 DB_USER=pos_gateway_user
 DB_PASSWORD=your_password
+USE_SQLITE=false            # Set to 'true' (default) to use local SQLite, 'false' to use PostgreSQL
+DB_SSL=false                # Set true when using managed Postgres with SSL
 
 # Security
 API_KEY_HEADER=X-API-Key

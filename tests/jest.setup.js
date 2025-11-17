@@ -9,6 +9,25 @@ process.env.PRICE_AUTHORITY = process.env.PRICE_AUTHORITY || 'APP';
 const database = require('../src/config/database');
 const app = require('../server');
 
+// Apply schema migrations before tests run
+beforeAll(async () => {
+  try {
+    // Ensure original_name column exists
+    const tableInfo = await database.query("PRAGMA table_info(order_items)");
+    const columns = tableInfo.rows.map(c => c.name);
+    if (!columns.includes('original_name')) {
+      await database.run('ALTER TABLE order_items ADD COLUMN original_name TEXT');
+    }
+    // Ensure category column exists
+    if (!columns.includes('category')) {
+      await database.run('ALTER TABLE order_items ADD COLUMN category TEXT');
+    }
+  } catch (e) {
+    // Migration errors are non-fatal for tests
+    console.warn('Migration warning:', e.message);
+  }
+});
+
 // Close DB and logger transports after all tests complete
 afterAll(async () => {
   try {
