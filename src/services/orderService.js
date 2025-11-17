@@ -346,7 +346,7 @@ class OrderService {
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
           `;
 
-          const originalName = item.originalName || item.fullDescription || item.rawName || item.name;
+          const originalName = item.originalName || item.fullDescription || item.description || item.rawName || item.name;
           const itemParams = this._hasOriginalNameColumn ? [
             itemId,
             internalId,

@@ -159,12 +159,20 @@ X-Webhook-Key: sync-agent-secret-key
 PORT=3000
 NODE_ENV=development
 
-# Database
+# Database (Development - SQLite or local Postgres)
+USE_SQLITE=true             # true = SQLite (default for dev), false = PostgreSQL
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=pos_gateway
-DB_USER=pos_gateway_user
-DB_PASSWORD=your_password
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_SSL=false
+
+# Database (Production - Render Postgres)
+# Prefer a single connection string
+# DATABASE_URL=postgresql://<user>:<password>@<host>/<db>
+# Set USE_SQLITE=false and DB_SSL=true when using Render/AWS/etc.
+# Example in `.env.production`
 
 # Security
 API_KEY_HEADER=X-API-Key

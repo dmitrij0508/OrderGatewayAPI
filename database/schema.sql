@@ -6,41 +6,41 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Create main orders table
 CREATE TABLE orders (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    order_id VARCHAR(50) UNIQUE NOT NULL, -- ORD-YYYYMMDD-NNN format
-    external_order_id VARCHAR(100) NOT NULL, -- Mobile app internal ID
+    order_id VARCHAR(50) UNIQUE NOT NULL,
+    external_order_id VARCHAR(100) NOT NULL,
     restaurant_id VARCHAR(50) NOT NULL,
     idempotency_key UUID UNIQUE NOT NULL,
-    
-    -- Customer information
+
     customer_name VARCHAR(255) NOT NULL,
     customer_phone VARCHAR(20) NOT NULL,
     customer_email VARCHAR(255),
-    
-    -- Order details
+    customer_address JSONB,
+
     order_type VARCHAR(20) NOT NULL CHECK (order_type IN ('pickup', 'delivery', 'dine-in')),
     order_time TIMESTAMP WITH TIME ZONE NOT NULL,
     requested_time TIMESTAMP WITH TIME ZONE,
-    
-    -- Pricing
+
     subtotal DECIMAL(10,2) NOT NULL,
     tax DECIMAL(10,2) NOT NULL,
     tip DECIMAL(10,2) DEFAULT 0,
     discount DECIMAL(10,2) DEFAULT 0,
     delivery_fee DECIMAL(10,2) DEFAULT 0,
     total DECIMAL(10,2) NOT NULL,
-    
-    -- Payment information
+
     payment_method VARCHAR(50),
     payment_status VARCHAR(20) DEFAULT 'pending' CHECK (payment_status IN ('pending', 'authorized', 'captured', 'failed')),
     payment_transaction_id VARCHAR(100),
-    
-    -- Order status and tracking
+    payment_amount DECIMAL(10,2) DEFAULT 0,
+
     status VARCHAR(20) DEFAULT 'received' CHECK (status IN ('received', 'preparing', 'ready', 'completed', 'cancelled')),
     estimated_time TIMESTAMP WITH TIME ZONE,
     cancellation_reason VARCHAR(50),
     notes TEXT,
-    
-    -- Audit fields
+    source VARCHAR(50) DEFAULT 'api',
+    webhook_metadata JSONB,
+    original_order_id VARCHAR(100),
+    webhook_created_at TIMESTAMP WITH TIME ZONE,
+
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -49,12 +49,14 @@ CREATE TABLE orders (
 CREATE TABLE order_items (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-    item_id VARCHAR(50) NOT NULL, -- POS system item ID
+    item_id VARCHAR(50) NOT NULL,
     name VARCHAR(255) NOT NULL,
+    original_name VARCHAR(255),
     quantity INTEGER NOT NULL CHECK (quantity > 0),
     unit_price DECIMAL(10,2) NOT NULL,
     total_price DECIMAL(10,2) NOT NULL,
     special_instructions TEXT,
+    category VARCHAR(100),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -62,8 +64,10 @@ CREATE TABLE order_items (
 CREATE TABLE order_item_modifiers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     order_item_id UUID NOT NULL REFERENCES order_items(id) ON DELETE CASCADE,
+    modifier_id VARCHAR(50),
     name VARCHAR(100) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
+    quantity INTEGER DEFAULT 1,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -102,6 +106,32 @@ CREATE INDEX idx_order_item_modifiers_order_item_id ON order_item_modifiers(orde
 
 CREATE INDEX idx_menus_restaurant_id ON menus(restaurant_id);
 CREATE INDEX idx_menu_items_menu_id ON menu_items(menu_id);
+
+-- POS authoritative SKU / price table
+CREATE TABLE pos_skus (
+    sku VARCHAR(100) PRIMARY KEY,
+    name VARCHAR(255),
+    price DECIMAL(10,2) NOT NULL,
+    taxable BOOLEAN DEFAULT true,
+    active BOOLEAN DEFAULT true,
+    last_updated TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+CREATE INDEX idx_pos_skus_active ON pos_skus(active);
+CREATE INDEX idx_pos_skus_price ON pos_skus(price);
+
+-- Saved payloads for debugging / reuse
+CREATE TABLE saved_payloads (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    payload_key VARCHAR(150) UNIQUE NOT NULL,
+    description TEXT,
+    source VARCHAR(50),
+    payload JSONB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+CREATE INDEX idx_saved_payloads_created_at ON saved_payloads(created_at);
+CREATE INDEX idx_saved_payloads_source ON saved_payloads(source);
 
 -- Create updated_at trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
