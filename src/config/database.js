@@ -12,6 +12,7 @@ if (useSQLite) {
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000
   };
+  const slowThreshold = parseInt(process.env.DB_SLOW_QUERY_MS || '0');
   const pool = new Pool(
     connectionString
       ? { connectionString, ssl: sslEnabled ? { rejectUnauthorized: false } : false, ...basePoolConfig }
@@ -66,7 +67,19 @@ if (useSQLite) {
 
   async function query(text, params = []) {
     const translated = translateQuery(text, params.length);
-    return pool.query(translated, params);
+    const start = slowThreshold > 0 ? Date.now() : 0;
+    const res = await pool.query(translated, params);
+    if (slowThreshold > 0) {
+      const ms = Date.now() - start;
+      if (ms >= slowThreshold) {
+        logger.warn('🐢 Slow query detected', {
+          ms,
+          rows: res.rowCount,
+          sql: translated.length > 160 ? translated.slice(0, 157) + '…' : translated
+        });
+      }
+    }
+    return res;
   }
 
   async function run(text, params = []) {

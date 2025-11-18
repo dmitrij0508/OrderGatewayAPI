@@ -998,3 +998,10 @@
 {"level":"info","message":"🔄 Applying Saved Payloads migration...","service":"pos-order-gateway-api","timestamp":"2025-11-12 18:56:01"}
 {"level":"info","message":"✅ Applied: CREATE TABLE IF NOT EXISTS saved_payloads (...","service":"pos-order-gateway-api","timestamp":"2025-11-12 18:56:01"}
 {"level":"info","message":"✅ Applied: CREATE INDEX IF NOT EXISTS idx_saved_payloads_created_at ON saved_payloads(created_at)...","service":"pos-order-gateway-api","timestamp":"2025-11-12 18:56:01"}
+{"level":"info","message":"🗄️ Connected to SQLite database","service":"pos-order-gateway-api","timestamp":"2025-11-18 15:59:19"}
+{"level":"info","message":"Menu already present for NYC-DELI-001 - skipping creation","service":"pos-order-gateway-api","timestamp":"2025-11-18 15:59:19"}
+{"level":"info","message":"Menu items already present (4) - skipping item inserts","service":"pos-order-gateway-api","timestamp":"2025-11-18 15:59:19"}
+{"level":"info","message":"Inserted 7 POS SKUs","service":"pos-order-gateway-api","timestamp":"2025-11-18 15:59:19"}
+{"level":"info","message":"Seed order ORD-SEED-1763481559831 created with 2 items","service":"pos-order-gateway-api","timestamp":"2025-11-18 15:59:19"}
+{"level":"info","message":"✅ Seeding complete","service":"pos-order-gateway-api","timestamp":"2025-11-18 15:59:19"}
+{"level":"info","message":"🗄️ Connected to SQLite database","service":"pos-order-gateway-api","timestamp":"2025-11-18 15:59:35"}

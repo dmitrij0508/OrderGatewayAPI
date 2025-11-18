@@ -48,6 +48,63 @@ npm start
 
 The API will be available at `http://localhost:3000` (development) or `https://ordergatewayapi.onrender.com` (production)
 
+### 🧪 Seeding Sample Data
+
+Populate a starter menu, POS SKUs, and a sample order for local testing or demo purposes.
+
+1. (Optional) Set `SEED_RESTAURANT_ID` in `.env` (defaults to `NYC-DELI-001`).
+2. Run the seed script:
+  ```bash
+  node scripts/seed.js
+  ```
+3. Verify menu data:
+  ```bash
+  curl "http://localhost:3000/api/v1/menu?restaurantId=NYC-DELI-001" -H "X-API-Key: pos-mobile-app-key" | jq
+  ```
+
+Idempotent: re-running will skip existing menu + items and only add missing POS SKUs or sample order.
+
+Production/PostgreSQL:
+```bash
+USE_SQLITE=false node scripts/seed.js
+```
+Ensure schema/migrations applied first. Missing optional tables (e.g. `pos_skus`) are skipped with a warning.
+
+### ⚙️ Production Health Check
+
+Run a quick smoke test against a deployed instance:
+```bash
+node scripts/check-prod.js
+```
+Optional environment overrides:
+```bash
+set PROD_BASE_URL=https://ordergatewayapi.onrender.com/api/v1
+set PROD_API_KEY=pos-mobile-app-key
+set PROD_RESTAURANT_ID=NYC-DELI-001
+node scripts/check-prod.js
+```
+Outputs timing + item count; warns if menu empty.
+
+### 🗃️ Recommended PostgreSQL Indexes
+
+Indexes improve query performance at scale:
+```sql
+CREATE INDEX IF NOT EXISTS idx_orders_restaurant_status ON orders(restaurant_id, status);
+CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_menu_items_menu ON menu_items(menu_id);
+CREATE INDEX IF NOT EXISTS idx_pos_skus_sku ON pos_skus(sku);
+```
+Included in `database/migrations/add_indexes.sql` for manual execution on Postgres.
+
+### 🐢 Slow Query Logging
+
+Set `DB_SLOW_QUERY_MS` (e.g. `250`) to emit a warning log for any PostgreSQL query exceeding that duration. Example:
+```bash
+DB_SLOW_QUERY_MS=250 npm start
+```
+Log entry includes elapsed ms, row count, and truncated SQL.
+
+
 ## 📖 API Documentation
 
 ### Authentication

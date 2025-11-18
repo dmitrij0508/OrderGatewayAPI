@@ -9,7 +9,8 @@
     "dev": "nodemon server.js",
     "test": "jest",
     "db:migrate": "node scripts/migrate.js",
-    "db:seed": "node scripts/seed.js"
+    "db:seed": "node scripts/seed.js",
+    "check:prod": "node scripts/check-prod.js"
   },
   "keywords": [
     "pos",
