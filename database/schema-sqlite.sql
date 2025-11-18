@@ -81,6 +81,7 @@ CREATE TABLE IF NOT EXISTS menu_items (
     menu_id TEXT NOT NULL REFERENCES menus(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     price REAL NOT NULL,
+    category TEXT,
     available INTEGER DEFAULT 1,
     created_at TEXT DEFAULT (datetime('now'))
 );
@@ -117,35 +118,39 @@ CREATE INDEX IF NOT EXISTS idx_menu_items_menu_id ON menu_items(menu_id);
 INSERT OR IGNORE INTO menus (restaurant_id, name, description) 
 VALUES ('NYC-DELI-001', 'Main Menu', 'New York Deli & Cafe Main Menu');
 
-INSERT OR IGNORE INTO menu_items (menu_id, name, price, available) 
+INSERT OR IGNORE INTO menu_items (menu_id, name, price, category, available) 
 SELECT 
     (SELECT id FROM menus WHERE restaurant_id = 'NYC-DELI-001'),
     'Turkey Club Sandwich',
     12.99,
+    'Sandwiches',
     1
 WHERE NOT EXISTS (SELECT 1 FROM menu_items WHERE name = 'Turkey Club Sandwich');
 
-INSERT OR IGNORE INTO menu_items (menu_id, name, price, available) 
+INSERT OR IGNORE INTO menu_items (menu_id, name, price, category, available) 
 SELECT 
     (SELECT id FROM menus WHERE restaurant_id = 'NYC-DELI-001'),
     'Pastrami on Rye',
     14.50,
+    'Sandwiches',
     1
 WHERE NOT EXISTS (SELECT 1 FROM menu_items WHERE name = 'Pastrami on Rye');
 
-INSERT OR IGNORE INTO menu_items (menu_id, name, price, available) 
+INSERT OR IGNORE INTO menu_items (menu_id, name, price, category, available) 
 SELECT 
     (SELECT id FROM menus WHERE restaurant_id = 'NYC-DELI-001'),
     'Chicken Caesar Salad',
     11.99,
+    'Salads',
     1
 WHERE NOT EXISTS (SELECT 1 FROM menu_items WHERE name = 'Chicken Caesar Salad');
 
-INSERT OR IGNORE INTO menu_items (menu_id, name, price, available) 
+INSERT OR IGNORE INTO menu_items (menu_id, name, price, category, available) 
 SELECT 
     (SELECT id FROM menus WHERE restaurant_id = 'NYC-DELI-001'),
     'Coffee',
     2.99,
+    'Drinks',
     1
 WHERE NOT EXISTS (SELECT 1 FROM menu_items WHERE name = 'Coffee');
 

@@ -18,5 +18,14 @@ class MenuController {
       next(error);
     }
   }
+  async getCategories(req, res, next) {
+    try {
+      const { restaurantId } = req.query;
+      const cats = await menuService.getCategories(restaurantId);
+      res.json({ success: true, data: cats, timestamp: new Date().toISOString() });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 module.exports = new MenuController();

@@ -6,4 +6,8 @@ router.get('/',
   requirePermission('menu:read'),
   menuController.getMenu
 );
+router.get('/categories',
+  requirePermission('menu:read'),
+  menuController.getCategories
+);
 module.exports = router;

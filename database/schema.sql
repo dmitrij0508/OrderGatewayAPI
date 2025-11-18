@@ -83,12 +83,25 @@ CREATE TABLE menus (
     UNIQUE(restaurant_id)
 );
 
+-- Create categories table (optional taxonomy for menu items)
+CREATE TABLE categories (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    restaurant_id VARCHAR(50) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    display_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(restaurant_id, name)
+);
+
+CREATE INDEX idx_categories_restaurant_id ON categories(restaurant_id);
+
 -- Create menu items table
 CREATE TABLE menu_items (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     menu_id UUID NOT NULL REFERENCES menus(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
+    category VARCHAR(100),
     available BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -150,21 +163,30 @@ CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders
 INSERT INTO menus (restaurant_id, name, description) VALUES 
 ('NYC-DELI-001', 'Main Menu', 'New York Deli & Cafe Main Menu');
 
-INSERT INTO menu_items (menu_id, name, price, available) 
+-- Seed default categories for NYC-DELI-001
+INSERT INTO categories (restaurant_id, name, display_order) VALUES
+('NYC-DELI-001', 'Sandwiches', 1),
+('NYC-DELI-001', 'Salads', 2),
+('NYC-DELI-001', 'Soups', 3),
+('NYC-DELI-001', 'Bakery', 4),
+('NYC-DELI-001', 'Drinks', 5);
+
+INSERT INTO menu_items (menu_id, name, price, category, available) 
 SELECT 
     (SELECT id FROM menus WHERE restaurant_id = 'NYC-DELI-001'),
     item_name,
     item_price,
+    item_category,
     true
 FROM (VALUES 
-    ('Turkey Club Sandwich', 12.99),
-    ('Pastrami on Rye', 14.50),
-    ('Chicken Caesar Salad', 11.99),
-    ('Matzo Ball Soup', 8.99),
-    ('Bagel with Cream Cheese', 4.99),
-    ('Coffee', 2.99),
-    ('Iced Tea', 2.50)
-) AS items(item_name, item_price);
+    ('Turkey Club Sandwich', 12.99, 'Sandwiches'),
+    ('Pastrami on Rye', 14.50, 'Sandwiches'),
+    ('Chicken Caesar Salad', 11.99, 'Salads'),
+    ('Matzo Ball Soup', 8.99, 'Soups'),
+    ('Bagel with Cream Cheese', 4.99, 'Bakery'),
+    ('Coffee', 2.99, 'Drinks'),
+    ('Iced Tea', 2.50, 'Drinks')
+) AS items(item_name, item_price, item_category);
 
 -- Create API usage tracking table (optional)
 CREATE TABLE api_usage (

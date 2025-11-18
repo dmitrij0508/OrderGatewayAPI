@@ -30,7 +30,8 @@ class MenuService {
             id: item.id,
             name: item.name,
             price: parseFloat(item.price),
-            available: Boolean(item.available)
+            available: Boolean(item.available),
+            category: item.category || null
           }))
         };
       }));
@@ -77,6 +78,40 @@ class MenuService {
       return await this.getMenu(restaurantId);
     } catch (error) {
       logger.error(`Failed to update menu for restaurant ${restaurantId}:`, error);
+      throw error;
+    }
+  }
+  async getCategories(restaurantId = null) {
+    try {
+      // Prefer categories table if present
+      let cats = [];
+      try {
+        const res = await database.query(
+          restaurantId
+            ? 'SELECT name, display_order FROM categories WHERE restaurant_id = ? ORDER BY display_order, name'
+            : 'SELECT name, display_order FROM categories ORDER BY restaurant_id, display_order, name',
+          restaurantId ? [restaurantId] : []
+        );
+        cats = res.rows.map(r => ({ name: r.name, displayOrder: r.display_order }));
+      } catch (_) {
+        cats = [];
+      }
+      if (cats.length > 0) return cats;
+      // Fallback: derive distinct categories from menu_items.category
+      const q = restaurantId
+        ? `SELECT DISTINCT mi.category AS name
+           FROM menu_items mi
+           JOIN menus m ON mi.menu_id = m.id
+           WHERE m.restaurant_id = ? AND mi.category IS NOT NULL
+           ORDER BY name`
+        : `SELECT DISTINCT mi.category AS name
+           FROM menu_items mi
+           WHERE mi.category IS NOT NULL
+           ORDER BY name`;
+      const res2 = await database.query(q, restaurantId ? [restaurantId] : []);
+      return res2.rows.map(r => ({ name: r.name, displayOrder: null }));
+    } catch (error) {
+      logger.error('Failed to get categories:', error);
       throw error;
     }
   }
