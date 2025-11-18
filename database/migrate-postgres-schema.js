@@ -34,14 +34,30 @@ async function applyPostgresSchemaIfMissing() {
     return { skipped: true, reason: 'missing-file' };
   }
 
-  const sql = fs.readFileSync(schemaPath, 'utf8');
-  // Split on semicolons while preserving inside values/strings can be tricky; we trust Postgres to handle full script in one exec via single query.
+  const raw = fs.readFileSync(schemaPath, 'utf8');
+  // Try enabling useful extensions but do not fail if unavailable
+  try { await db.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";'); } catch (_) {}
+  try { await db.query('CREATE EXTENSION IF NOT EXISTS pgcrypto;'); } catch (_) {}
+
+  let sql = raw;
   try {
     await db.query(sql);
     logger.info('📐 Applied PostgreSQL schema.sql (bootstrap)');
     return { success: true };
   } catch (e) {
-    logger.error('Failed to apply PostgreSQL schema.sql', { error: e.message });
+    const msg = e && e.message ? e.message : String(e);
+    // Retry by swapping uuid_generate_v4() with gen_random_uuid() if uuid-ossp missing
+    if (/uuid_generate_v4\(\)/i.test(msg)) {
+      try {
+        sql = raw.replace(/uuid_generate_v4\(\)/g, 'gen_random_uuid()');
+        await db.query(sql);
+        logger.info('📐 Applied PostgreSQL schema.sql using gen_random_uuid()');
+        return { success: true, used: 'gen_random_uuid' };
+      } catch (e2) {
+        logger.error('Failed applying schema with gen_random_uuid()', { error: e2.message });
+      }
+    }
+    logger.error('Failed to apply PostgreSQL schema.sql', { error: msg });
     return { success: false, error: e };
   }
 }
