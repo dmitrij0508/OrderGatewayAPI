@@ -16,7 +16,7 @@ class MenuService {
       }
       const menus = await Promise.all(menuResult.rows.map(async (menu) => {
         const itemsResult = await database.query(
-          'SELECT * FROM menu_items WHERE menu_id = ? AND available = 1 ORDER BY name',
+          'SELECT * FROM menu_items WHERE menu_id = ? AND available ORDER BY name',
           [menu.id]
         );
         return {
@@ -70,7 +70,7 @@ class MenuService {
           await database.run(`
             INSERT INTO menu_items (menu_id, name, price, available, created_at)
             VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
-          `, [menuId, item.name, item.price, item.available !== false ? 1 : 0]);
+          `, [menuId, item.name, item.price, item.available !== false]);
         }
       }
       logger.info(`Menu updated for restaurant ${restaurantId}`);

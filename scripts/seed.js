@@ -47,7 +47,7 @@ async function seedMenuItems(menuId) {
     return;
   }
   for (const item of items) {
-    await db.run('INSERT INTO menu_items (id, menu_id, name, price, available, created_at) VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP)', [uuidv4(), menuId, item.name, item.price]);
+    await db.run('INSERT INTO menu_items (id, menu_id, name, price, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)', [uuidv4(), menuId, item.name, item.price]);
   }
   logger.info(`Inserted ${items.length} menu items for menu ${menuId}`);
 }

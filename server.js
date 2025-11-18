@@ -14,6 +14,8 @@ const statusRoutes = require('./src/routes/status');
 const logsRoutes = require('./src/routes/logs');
 const payloadRoutes = require('./src/routes/payloads');
 
+// Auto-apply migrations on startup
+const { applyPostgresSchemaIfMissing } = require('./database/migrate-postgres-schema');
 // Auto-apply OhMyApp.io migration on startup
 const { applyOhMyAppMigration } = require('./database/migrate-ohmyapp-support');
 const { applySavedPayloadsMigration } = require('./database/migrate-saved-payloads');
@@ -196,6 +198,8 @@ process.on('SIGINT', async () => {
 // Apply database migration before starting server
 async function startServer() {
   try {
+    // Bootstrap PostgreSQL schema if missing (first deploy convenience)
+    const pgBootstrap = await applyPostgresSchemaIfMissing();
     // Apply OhMyApp.io migration
     const migrationResult = await applyOhMyAppMigration();
   // Apply Saved Payloads migration
@@ -221,6 +225,11 @@ async function startServer() {
   logger.info(`💾 Saved Payloads: ${savedPayloadsMigration.success ? 'ENABLED' : 'PARTIAL'}`);
   logger.info(`🏷️ POS Catalog: ${posCatalogMigration.success ? 'READY' : 'UNAVAILABLE'}`);
   logger.info(`📝 Original Item Description: ${originalNameMigration.success ? 'ENABLED' : 'UNAVAILABLE'}`);
+      if (pgBootstrap && pgBootstrap.success) {
+        logger.info('🧱 PostgreSQL schema bootstrap applied');
+      } else if (pgBootstrap && pgBootstrap.skipped) {
+        logger.info(`🧱 PostgreSQL schema bootstrap skipped (${pgBootstrap.reason})`);
+      }
       
       if (migrationResult.missingColumns > 0) {
         logger.warn(`⚠️ Some database columns are missing (${migrationResult.missingColumns}). OhMyApp.io features may be limited.`);

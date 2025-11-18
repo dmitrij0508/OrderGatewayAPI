@@ -1,4 +1,7 @@
-const useSQLite = process.env.USE_SQLITE !== 'false';
+const hasPgUrl = !!(process.env.DATABASE_URL || process.env.PG_CONNECTION_STRING);
+const useSQLite = process.env.USE_SQLITE
+  ? process.env.USE_SQLITE === 'true'
+  : !hasPgUrl;
 if (useSQLite) {
   module.exports = require('./database-sqlite');
 } else {

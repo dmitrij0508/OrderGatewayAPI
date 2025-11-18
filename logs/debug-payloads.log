@@ -18106,3 +18106,18 @@
 {
   "service": "pos-order-gateway-api"
 }
+[2025-11-18 16:16:45.858] ERROR: Menus table not available. Run migrations / apply schema first. Connection terminated due to connection timeout
+{
+  "service": "pos-order-gateway-api",
+  "stack": "Error: Connection terminated due to connection timeout\n    at C:\\Users\\James\\Documents\\Workspace\\NY-Deli-App\\OrderGatewayAPI\\node_modules\\pg-pool\\index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async Object.query (C:\\Users\\James\\Documents\\Workspace\\NY-Deli-App\\OrderGatewayAPI\\src\\config\\database.js:74:17)\n    at async ensureMenu (C:\\Users\\James\\Documents\\Workspace\\NY-Deli-App\\OrderGatewayAPI\\scripts\\seed.js:15:16)\n    at async run (C:\\Users\\James\\Documents\\Workspace\\NY-Deli-App\\OrderGatewayAPI\\scripts\\seed.js:142:20)",
+  "cause": {}
+}
+[2025-11-18 16:16:47.869] WARN: Failed seeding POS SKUs
+{
+  "service": "pos-order-gateway-api",
+  "error": "Connection terminated due to connection timeout"
+}
+[2025-11-18 16:16:47.870] INFO: ✅ Seeding complete
+{
+  "service": "pos-order-gateway-api"
+}
